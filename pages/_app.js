@@ -11,7 +11,10 @@ const theme = createTheme({
       'Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
   },
 });
+import ReactGA from "react-ga4";
 
+
+ReactGA.initialize("G-XNCFQVHQMX");
 function MyApp({ Component, pageProps }) {
   return (
     <>
