@@ -1,7 +1,7 @@
 import {
   Button,
   Container, Divider,
-  Grid,
+  Grid, IconButton,
   Paper,
   Slider,
   Table,
@@ -12,6 +12,7 @@ import {
   TableRow,
   Typography
 } from '@mui/material';
+import {Lock} from "@mui/icons-material";
 import {BiasParams, CarSetupParams} from "../consts/params";
 import {useState} from "react";
 
@@ -34,13 +35,13 @@ const biasToSetup = (biasParam) => {
 }
 
 
-const nearestSetup = (biasParam, pow) => {
+const nearestSetup = (biasParam, pow, lb) => {
   let nearestResult = null;
   let nearestDiff = 100;
   const _dfs = (v, arr) => {
     if (v === CarSetupParams.length) {
       let _result = setupToBias(arr);
-      let diff = _result.map((x, idx) => Math.abs(x - biasParam[idx]) ** pow).reduce((x, y) => x+y)
+      let diff = _result.map((x, idx) =>  (lb[idx] ? 10 : 1) * Math.abs(x - biasParam[idx]) ** pow).reduce((x, y) => x+y)
       if (diff < nearestDiff) {
         nearestDiff = diff;
         nearestResult = arr;
@@ -67,6 +68,7 @@ export default function Calculator() {
 
   const [carSetup, setCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
   const [biasParam, setBiasParam] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
+  const [lockedBias, setLockedBias] = useState([0, 0, 0, 0, 0]);
 
   return (
     <Container disableGutters maxWidth="xl">
@@ -115,7 +117,7 @@ export default function Calculator() {
           <Grid item>
             <Button variant="contained" onClick={
               () => {
-                const setup = nearestSetup(biasParam, 1);
+                const setup = nearestSetup(biasParam, 1, lockedBias);
                 setCarSetup(setup);
                 setBiasParam(setupToBias(setup));
               }
@@ -124,7 +126,7 @@ export default function Calculator() {
           <Grid item>
             <Button variant="contained" onClick={
               () => {
-                const setup = nearestSetup(biasParam, 2);
+                const setup = nearestSetup(biasParam, 0.5, lockedBias);
                 setCarSetup(setup);
                 setBiasParam(setupToBias(setup));
               }
@@ -182,6 +184,7 @@ export default function Calculator() {
                   <TableRow>
                     <TableCell sx={{ maxWidth: 180, fontSize: 18 }}><b>Bias</b></TableCell>
                     <TableCell sx={{ minWidth: 360 }}><b style={{float: 'left'}}>MIN</b><b style={{float: 'right'}}>MAX</b></TableCell>
+                    <TableCell>🔒</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -205,6 +208,19 @@ export default function Calculator() {
                               }}
                             />
                           </div>
+                        </TableCell>
+                        <TableCell sx={{ padding: 0 }}>
+                          <IconButton
+                            color={lockedBias[row.index] ? "error" : "primary"}
+                            component="label"
+                            onClick={
+                              () => setLockedBias(
+                                lockedBias.map((x, idx) => idx === row.index ? !x : x)
+                              )
+                            }
+                          >
+                            <Lock />
+                          </IconButton>
                         </TableCell>
                       </TableRow>
                     ))
