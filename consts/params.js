@@ -1,7 +1,8 @@
 
 export const CarSetupParams = [
   {
-    name: "Front Wing Angle",
+    // name: "Front Wing Angle",
+    name: "Front Angle",
     index: 0,
     min: 0,
     max: 10,
@@ -11,7 +12,8 @@ export const CarSetupParams = [
     render: x => x.toFixed(1),
   },
   {
-    name: "Rear Wing Angle",
+    // name: "Rear Wing Angle",
+    name: "Rear Angle",
     index: 1,
     min: 9,
     max: 16,
@@ -62,7 +64,8 @@ export const BiasParams = [
     render: x => x.toFixed(3),
   },
   {
-    name: "Breaking Stability",
+    // name: "Breaking Stability",
+    name: "Breaking",
     index: 1,
     offset: 0.45,
     effect: [-0.2, 0.2, 0.15, -0.25, 0.2],
