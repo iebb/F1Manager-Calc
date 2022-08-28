@@ -9,7 +9,7 @@ import {
   MenuItem,
   Paper,
   Select,
-  Slider,
+  Slider, Stack,
   Table,
   TableBody,
   TableCell,
@@ -148,6 +148,13 @@ export function Calculator() {
       <Container maxWidth="xl" component="main" sx={{ pt: 4, pb: 3 }}>
         <Grid container spacing={2}>
           <Grid item>
+            <Button variant="contained" color="warning" onClick={
+              () => {
+                clearFeedback()
+              }
+            }>Clear Feedback</Button>
+          </Grid>
+          <Grid item>
             <Button variant="contained" color="error" onClick={
               () => {
                 const setup = randomSetup();
@@ -199,17 +206,18 @@ export function Calculator() {
               }
             }>Find Nearest</Button>
           </Grid>
-          <Grid item>
-            <Button variant="contained" onClick={
-              () => {
-                clearFeedback()
-              }
-            }>Clear Feedback</Button>
-          </Grid>
         </Grid>
       </Container>
       <Divider variant="fullWidth" />
-      <Container  maxWidth="xl" component="main" sx={{ pt: 4, pb: 3 }}>
+      <Container  maxWidth="xl" component="main" sx={{ pt: 2, pb: 2 }}>
+        <Typography>
+          Usage: <br/>
+          1. Input Current Practice Setup on the Left, and choose corresponding feedbacks after the run. <br/>
+          2. Click &quot;FIND NEAREST&quot; to get a suggested setup, and repeat.
+        </Typography>
+      </Container>
+      <Divider variant="fullWidth" />
+      <Container  maxWidth="xl" component="main" sx={{ pt: 2, pb: 6 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} lg={6}>
             <TableContainer component={Paper}>
@@ -218,58 +226,85 @@ export function Calculator() {
                   <TableRow>
                     <TableCell sx={{ width: 160, fontSize: 18 }}><b>Setup</b></TableCell>
                     <TableCell sx={{ minWidth: 360, fontSize: 18 }}><b>Values</b></TableCell>
-                    <TableCell sx={{ fontSize: 18, textAlign: 'right' }}><b>Last Value</b></TableCell>
+                    <TableCell sx={{ fontSize: 18, textAlign: 'right' }}><b>Compare</b></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {
-                    CarSetupParams.map(row => (
-                      <TableRow key={row.name}>
-                        <TableCell sx={{ fontSize: 16 }}><b>{row.name}</b></TableCell>
-                        <TableCell>
-                          <div>
-                            <Slider
-                              marks
-                              color={
-                                (carSetup[row.index] > 1 || carSetup[row.index] < 0) ?
-                                  "error" : (isValidSetup[row.index] ? "primary" : "warning")
-                              }
-                              step={row.step / (row.max - row.min)}
-                              max={Math.max(1, carSetup[row.index])}
-                              min={Math.min(0, carSetup[row.index])}
-                              valueLabelFormat={v => row.render(v * (row.max - row.min) + row.min)}
-                              valueLabelDisplay="on"
-                              value={carSetup[row.index]}
-                              onChange={(e, value) => {
-                                const setup = carSetup.map((x, idx) => idx === row.index ? value : x);
-                                setCarSetup(setup)
-                                setBiasParam(setupToBias(setup))
-                                setIsValidSetup(
-                                  isValidSetup.map((x, idx) => idx === row.index ? (
-                                    carSetup[row.index] >= 0 && carSetup[row.index] <= 1
-                                  ) : x)
-                                )
-                              }}
-                            />
-                          </div>
-                        </TableCell>
-                        <TableCell sx={{ fontSize: 16, textAlign: 'right' }}>{
-                          row.render(lastCarSetup[row.index] * (row.max - row.min) + row.min)
-                        }</TableCell>
-                      </TableRow>
-                    ))
+                    CarSetupParams.map(row => {
+                      const carSetupDiff = carSetup[row.index] - lastCarSetup[row.index];
+                      return (
+                        <TableRow key={row.name}>
+                          <TableCell sx={{ fontSize: 16 }}><b>{row.name}</b></TableCell>
+                          <TableCell>
+                            <div>
+                              <Slider
+                                marks
+                                color={
+                                  (carSetup[row.index] > 1 || carSetup[row.index] < 0) ?
+                                    "error" : (isValidSetup[row.index] ? "primary" : "warning")
+                                }
+                                step={row.step / (row.max - row.min)}
+                                max={Math.max(1, carSetup[row.index])}
+                                min={Math.min(0, carSetup[row.index])}
+                                valueLabelFormat={v => row.render(v * (row.max - row.min) + row.min)}
+                                valueLabelDisplay="on"
+                                value={carSetup[row.index]}
+                                onChange={(e, value) => {
+                                  const setup = carSetup.map((x, idx) => idx === row.index ? value : x);
+                                  setCarSetup(setup)
+                                  setBiasParam(setupToBias(setup))
+                                  setIsValidSetup(
+                                    isValidSetup.map((x, idx) => idx === row.index ? (
+                                      carSetup[row.index] >= 0 && carSetup[row.index] <= 1
+                                    ) : x)
+                                  )
+                                }}
+                              />
+                            </div>
+                          </TableCell>
+                          <TableCell sx={{ fontSize: 16, textAlign: 'right' }}>
+                            <Typography sx={{ color: carSetupDiff > 0 ? "#ff1744" : carSetupDiff < 0 ? "#76ff03" : "white" }}>{carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {
+                              row.render(carSetup[row.index] * (row.max - row.min) + row.min)
+                            }</Typography>
+                            {
+                              carSetupDiff !== 0 && (
+                                <Typography sx={{ color: "#777" }}>Prev: {
+                                  row.render(lastCarSetup[row.index] * (row.max - row.min) + row.min)
+                                }</Typography>
+                              )
+                            }
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })
                   }
                 </TableBody>
                 <TableHead>
                   <TableRow>
-                    <TableCell colSpan={2}></TableCell>
-                    <TableCell sx={{ textAlign: 'right' }}>
-                      <Button variant="contained" color="error" onClick={
-                        () => {
-                          setCarSetup(lastCarSetup);
-                          setBiasParam(setupToBias(lastCarSetup));
-                        }
-                      }>Load</Button>
+                    <TableCell colSpan={3} sx={{ textAlign: 'right' }}>
+                      <Stack direction="row-reverse" spacing={1}>
+                        <Button variant="contained" color="error" onClick={
+                          () => {
+                            setCarSetup(lastCarSetup);
+                            setBiasParam(setupToBias(lastCarSetup));
+                          }
+                        }>Reset</Button>
+                        <Button variant="contained" onClick={
+                          () => {
+                            const setup = nearestSetup(biasParam, 2, feedback);
+                            if (setup) {
+                              setBiasParam(setupToBias(setup));
+                              setCarSetup(setup);
+                            } else {
+                              enqueueSnackbar(
+                                'Unable to find a valid setup matching all feedbacks. Try deleting some feedbacks.',
+                                { variant: "error" }
+                              );
+                            }
+                          }
+                        }>Find Nearest</Button>
+                      </Stack>
                     </TableCell>
                   </TableRow>
                 </TableHead>
