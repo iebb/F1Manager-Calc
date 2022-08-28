@@ -33,10 +33,11 @@ const feedbackColors = {
 const optimalBreakpoint = 0.006;
 const optimalBreakpoint2 = 0.008;
 const greatBreakpoint = 0.04;
-const greatBreakpoint2 = 0.05;
+const greatBreakpoint2 = 0.055;
 const goodBreakpoint = 0.1;
-const eps = 1e-6;
-const errorConst = 1000000000;
+const goodBreakpoint2 = 0.12;
+const eps = 1e-5;
+const errorConst = 1e20;
 
 
 const setupToBias = (carSetup) => {
@@ -60,37 +61,53 @@ const biasToSetup = (biasParam) => {
 const nearestSetup = (biasParam, pow, feedbacks) => {
   let nearestResult = null;
   let nearestDiff = errorConst;
+  let lowestRuleBreak = 1e20;
   let possibleSetups = 0;
   const _dfs = (v, arr) => {
     if (v === CarSetupParams.length) {
       let _result = setupToBias(arr);
-      let diff = _result.map((x, idx) =>  {
+      let ruleBreaks = 0;
+      for (let idx = 0; idx < 5; idx++) {
+        const x = _result[idx];
         for(const fs of feedbacks[idx]) {
           const dx = Math.abs(x - fs.value);
           const f = fs.feedback;
+          const scale = {bad: 1, good: 3, great: 6, optimal: 12}
           if (f !== "unknown") {
-            if (f === 'bad' && (dx < goodBreakpoint - eps)) {
-              return errorConst;
-            }
-            if (f === 'good' && ((dx > goodBreakpoint + eps) || (dx < greatBreakpoint - eps))) {
-              return errorConst;
-            }
-            if (f === 'great' && ((dx > greatBreakpoint2 + eps) || (dx < optimalBreakpoint - eps))) {
-              return errorConst;
-            }
-            if (f === 'optimal' && (dx > optimalBreakpoint2 + eps)) {
-              return errorConst;
+            if (
+              (f === 'bad' && (dx < goodBreakpoint - eps))
+              ||
+              (f === 'good' && ((dx > goodBreakpoint2 + eps) || (dx < greatBreakpoint - eps)))
+              ||
+              (f === 'great' && ((dx > greatBreakpoint2 + eps) || (dx < optimalBreakpoint - eps)))
+              ||
+              (f === 'optimal' && (dx > optimalBreakpoint2 + eps))
+            ) {
+              ruleBreaks += fs.timestamp * scale[f];
             }
           }
         }
+      }
+
+      let diff = _result.map((x, idx) =>  {
         return (Math.abs(x - biasParam[idx]) * 100) ** pow
       }).reduce((x, y) => x+y)
-      if (diff < errorConst) {
-        if (diff < nearestDiff) {
-          nearestDiff = diff;
-          nearestResult = arr;
+
+      if (ruleBreaks < lowestRuleBreak - eps) {
+        lowestRuleBreak = ruleBreaks;
+        // console.log("lowestRuleBreak", lowestRuleBreak);
+        possibleSetups = 0;
+        nearestDiff = errorConst;
+      }
+
+      if (lowestRuleBreak === ruleBreaks) {
+        if (diff < errorConst) {
+          if (diff < nearestDiff) {
+            nearestDiff = diff;
+            nearestResult = arr;
+          }
+          possibleSetups++;
         }
-        possibleSetups++;
       }
       return;
     }
@@ -101,7 +118,7 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
     }
   }
   _dfs(0, []);
-  return {setup: nearestResult, possibleSetups};
+  return {setup: nearestResult, possibleSetups, lowestRuleBreak};
 }
 
 
@@ -358,7 +375,11 @@ export function Calculator() {
                                     setLastCarSetup(carSetup)
                                     setFeedback(
                                       feedback.map((x, idx) => idx === row.index ? [
-                                        ...x.filter(x => x.value !== biasValue), {value: biasValue, feedback: e.target.value}
+                                        ...x.filter(x => x.value !== biasValue), {
+                                          value: biasValue,
+                                          timestamp: +new Date(),
+                                          feedback: e.target.value
+                                        }
                                       ]: x)
                                     )
                                   }}
