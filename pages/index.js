@@ -25,8 +25,8 @@ import {SnackbarProvider, useSnackbar} from 'notistack';
 
 const feedbackColors = {
   optimal: "info",
-  great: "primary",
-  good: "success",
+  great: "success",
+  good: "primary",
   bad: "error",
 }
 
@@ -36,6 +36,7 @@ const greatBreakpoint = 0.04;
 const greatBreakpoint2 = 0.05;
 const goodBreakpoint = 0.1;
 const eps = 1e-6;
+const errorConst = 1000000000;
 
 
 const setupToBias = (carSetup) => {
@@ -58,7 +59,8 @@ const biasToSetup = (biasParam) => {
 
 const nearestSetup = (biasParam, pow, feedbacks) => {
   let nearestResult = null;
-  let nearestDiff = 1000000000;
+  let nearestDiff = errorConst;
+  let possibleSetups = 0;
   const _dfs = (v, arr) => {
     if (v === CarSetupParams.length) {
       let _result = setupToBias(arr);
@@ -68,24 +70,27 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
           const f = fs.feedback;
           if (f !== "unknown") {
             if (f === 'bad' && (dx < goodBreakpoint - eps)) {
-              return 1000000000;
+              return errorConst;
             }
             if (f === 'good' && ((dx > goodBreakpoint + eps) || (dx < greatBreakpoint - eps))) {
-              return 1000000000;
+              return errorConst;
             }
             if (f === 'great' && ((dx > greatBreakpoint2 + eps) || (dx < optimalBreakpoint - eps))) {
-              return 1000000000;
+              return errorConst;
             }
             if (f === 'optimal' && (dx > optimalBreakpoint2 + eps)) {
-              return 1000000000;
+              return errorConst;
             }
           }
         }
         return (Math.abs(x - biasParam[idx]) * 100) ** pow
       }).reduce((x, y) => x+y)
-      if (diff < nearestDiff) {
-        nearestDiff = diff;
-        nearestResult = arr;
+      if (diff < errorConst) {
+        if (diff < nearestDiff) {
+          nearestDiff = diff;
+          nearestResult = arr;
+        }
+        possibleSetups++;
       }
       return;
     }
@@ -96,7 +101,7 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
     }
   }
   _dfs(0, []);
-  return nearestResult;
+  return {setup: nearestResult, possibleSetups};
 }
 
 
@@ -116,6 +121,7 @@ export function Calculator() {
   const [biasParam, _setBiasParam] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
   const [biasParamText, setBiasParamText] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
   const [feedback, setFeedback] = useState([[], [], [], [], []]);
+  const [possibleSetups, setPossibleSetups] = useState(952560);
 
   const setBiasParam = (e, _idx=-1) => {
     _setBiasParam(e);
@@ -135,6 +141,20 @@ export function Calculator() {
       const roundValue = e[p.index] * (p.max - p.min) / p.step;
       return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
     }));
+  }
+
+  const findNearest = () => {
+    const {setup, possibleSetups} = nearestSetup(biasParam, 2, feedback);
+    if (setup) {
+      setBiasParam(setupToBias(setup));
+      setCarSetup(setup);
+      setPossibleSetups(possibleSetups);
+    } else {
+      enqueueSnackbar(
+        'Unable to find a valid setup matching all feedbacks. Try deleting some feedbacks.',
+        { variant: "error" }
+      );
+    }
   }
 
   const clearFeedback = () => setFeedback([[], [], [], [], []]);
@@ -191,20 +211,7 @@ export function Calculator() {
             }>Max</Button>
           </Grid>
           <Grid item>
-            <Button variant="contained" onClick={
-              () => {
-                const setup = nearestSetup(biasParam, 2, feedback);
-                if (setup) {
-                  setBiasParam(setupToBias(setup));
-                  setCarSetup(setup);
-                } else {
-                  enqueueSnackbar(
-                    'Unable to find a valid setup matching all feedbacks. Try deleting some feedbacks.',
-                    { variant: "error" }
-                  );
-                }
-              }
-            }>Find Nearest</Button>
+            <Button variant="contained" onClick={findNearest}>Find Nearest</Button>
           </Grid>
         </Grid>
       </Container>
@@ -212,7 +219,7 @@ export function Calculator() {
       <Container  maxWidth="xl" component="main" sx={{ pt: 2, pb: 2 }}>
         <Typography>
           Usage: <br/>
-          1. Input Current Practice Setup on the Left, and choose corresponding feedbacks after the run. <br/>
+          1. Pick your Current Practice Setup on the Left, and choose corresponding feedbacks after the run. <br/>
           2. Click &quot;FIND NEAREST&quot; to get a suggested setup, and repeat.
         </Typography>
       </Container>
@@ -232,7 +239,10 @@ export function Calculator() {
                 <TableBody>
                   {
                     CarSetupParams.map(row => {
-                      const carSetupDiff = carSetup[row.index] - lastCarSetup[row.index];
+                      let carSetupDiff = carSetup[row.index] - lastCarSetup[row.index];
+                      if (Math.abs(carSetupDiff) < eps) {
+                        carSetupDiff = 0;
+                      }
                       return (
                         <TableRow key={row.name}>
                           <TableCell sx={{ fontSize: 16 }}><b>{row.name}</b></TableCell>
@@ -268,7 +278,7 @@ export function Calculator() {
                               row.render(carSetup[row.index] * (row.max - row.min) + row.min)
                             }</Typography>
                             {
-                              carSetupDiff !== 0 && (
+                              Math.abs(carSetupDiff) > eps && (
                                 <Typography sx={{ color: "#777" }}>Prev: {
                                   row.render(lastCarSetup[row.index] * (row.max - row.min) + row.min)
                                 }</Typography>
@@ -284,26 +294,21 @@ export function Calculator() {
                   <TableRow>
                     <TableCell colSpan={3} sx={{ textAlign: 'right' }}>
                       <Stack direction="row-reverse" spacing={1}>
+                        {
+                          /*
+
                         <Button variant="contained" color="error" onClick={
                           () => {
                             setCarSetup(lastCarSetup);
                             setBiasParam(setupToBias(lastCarSetup));
                           }
                         }>Reset</Button>
-                        <Button variant="contained" onClick={
-                          () => {
-                            const setup = nearestSetup(biasParam, 2, feedback);
-                            if (setup) {
-                              setBiasParam(setupToBias(setup));
-                              setCarSetup(setup);
-                            } else {
-                              enqueueSnackbar(
-                                'Unable to find a valid setup matching all feedbacks. Try deleting some feedbacks.',
-                                { variant: "error" }
-                              );
-                            }
-                          }
-                        }>Find Nearest</Button>
+                           */
+                        }
+                        <Button variant="contained" onClick={findNearest}>Find Nearest</Button>
+                        <div style={{ padding: 5 }}>
+                          <Typography sx={{ color: "#777" }}>{possibleSetups} Setups Possible</Typography>
+                        </div>
                       </Stack>
                     </TableCell>
                   </TableRow>
@@ -408,7 +413,7 @@ export function Calculator() {
                             <TableCell colSpan={3}>
                               <Grid container spacing={1}>
                                 {
-                                  feedbacks.map((f, _idx) => (
+                                  feedbacks.sort((x, y) => x.value - y.value).map((f, _idx) => (
                                     <Grid
                                       item
                                       key={_idx}
