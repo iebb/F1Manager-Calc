@@ -28,7 +28,7 @@ const feedbackColors = {
   optimal: "info",
   great: "primary",
   good: "success",
-  bad: "danger",
+  bad: "error",
 }
 
 
