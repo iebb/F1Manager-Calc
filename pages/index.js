@@ -31,6 +31,13 @@ const feedbackColors = {
   bad: "error",
 }
 
+const optimalBreakpoint = 0.006;
+const optimalBreakpoint2 = 0.008;
+const greatBreakpoint = 0.04;
+const greatBreakpoint2 = 0.05;
+const goodBreakpoint = 0.1;
+const eps = 1e-6;
+
 
 const setupToBias = (carSetup) => {
   return BiasParams.map(biasRow =>
@@ -61,16 +68,16 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
           const dx = Math.abs(x - fs.value);
           const f = fs.feedback;
           if (f !== "unknown") {
-            if (f === 'bad' && (dx < 0.1)) {
+            if (f === 'bad' && (dx < goodBreakpoint - eps)) {
               return 1000000000;
             }
-            if (f === 'good' && (dx > 0.1 || dx < 0.04)) {
+            if (f === 'good' && ((dx > goodBreakpoint + eps) || (dx < greatBreakpoint - eps))) {
               return 1000000000;
             }
-            if (f === 'great' && (dx > 0.04 || dx <= 0.005)) {
+            if (f === 'great' && ((dx > greatBreakpoint2 + eps) || (dx < optimalBreakpoint - eps))) {
               return 1000000000;
             }
-            if (f === 'optimal' && (dx > 0.005)) {
+            if (f === 'optimal' && (dx > optimalBreakpoint2 + eps)) {
               return 1000000000;
             }
           }
@@ -98,6 +105,7 @@ const randomSetup = () => CarSetupParams.map(params => {
   const s = (params.max - params.min) / params.step;
   return Math.floor(Math.random() * (s + 1)) / s;
 })
+
 
 export function Calculator() {
 
@@ -276,7 +284,7 @@ export function Calculator() {
                   <TableRow>
                     <TableCell sx={{ width: 120, fontSize: 18 }}><b>Feedback</b></TableCell>
                     <TableCell sx={{ minWidth: 360, fontSize: 18 }}><b>Bias Values</b></TableCell>
-                    <TableCell sx={{ width: 180 }}></TableCell>
+                    <TableCell sx={{ minWidth: 180 }}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -291,99 +299,105 @@ export function Calculator() {
                         }
                       }
                       return (
-                        <TableRow key={row.name}>
-                          <TableCell sx={{ fontSize: 16, padding: 1 }}>
-                            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-                              <InputLabel id="demo-simple-select-standard-label">{row.name}</InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                component="label"
-                                label={row.name}
-                                value={currentFeedback}
-                                disabled={!isValidSetup.every(x => x)}
-                                onChange={(e) => {
-                                  setLastCarSetup(carSetup)
-                                  setFeedback(
-                                    feedback.map((x, idx) => idx === row.index ? [
-                                      ...x.filter(x => x.value !== biasValue), {value: biasValue, feedback: e.target.value}
-                                    ]: x)
-                                  )
-                                }}
-                              >
-                                <MenuItem value='optimal'>Optimal</MenuItem>
-                                <MenuItem value='great'>Great</MenuItem>
-                                <MenuItem value='good'>Good</MenuItem>
-                                <MenuItem value='bad'>Bad</MenuItem>
-                              </Select>
-                            </FormControl>
-                          </TableCell>
-                          <TableCell sx={{ pr: 6 }}>
-                            <Slider
-                              max={1}
-                              step={0.0001}
-                              min={0}
-                              valueLabelFormat={v => v.toFixed(4)}
-                              valueLabelDisplay="on"
-                              value={biasParam[row.index]}
-                              onChange={(e, value) => {
-                                const bias = biasParam.map((x, idx) => idx === row.index ? value : x);
-                                setBiasParam(bias)
-                                setCarSetup(biasToSetup(bias))
-                              }}
-                            />
-                            <Stack direction="row" spacing={1}>
-                              {
-                                feedbacks.map((f, _idx) => (
-                                  <Chip
-                                    label={`${f.value.toFixed(4)}: ${f.feedback}`}
-                                    color={feedbackColors[f.feedback]}
-                                    key={_idx}
-                                    onClick={() => {
-                                      const bias = biasParam.map((x, idx) => idx === row.index ? f.value : x);
-                                      setBiasParam(bias)
-                                      setCarSetup(biasToSetup(bias))
-                                    }}
-                                    onDelete={() => {
-                                      setFeedback(
-                                        feedback.map((x, idx) => idx === row.index ?
-                                          x.filter(x => x.value !== biasValue) : x
-                                        )
-                                      )
-                                    }}
-                                  />
-                                ))
-                              }
-                            </Stack>
-                          </TableCell>
-                          <TableCell>
-                            <FormControl>
-                              <TextField
-                                label={row.name}
-                                type="number"
-                                value={biasParamText[row.index]}
-                                variant="standard"
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
-                                inputProps={{ inputMode: 'numeric', pattern: '[0-9.]*', step: 0.001 }}
-                                onChange={
-                                  (e) => {
-                                    const val = e.target.value;
-                                    const nVal = Number(val);
-                                    if (0 <= nVal && nVal <= 1) {
-                                      const b = biasParam.map((x, idx) => idx === row.index ? nVal : x);
-                                      setBiasParam(b)
-                                      setCarSetup(biasToSetup(b))
-                                    }
-                                    setBiasParamText(
-                                      biasParamText.map((x, idx) => idx === row.index ? val : x)
+                        <>
+                          <TableRow key={row.name}>
+                            <TableCell sx={{ fontSize: 16, padding: 1 }}>
+                              <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                                <InputLabel id="demo-simple-select-standard-label">{row.name}</InputLabel>
+                                <Select
+                                  labelId="demo-simple-select-standard-label"
+                                  component="label"
+                                  label={row.name}
+                                  value={currentFeedback}
+                                  disabled={!isValidSetup.every(x => x)}
+                                  onChange={(e) => {
+                                    setLastCarSetup(carSetup)
+                                    setFeedback(
+                                      feedback.map((x, idx) => idx === row.index ? [
+                                        ...x.filter(x => x.value !== biasValue), {value: biasValue, feedback: e.target.value}
+                                      ]: x)
                                     )
-                                  }
-                                }
+                                  }}
+                                >
+                                  <MenuItem value='optimal'>Optimal</MenuItem>
+                                  <MenuItem value='great'>Great</MenuItem>
+                                  <MenuItem value='good'>Good</MenuItem>
+                                  <MenuItem value='bad'>Bad</MenuItem>
+                                </Select>
+                              </FormControl>
+                            </TableCell>
+                            <TableCell sx={{ pr: 6 }}>
+                              <Slider
+                                max={1}
+                                step={0.0001}
+                                min={0}
+                                valueLabelFormat={v => v.toFixed(4)}
+                                valueLabelDisplay="on"
+                                value={biasParam[row.index]}
+                                onChange={(e, value) => {
+                                  const bias = biasParam.map((x, idx) => idx === row.index ? value : x);
+                                  setBiasParam(bias)
+                                  setCarSetup(biasToSetup(bias))
+                                }}
                               />
-                            </FormControl>
-                          </TableCell>
-                        </TableRow>
+                            </TableCell>
+                            <TableCell>
+                              <FormControl>
+                                <TextField
+                                  label={row.name}
+                                  type="number"
+                                  value={biasParamText[row.index]}
+                                  variant="standard"
+                                  InputLabelProps={{
+                                    shrink: true,
+                                  }}
+                                  inputProps={{ inputMode: 'numeric', pattern: '[0-9.]*', step: 0.001 }}
+                                  onChange={
+                                    (e) => {
+                                      const val = e.target.value;
+                                      const nVal = Number(val);
+                                      if (0 <= nVal && nVal <= 1) {
+                                        const b = biasParam.map((x, idx) => idx === row.index ? nVal : x);
+                                        setBiasParam(b)
+                                        setCarSetup(biasToSetup(b))
+                                      }
+                                      setBiasParamText(
+                                        biasParamText.map((x, idx) => idx === row.index ? val : x)
+                                      )
+                                    }
+                                  }
+                                />
+                              </FormControl>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow key={row.name + "_"}>
+                            <TableCell colSpan={3}>
+                              <Stack direction="row" spacing={1}>
+                                {
+                                  feedbacks.map((f, _idx) => (
+                                    <Chip
+                                      label={`${f.value.toFixed(4)}: ${f.feedback}`}
+                                      color={feedbackColors[f.feedback]}
+                                      key={_idx}
+                                      onClick={() => {
+                                        const bias = biasParam.map((x, idx) => idx === row.index ? f.value : x);
+                                        setBiasParam(bias)
+                                        setCarSetup(biasToSetup(bias))
+                                      }}
+                                      onDelete={() => {
+                                        setFeedback(
+                                          feedback.map((x, idx) => idx === row.index ?
+                                            x.filter(x => x.value !== f.value) : x
+                                          )
+                                        )
+                                      }}
+                                    />
+                                  ))
+                                }
+                              </Stack>
+                            </TableCell>
+                          </TableRow>
+                        </>
                       )
                     })
                   }
