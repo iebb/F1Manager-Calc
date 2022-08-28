@@ -1,6 +1,8 @@
 import '../styles/globals.css'
 import Head from "next/head";
+import dynamic from "next/dynamic";
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
+import ReactGA from "react-ga4";
 
 const theme = createTheme({
   palette: {
@@ -11,7 +13,6 @@ const theme = createTheme({
       'Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
   },
 });
-import ReactGA from "react-ga4";
 
 
 ReactGA.initialize("G-XNCFQVHQMX");
@@ -30,4 +31,6 @@ function MyApp({ Component, pageProps }) {
   )
 }
 
-export default MyApp
+export default dynamic(() => Promise.resolve(MyApp), {
+  ssr: false,
+});

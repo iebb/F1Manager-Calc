@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Chip,
   Container,
@@ -9,18 +10,21 @@ import {
   MenuItem,
   Paper,
   Select,
-  Slider, Stack,
+  Slider,
+  Stack,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  Tabs,
   TextField,
   Typography
 } from '@mui/material';
 import {BiasParams, CarSetupParams} from "../consts/params";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {SnackbarProvider, useSnackbar} from 'notistack';
 
 const feedbackColors = {
@@ -128,7 +132,7 @@ const randomSetup = () => CarSetupParams.map(params => {
 })
 
 
-export function Calculator() {
+export function Calculator({ target }) {
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -140,6 +144,34 @@ export function Calculator() {
   const [feedback, setFeedback] = useState([[], [], [], [], []]);
   const [possibleSetups, setPossibleSetups] = useState(952560);
 
+  useEffect(() => {
+    try {
+      const {
+        isValidSetup,
+        carSetup,
+        biasParam,
+        feedback,
+      } = JSON.parse(localStorage[target])
+      setFeedback(feedback);
+      _setBiasParam(biasParam);
+      _setCarSetup(carSetup);
+      setIsValidSetup(isValidSetup);
+    } catch {
+
+    }
+  }, [target])
+
+  const save = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(target, JSON.stringify({
+        isValidSetup,
+        carSetup,
+        biasParam,
+        feedback,
+      }));
+    }
+  }
+
   const setBiasParam = (e, _idx=-1) => {
     _setBiasParam(e);
     setBiasParamText(
@@ -147,6 +179,7 @@ export function Calculator() {
         (v, idx) => idx === _idx ? biasParamText[idx] : e[idx].toFixed(6)
       )
     );
+    setTimeout(() => save(), 500);
   }
 
   const setCarSetup = (e) => {
@@ -158,6 +191,7 @@ export function Calculator() {
       const roundValue = e[p.index] * (p.max - p.min) / p.step;
       return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
     }));
+    setTimeout(() => save(), 500);
   }
 
   const findNearest = () => {
@@ -177,17 +211,7 @@ export function Calculator() {
   const clearFeedback = () => setFeedback([[], [], [], [], []]);
 
   return (
-    <Container disableGutters maxWidth="xl">
-      <Container maxWidth="xl" component="main" sx={{ pt: {
-          xs: 2,
-          sm: 2,
-          md: 2,
-          lg: 2,
-          xl: 6,
-        }, pb: 3 }}>
-        <Typography variant="h3" component="h3">F1 Manager Setup Calculator</Typography>
-      </Container>
-      <Divider variant="fullWidth" />
+    <Container disableGutters maxWidth="xl" key={target}>
       <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 2 }}>
         <Grid container spacing={2}>
           <Grid item>
@@ -237,13 +261,6 @@ export function Calculator() {
             <Button variant="contained" onClick={findNearest}>Find Nearest</Button>
           </Grid>
         </Grid>
-      </Container>
-      <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 2 }}>
-        <Typography>
-          Usage: <br/>
-          1. Pick your Current Practice Setup on the Left, and choose corresponding feedbacks after the run. <br/>
-          2. Click &quot;FIND NEAREST&quot; to get a suggested setup, and repeat.
-        </Typography>
       </Container>
       <Divider variant="fullWidth" />
       <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 6 }}>
@@ -353,15 +370,15 @@ export function Calculator() {
                     BiasParams.map(row => {
                       const feedbacks = feedback[row.index];
                       const biasValue = biasParam[row.index];
+                      const k = row.name + ":" + target;
                       let currentFeedback = "";
                       for(const fb of feedbacks) {
                         if (fb.value === biasValue) {
                           currentFeedback = fb.feedback;
                         }
                       }
-                      return (
-                        <>
-                          <TableRow key={row.name}>
+                      return [(
+                          <TableRow key={k}>
                             <TableCell sx={{ fontSize: 16, padding: 1 }}>
                               <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
                                 <InputLabel id="demo-simple-select-standard-label">{row.name}</InputLabel>
@@ -435,7 +452,8 @@ export function Calculator() {
                               </FormControl>
                             </TableCell>
                           </TableRow>
-                          <TableRow key={row.name + "_"}>
+                        ),(
+                          <TableRow key={`${k}_2`}>
                             <TableCell colSpan={3} sx={{ padding: 0.5 }}>
                               <Grid container spacing={1}>
                                 {
@@ -466,9 +484,8 @@ export function Calculator() {
                               </Grid>
                             </TableCell>
                           </TableRow>
-                        </>
-                      )
-                    })
+                      )];
+                    }).flat()
                   }
                 </TableBody>
               </Table>
@@ -488,7 +505,9 @@ export function Calculator() {
   )
 }
 
-export default function IntegrationNotistack() {
+export default function CalculatorPage() {
+  const [tab, setTab] = useState(1);
+  const slots = [1, 2, 3, 4];
   return (
     <SnackbarProvider
       maxSnack={3}
@@ -497,7 +516,39 @@ export default function IntegrationNotistack() {
         horizontal: 'right',
       }}
     >
-      <Calculator />
+      <Container maxWidth="xl" component="main" sx={{ pt: {
+          xs: 2,
+          sm: 2,
+          md: 2,
+          lg: 2,
+          xl: 6,
+        }, pb: 3 }}>
+        <Typography variant="h3" component="h3">F1 Manager Setup Calculator</Typography>
+        <Typography sx={{ mt: 2 }}>
+          Usage: <br/>
+          1. Pick your Current Practice Setup on the Left, and choose corresponding feedbacks after the run. <br/>
+          2. Click &quot;FIND NEAREST&quot; to get a suggested setup, and repeat.
+        </Typography>
+        <Divider variant="fullWidth" sx={{ mt: 2 }} />
+      </Container>
+      <Container maxWidth="xl" component="main">
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={tab} onChange={(_, f) => setTab(f)}>
+            {
+              slots.map(
+                s => <Tab label={`Car #${s}`} value={s} key={s}/>
+              )
+            }
+          </Tabs>
+        </Box>
+        {
+          slots.map(
+            s => <div style={tab !== s ? {display: 'none'} : null} key={s}>
+              <Calculator target={`car_${s}`} key={s}/>
+            </div>
+          )
+        }
+      </Container>
     </SnackbarProvider>
   );
 }
