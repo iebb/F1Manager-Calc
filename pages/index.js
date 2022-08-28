@@ -323,7 +323,7 @@ export function Calculator() {
                   <TableRow>
                     <TableCell sx={{ width: 120, fontSize: 18 }}><b>Feedback</b></TableCell>
                     <TableCell sx={{ minWidth: 360, fontSize: 18 }}><b>Bias Values</b></TableCell>
-                    <TableCell sx={{ minWidth: 180 }}></TableCell>
+                    <TableCell sx={{ width: 150 }}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -368,9 +368,9 @@ export function Calculator() {
                             <TableCell sx={{ pt: 4 }}>
                               <Slider
                                 max={1}
-                                step={0.00001}
+                                step={0.000001}
                                 min={0}
-                                valueLabelFormat={v => v.toFixed(5)}
+                                valueLabelFormat={v => v.toFixed(6)}
                                 valueLabelDisplay="on"
                                 value={biasParam[row.index]}
                                 onChange={(e, value) => {
