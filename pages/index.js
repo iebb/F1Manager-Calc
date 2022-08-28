@@ -1,5 +1,6 @@
 import {
-  Button, Chip,
+  Button,
+  Chip,
   Container,
   Divider,
   FormControl,
@@ -8,17 +9,20 @@ import {
   MenuItem,
   Paper,
   Select,
-  Slider, Stack,
+  Slider,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow, TextField,
+  TableRow,
+  TextField,
   Typography
 } from '@mui/material';
 import {BiasParams, CarSetupParams} from "../consts/params";
 import {useState} from "react";
+import {SnackbarProvider, useSnackbar} from 'notistack';
 
 const feedbackColors = {
   optimal: "info",
@@ -26,6 +30,7 @@ const feedbackColors = {
   good: "success",
   bad: "danger",
 }
+
 
 const setupToBias = (carSetup) => {
   return BiasParams.map(biasRow =>
@@ -94,7 +99,9 @@ const randomSetup = () => CarSetupParams.map(params => {
   return Math.floor(Math.random() * (s + 1)) / s;
 })
 
-export default function Calculator() {
+export function Calculator() {
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const [isValidSetup, setIsValidSetup] = useState([true, true, true, true, true]);
   const [lastCarSetup, setLastCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
@@ -176,6 +183,11 @@ export default function Calculator() {
                 if (setup) {
                   setBiasParam(setupToBias(setup));
                   setCarSetup(setup);
+                } else {
+                  enqueueSnackbar(
+                    'Unable to find a valid setup matching all feedbacks. Try deleting some feedbacks.',
+                    { variant: "error" }
+                  );
                 }
               }
             }>Find Nearest</Button>
@@ -243,7 +255,7 @@ export default function Calculator() {
                 </TableBody>
                 <TableHead>
                   <TableRow>
-                    <TableCell colspan={2}><b>Last Value</b></TableCell>
+                    <TableCell colSpan={2}></TableCell>
                     <TableCell sx={{ textAlign: 'right' }}>
                       <Button variant="contained" color="error" onClick={
                         () => {
@@ -391,4 +403,18 @@ export default function Calculator() {
       </Container>
     </Container>
   )
+}
+
+export default function IntegrationNotistack() {
+  return (
+    <SnackbarProvider
+      maxSnack={3}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+    >
+      <Calculator />
+    </SnackbarProvider>
+  );
 }
