@@ -160,7 +160,7 @@ export function Calculator() {
   const clearFeedback = () => setFeedback([[], [], [], [], []]);
 
   return (
-    <Container disableGutters maxWidth={false}>
+    <Container disableGutters maxWidth="xl">
       <Container maxWidth="xl" component="main" sx={{ pt: {
           xs: 2,
           sm: 2,
@@ -229,7 +229,7 @@ export function Calculator() {
         </Typography>
       </Container>
       <Divider variant="fullWidth" />
-      <Container maxWidth={false} component="main" sx={{ pt: 2, pb: 6 }}>
+      <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 6 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} lg={6}>
             <TableContainer component={Paper}>
@@ -415,7 +415,7 @@ export function Calculator() {
                             </TableCell>
                           </TableRow>
                           <TableRow key={row.name + "_"}>
-                            <TableCell colSpan={3}>
+                            <TableCell colSpan={3} sx={{ padding: 0.5 }}>
                               <Grid container spacing={1}>
                                 {
                                   feedbacks.sort((x, y) => x.value - y.value).map((f, _idx) => (
