@@ -10,7 +10,6 @@ import {
   Paper,
   Select,
   Slider,
-  Stack,
   Table,
   TableBody,
   TableCell,
@@ -326,12 +325,12 @@ export function Calculator() {
                                 </Select>
                               </FormControl>
                             </TableCell>
-                            <TableCell sx={{ pr: 6 }}>
+                            <TableCell sx={{ pt: 4 }}>
                               <Slider
                                 max={1}
-                                step={0.0001}
+                                step={0.00001}
                                 min={0}
-                                valueLabelFormat={v => v.toFixed(4)}
+                                valueLabelFormat={v => v.toFixed(5)}
                                 valueLabelDisplay="on"
                                 value={biasParam[row.index]}
                                 onChange={(e, value) => {
@@ -372,29 +371,33 @@ export function Calculator() {
                           </TableRow>
                           <TableRow key={row.name + "_"}>
                             <TableCell colSpan={3}>
-                              <Stack direction="row" spacing={1}>
+                              <Grid container spacing={1}>
                                 {
                                   feedbacks.map((f, _idx) => (
-                                    <Chip
-                                      label={`${f.value.toFixed(4)}: ${f.feedback}`}
-                                      color={feedbackColors[f.feedback]}
+                                    <Grid
+                                      item
                                       key={_idx}
-                                      onClick={() => {
-                                        const bias = biasParam.map((x, idx) => idx === row.index ? f.value : x);
-                                        setBiasParam(bias)
-                                        setCarSetup(biasToSetup(bias))
-                                      }}
-                                      onDelete={() => {
-                                        setFeedback(
-                                          feedback.map((x, idx) => idx === row.index ?
-                                            x.filter(x => x.value !== f.value) : x
+                                    >
+                                      <Chip
+                                        label={`${f.value.toFixed(4)}: ${f.feedback}`}
+                                        color={feedbackColors[f.feedback]}
+                                        onClick={() => {
+                                          const bias = biasParam.map((x, idx) => idx === row.index ? f.value : x);
+                                          setBiasParam(bias)
+                                          setCarSetup(biasToSetup(bias))
+                                        }}
+                                        onDelete={() => {
+                                          setFeedback(
+                                            feedback.map((x, idx) => idx === row.index ?
+                                              x.filter(x => x.value !== f.value) : x
+                                            )
                                           )
-                                        )
-                                      }}
-                                    />
+                                        }}
+                                      />
+                                    </Grid>
                                   ))
                                 }
-                              </Stack>
+                              </Grid>
                             </TableCell>
                           </TableRow>
                         </>
