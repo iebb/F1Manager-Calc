@@ -160,12 +160,18 @@ export function Calculator() {
   const clearFeedback = () => setFeedback([[], [], [], [], []]);
 
   return (
-    <Container disableGutters maxWidth="xl">
-      <Container maxWidth="xl" component="main" sx={{ pt: 12, pb: 4 }}>
-        <Typography variant="h2" component="h2">F1 Manager Setup Calculator</Typography>
+    <Container disableGutters maxWidth={false}>
+      <Container maxWidth="xl" component="main" sx={{ pt: {
+          xs: 2,
+          sm: 2,
+          md: 2,
+          lg: 2,
+          xl: 6,
+        }, pb: 3 }}>
+        <Typography variant="h3" component="h3">F1 Manager Setup Calculator</Typography>
       </Container>
       <Divider variant="fullWidth" />
-      <Container maxWidth="xl" component="main" sx={{ pt: 4, pb: 3 }}>
+      <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 2 }}>
         <Grid container spacing={2}>
           <Grid item>
             <Button variant="contained" color="warning" onClick={
@@ -215,8 +221,7 @@ export function Calculator() {
           </Grid>
         </Grid>
       </Container>
-      <Divider variant="fullWidth" />
-      <Container  maxWidth="xl" component="main" sx={{ pt: 2, pb: 2 }}>
+      <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 2 }}>
         <Typography>
           Usage: <br/>
           1. Pick your Current Practice Setup on the Left, and choose corresponding feedbacks after the run. <br/>
@@ -224,7 +229,7 @@ export function Calculator() {
         </Typography>
       </Container>
       <Divider variant="fullWidth" />
-      <Container  maxWidth="xl" component="main" sx={{ pt: 2, pb: 6 }}>
+      <Container maxWidth={false} component="main" sx={{ pt: 2, pb: 6 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} lg={6}>
             <TableContainer component={Paper}>
@@ -322,8 +327,8 @@ export function Calculator() {
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ width: 120, fontSize: 18 }}><b>Feedback</b></TableCell>
-                    <TableCell sx={{ minWidth: 360, fontSize: 18 }}><b>Bias Values</b></TableCell>
-                    <TableCell sx={{ width: 150 }}></TableCell>
+                    <TableCell sx={{ minWidth: 360, fontSize: 18 }}><b>Bias</b></TableCell>
+                    <TableCell sx={{ minWidth: 150, width: 150, fontSize: 18 }}>Value</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -365,7 +370,7 @@ export function Calculator() {
                                 </Select>
                               </FormControl>
                             </TableCell>
-                            <TableCell sx={{ pt: 4 }}>
+                            <TableCell sx={{ pt: 1, pb: 0 }}>
                               <Slider
                                 max={1}
                                 step={0.000001}
@@ -380,7 +385,7 @@ export function Calculator() {
                                 }}
                               />
                             </TableCell>
-                            <TableCell>
+                            <TableCell sx={{ padding: 1 }}>
                               <FormControl>
                                 <TextField
                                   label={row.name}
