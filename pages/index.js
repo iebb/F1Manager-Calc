@@ -538,12 +538,11 @@ export default function CalculatorPage() {
         }
       </Container>
       <Divider variant="fullWidth" />
-      <Container  maxWidth="xl" component="main" sx={{ pt: 4, pb: 3 }}>
-        <Typography sx={{ mt: 2 }}>
-          1. Pick your Current Practice Setup on the Left, and choose corresponding feedbacks after the run. <br/>
-          2. Click &quot;FIND NEAREST&quot; to get a suggested setup, and repeat.
+      <Container  maxWidth="xl" component="main" sx={{ pt: 2, pb: 3 }}>
+        <Typography sx={{ mt: 1 }}>
+          How to use / How it works / Give award: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
         </Typography>
-        <Divider variant="fullWidth" sx={{ mt: 4, mb: 4 }}/>
+        <Divider variant="fullWidth" sx={{ mt: 2, mb: 2 }}/>
         <Typography>
           Another ieb Project &middot; {' '}
           GitHub: <a href="https://github.com/iebb/F1Manager-Calc">iebb/F1Manager-Calc</a> &middot; {' '}
