@@ -37,9 +37,9 @@ const feedbackColors = {
 const optimalBreakpoint = 0.006;
 const optimalBreakpoint2 = 0.008;
 const greatBreakpoint = 0.04;
-const greatBreakpoint2 = 0.05;
+const greatBreakpoint2 = 0.044;
 const goodBreakpoint = 0.1;
-const goodBreakpoint2 = 0.11;
+const goodBreakpoint2 = 0.1;
 const eps = 1e-5;
 const errorConst = 1e20;
 
@@ -196,11 +196,19 @@ export function Calculator({ target }) {
   }
 
   const findNearest = () => {
-    const {setup, possibleSetups} = nearestSetup(biasParam, 2, feedback);
+    const {setup, possibleSetups, lowestRuleBreak} = nearestSetup(biasParam, 2, feedback);
     if (setup) {
+      if (lowestRuleBreak > 0) {
+        enqueueSnackbar(
+          'Unable to find a valid setup matching all feedbacks. This is the closest we could get.',
+          { variant: "warning" }
+        );
+        setPossibleSetups(0);
+      } else {
+        setPossibleSetups(possibleSetups);
+      }
       setBiasParam(setupToBias(setup));
       setCarSetup(setup);
-      setPossibleSetups(possibleSetups);
     } else {
       enqueueSnackbar(
         'Unable to find a valid setup matching all feedbacks. Try deleting some feedbacks.',
