@@ -37,9 +37,9 @@ const feedbackColors = {
 const optimalBreakpoint = 0.006;
 const optimalBreakpoint2 = 0.008;
 const greatBreakpoint = 0.04;
-const greatBreakpoint2 = 0.055;
+const greatBreakpoint2 = 0.05;
 const goodBreakpoint = 0.1;
-const goodBreakpoint2 = 0.12;
+const goodBreakpoint2 = 0.11;
 const eps = 1e-5;
 const errorConst = 1e20;
 
@@ -286,7 +286,6 @@ export function Calculator({ target }) {
                         <TableRow key={row.name}>
                           <TableCell sx={{ fontSize: 16 }}><b>{row.name}</b></TableCell>
                           <TableCell>
-                            <div>
                               <Slider
                                 marks
                                 color={
@@ -310,7 +309,6 @@ export function Calculator({ target }) {
                                   )
                                 }}
                               />
-                            </div>
                           </TableCell>
                           <TableCell sx={{ fontSize: 16, textAlign: 'right' }}>
                             <Typography sx={{ color: carSetupDiff > 0 ? "#ff1744" : carSetupDiff < 0 ? "#76ff03" : "white" }}>{carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {
@@ -379,7 +377,7 @@ export function Calculator({ target }) {
                       }
                       return [(
                           <TableRow key={k}>
-                            <TableCell sx={{ fontSize: 16, padding: 1 }}>
+                            <TableCell sx={{ pt: 0, pb: 0, pl: 1, pr: 1, borderBottom: '1px dashed rgba(81, 81, 81, .6)' }}>
                               <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
                                 <InputLabel id="demo-simple-select-standard-label">{row.name}</InputLabel>
                                 <Select
@@ -408,7 +406,7 @@ export function Calculator({ target }) {
                                 </Select>
                               </FormControl>
                             </TableCell>
-                            <TableCell sx={{ pt: 1, pb: 0 }}>
+                            <TableCell sx={{ pt: 3, pb: 0, pl: 1, pr: 1, borderBottom: '1px dashed rgba(81, 81, 81, .6)' }}>
                               <Slider
                                 max={1}
                                 step={0.000001}
@@ -423,7 +421,7 @@ export function Calculator({ target }) {
                                 }}
                               />
                             </TableCell>
-                            <TableCell sx={{ padding: 1 }}>
+                            <TableCell sx={{ pt: 0, pb: 0, pl: 1, pr: 1, borderBottom: '1px dashed rgba(81, 81, 81, .6)' }}>
                               <FormControl>
                                 <TextField
                                   label={row.name}
@@ -457,7 +455,9 @@ export function Calculator({ target }) {
                             <TableCell colSpan={3} sx={{ padding: 0.5 }}>
                               <Grid container spacing={1}>
                                 {
-                                  feedbacks.sort((x, y) => x.value - y.value).map((f, _idx) => (
+                                  feedbacks.sort(
+                                    (x, y) => x.value - y.value
+                                  ).map((f, _idx) => (
                                     <Grid
                                       item
                                       key={_idx}
@@ -493,14 +493,6 @@ export function Calculator({ target }) {
           </Grid>
         </Grid>
       </Container>
-      <Divider variant="fullWidth" />
-      <Container  maxWidth="xl" component="main" sx={{ pt: 4, pb: 3 }}>
-        <Typography>
-          Another ieb Project &middot; {' '}
-          GitHub: <a href="https://github.com/iebb/F1Manager-Calc">iebb/F1Manager-Calc</a> &middot; {' '}
-          Contact: <a href="https://twitter.com/CyberHono">@CyberHono</a>
-        </Typography>
-      </Container>
     </Container>
   )
 }
@@ -524,11 +516,6 @@ export default function CalculatorPage() {
           xl: 6,
         }, pb: 3 }}>
         <Typography variant="h3" component="h3">F1 Manager Setup Calculator</Typography>
-        <Typography sx={{ mt: 2 }}>
-          Usage: <br/>
-          1. Pick your Current Practice Setup on the Left, and choose corresponding feedbacks after the run. <br/>
-          2. Click &quot;FIND NEAREST&quot; to get a suggested setup, and repeat.
-        </Typography>
         <Divider variant="fullWidth" sx={{ mt: 2 }} />
       </Container>
       <Container maxWidth="xl" component="main">
@@ -548,6 +535,19 @@ export default function CalculatorPage() {
             </div>
           )
         }
+      </Container>
+      <Divider variant="fullWidth" />
+      <Container  maxWidth="xl" component="main" sx={{ pt: 4, pb: 3 }}>
+        <Typography sx={{ mt: 2 }}>
+          1. Pick your Current Practice Setup on the Left, and choose corresponding feedbacks after the run. <br/>
+          2. Click &quot;FIND NEAREST&quot; to get a suggested setup, and repeat.
+        </Typography>
+        <Divider variant="fullWidth" sx={{ mt: 4, mb: 4 }}/>
+        <Typography>
+          Another ieb Project &middot; {' '}
+          GitHub: <a href="https://github.com/iebb/F1Manager-Calc">iebb/F1Manager-Calc</a> &middot; {' '}
+          Contact: <a href="https://twitter.com/CyberHono">@CyberHono</a>
+        </Typography>
       </Container>
     </SnackbarProvider>
   );
