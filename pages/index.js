@@ -29,9 +29,11 @@ import {SnackbarProvider, useSnackbar} from 'notistack';
 
 const feedbackColors = {
   optimal: "info",
-  great: "success",
-  good: "primary",
+  great: "primary",
+  good: "white",
   bad: "error",
+  "bad+": "error",
+  "bad-": "error",
 }
 
 const optimalBreakpoint = 0.006;
@@ -80,6 +82,10 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
           if (f !== "unknown") {
             if (
               (f === 'bad' && (dx < goodBreakpoint - eps))
+              ||
+              (f === 'bad+' && (fs.value < x + goodBreakpoint - eps))
+              ||
+              (f === 'bad-' && (fs.value > x - goodBreakpoint + eps))
               ||
               (f === 'good' && ((dx > goodBreakpoint2 + eps) || (dx < greatBreakpoint - eps)))
               ||
@@ -412,6 +418,8 @@ export function Calculator({ target }) {
                                   <MenuItem value='great'>Great</MenuItem>
                                   <MenuItem value='good'>Good</MenuItem>
                                   <MenuItem value='bad'>Bad</MenuItem>
+                                  <MenuItem value='bad+'>Bad (Too High)</MenuItem>
+                                  <MenuItem value='bad-'>Bad (Too Low)</MenuItem>
                                 </Select>
                               </FormControl>
                             </TableCell>

@@ -7,6 +7,10 @@ import ReactGA from "react-ga4";
 const theme = createTheme({
   palette: {
     mode: 'dark',
+    white: {
+      main: '#eee',
+      contrastText: '#000',
+    },
   },
   typography: {
     fontFamily: '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", ' +
