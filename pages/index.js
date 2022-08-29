@@ -361,7 +361,7 @@ export function Calculator({ target }) {
                   <TableRow>
                     <TableCell sx={{ width: 120, fontSize: 18 }}><b>Feedback</b></TableCell>
                     <TableCell sx={{ minWidth: 360, fontSize: 18 }}><b>Bias</b></TableCell>
-                    <TableCell sx={{ minWidth: 150, width: 150, fontSize: 18 }}>Value</TableCell>
+                    <TableCell sx={{ minWidth: 120, width: 120, fontSize: 18 }}>Value</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
