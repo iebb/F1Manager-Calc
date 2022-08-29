@@ -65,7 +65,7 @@ const biasToSetup = (biasParam) => {
 const nearestSetup = (biasParam, pow, feedbacks) => {
   let nearestResult = null;
   let nearestDiff = errorConst;
-  let lowestRuleBreak = 1e20;
+  let lowestRuleBreak = 15;
   let possibleSetups = 0;
   const _dfs = (v, arr) => {
     if (v === CarSetupParams.length) {
@@ -87,7 +87,7 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
               ||
               (f === 'optimal' && (dx > optimalBreakpoint2 + eps))
             ) {
-              ruleBreaks += fs.timestamp * scale[f];
+              ruleBreaks += scale[f];
             }
           }
         }
@@ -102,6 +102,7 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
         // console.log("lowestRuleBreak", lowestRuleBreak);
         possibleSetups = 0;
         nearestDiff = errorConst;
+        nearestResult = null;
       }
 
       if (lowestRuleBreak === ruleBreaks) {
