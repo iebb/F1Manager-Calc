@@ -82,11 +82,12 @@ const biasToSetup = (biasParam) => {
 }
 
 
-const nearestSetup = (biasParam, pow, feedbacks) => {
+const nearestSetup = (biasParam, feedbacks) => {
   let nearestResult = null;
   let nearestDiff = errorConst;
   let lowestRuleBreak = 15;
   let possibleSetups = 0;
+  let possibleSetupList = [];
   const _dfs = (v, arr) => {
     if (v === CarSetupParams.length) {
       let _result = setupToBias(arr);
@@ -118,7 +119,7 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
       }
 
       let diff = _result.map((x, idx) =>  {
-        return (Math.abs(x - biasParam[idx]) * 100) ** pow
+        return (Math.min(Math.abs(x - biasParam[idx]), 0.2) * 100)
       }).reduce((x, y) => x+y)
 
       if (ruleBreaks < lowestRuleBreak - eps) {
@@ -127,6 +128,7 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
         possibleSetups = 0;
         nearestDiff = errorConst;
         nearestResult = null;
+        possibleSetupList = [];
       }
 
       if (lowestRuleBreak === ruleBreaks) {
@@ -136,8 +138,15 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
             nearestResult = arr;
           }
           possibleSetups++;
+
+          if (possibleSetupList.length < 10 || diff < possibleSetupList[9].diff) {
+            possibleSetupList.push({arr, diff});
+            possibleSetupList = possibleSetupList.sort((x, y) => x.diff - y.diff).slice(0, 10)
+          }
+
         }
       }
+
       return;
     }
     const params = CarSetupParams[v];
@@ -147,7 +156,10 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
     }
   }
   _dfs(0, []);
-  return {setup: nearestResult, possibleSetups, lowestRuleBreak};
+
+  possibleSetupList = possibleSetupList.sort((x, y) => x.diff - y.diff).slice(0, 10)
+  console.log(possibleSetupList);
+  return {setup: nearestResult, possibleSetups, lowestRuleBreak, possibleSetupList};
 }
 
 
@@ -164,6 +176,7 @@ export function Calculator({ target, preset }) {
   const [isValidSetup, setIsValidSetup] = useState([true, true, true, true, true]);
   const [lastCarSetup, setLastCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
   const [carSetup, _setCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
+  const [carSetupList, setCarSetupList] = useState([]);
   const [biasParam, _setBiasParam] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
   const [biasParamText, setBiasParamText] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
   const [feedback, setFeedback] = useState([[], [], [], [], []]);
@@ -240,7 +253,7 @@ export function Calculator({ target, preset }) {
   }
 
   const findNearest = () => {
-    const {setup, possibleSetups, lowestRuleBreak} = nearestSetup(biasParam, 2, feedback);
+    const {setup, possibleSetups, lowestRuleBreak, possibleSetupList} = nearestSetup(biasParam, feedback);
     if (setup) {
       if (lowestRuleBreak > 0) {
         enqueueSnackbar(
@@ -253,6 +266,7 @@ export function Calculator({ target, preset }) {
       }
       setBiasParam(setupToBias(setup));
       setCarSetup(setup);
+      setCarSetupList(possibleSetupList);
     } else {
       enqueueSnackbar(
         'Unable to find a valid setup matching all feedbacks. Try deleting some feedbacks.',
@@ -339,7 +353,7 @@ export function Calculator({ target, preset }) {
   const loadPreset = () => {
     if (preset[track]) {
       const {setup} = nearestSetup(
-        preset[track], 2, [[], [], [], [], []]
+        preset[track], [[], [], [], [], []]
       );
       setCarSetup(setup);
       setBiasParam(setupToBias(setup));
@@ -397,7 +411,7 @@ export function Calculator({ target, preset }) {
                             label="Track"
                           >
                             {tracks.map(t => <MenuItem key={t.id} value={t.id}>
-                              <Image src={require(`../assets/flags/${t.code}.svg`)} width={24} height={16}/>
+                              <Image src={require(`../assets/flags/${t.code}.svg`)} width={24} height={16} alt={t.country} />
                               <span style={{ marginLeft: 10 }}> {t.name}, {t.country}</span>
                             </MenuItem>)}
                           </Select>
@@ -477,52 +491,56 @@ export function Calculator({ target, preset }) {
                 <TableHead>
                   <TableRow>
                     <TableCell colSpan={3} sx={{ textAlign: 'right' }}>
-                      <Grid direction="row-reverse" container spacing={1}>
-                        <Grid item>
-                          <Button variant="contained" onClick={findNearest}>Find Nearest</Button>
-                        </Grid>
-                        <Grid item>
-                          <Button variant="contained" color="secondary" onClick={
-                            () => {
-                              const setup = [1, 1, 1, 1, 1];
-                              setBiasParam(setupToBias(setup));
-                              setCarSetup(setup);
-                            }
-                          }>Max</Button>
-                        </Grid>
-                        <Grid item>
-                          <Button variant="contained" color="secondary" onClick={
-                            () => {
-                              const setup = [0.5, 0.5, 0.5, 0.5, 0.5];
-                              setBiasParam(setupToBias(setup));
-                              setCarSetup(setup);
-                            }
-                          }>Mid</Button>
-                        </Grid>
-                        <Grid item>
-                          <Button variant="contained" color="secondary" onClick={
-                            () => {
-                              const setup = [0, 0, 0, 0, 0];
-                              setBiasParam(setupToBias(setup));
-                              setCarSetup(setup);
-                            }
-                          }>Min</Button>
-                        </Grid>
-                        <Grid item>
-                          <Button variant="contained" color="error" onClick={
-                            () => {
-                              const setup = randomSetup();
-                              setCarSetup(setup);
-                              setBiasParam(setupToBias(setup));
-                            }
-                          }>Random</Button>
-                        </Grid>
-                        <Grid item>
-                          <div style={{ padding: 5 }}>
-                            <Typography sx={{ color: "#777" }}>{possibleSetups} Setups Possible</Typography>
-                          </div>
-                        </Grid>
-                      </Grid>
+                      <Stack direction="row-reverse" spacing={1}>
+                        <Button variant="contained" onClick={findNearest}>Find Setup</Button>
+                        <Button variant="contained" color="secondary" onClick={
+                          () => {
+                            const setup = [1, 1, 1, 1, 1];
+                            setBiasParam(setupToBias(setup));
+                            setCarSetup(setup);
+                          }
+                        }>Max</Button>
+                        <Button variant="contained" color="secondary" onClick={
+                          () => {
+                            const setup = [0.5, 0.5, 0.5, 0.5, 0.5];
+                            setBiasParam(setupToBias(setup));
+                            setCarSetup(setup);
+                          }
+                        }>Mid</Button>
+                        <Button variant="contained" color="secondary" onClick={
+                          () => {
+                            const setup = [0, 0, 0, 0, 0];
+                            setBiasParam(setupToBias(setup));
+                            setCarSetup(setup);
+                          }
+                        }>Min</Button>
+                        <Button variant="contained" color="error" onClick={
+                          () => {
+                            const setup = randomSetup();
+                            setCarSetup(setup);
+                            setBiasParam(setupToBias(setup));
+                          }
+                        }>Random</Button>
+                        <div style={{ padding: 5 }}>
+                          <Typography sx={{ color: "#777" }}>{possibleSetups} Setups Possible</Typography>
+                        </div>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={3} sx={{ textAlign: 'right' }}>
+                      <Stack direction="row-reverse" spacing={1}>
+                        {
+                          carSetupList.map(({arr, diff}, _idx) => (
+                            <Button sx={{ minWidth: 48, p: 1 }} key={_idx} variant="contained" color="primary" onClick={
+                              () => {
+                                setBiasParam(setupToBias(arr));
+                                setCarSetup(arr);
+                              }
+                            }>#{_idx + 1}<br/>{(diff).toFixed(0)}%</Button>
+                          ))
+                        }
+                      </Stack>
                     </TableCell>
                   </TableRow>
                 </TableHead>
