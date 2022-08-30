@@ -407,7 +407,7 @@ export function Calculator({ target }) {
                         <Grid item>
                           <Button variant="contained" color="secondary" onClick={
                             () => {
-                              clearFeedbacks()
+                              loadPreset()
                             }
                           }>Load Preset</Button>
                         </Grid>
