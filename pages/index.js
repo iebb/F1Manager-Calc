@@ -2,7 +2,12 @@ import {
   Box,
   Button,
   Chip,
-  Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   FormControl,
   Grid,
@@ -27,6 +32,7 @@ import {BiasParams, CarSetupParams} from "../consts/params";
 import {useEffect, useState} from "react";
 import {SnackbarProvider, useSnackbar} from 'notistack';
 import {trackMap, tracks} from "../consts/tracks";
+import {Delete, OpenInNew} from "@mui/icons-material";
 
 const feedbackColors = {
   optimal: "info",
@@ -116,7 +122,7 @@ const nearestSetup = (biasParam, pow, feedbacks) => {
 
       if (ruleBreaks < lowestRuleBreak - eps) {
         lowestRuleBreak = ruleBreaks;
-        console.log("lowestRuleBreak", lowestRuleBreak);
+        // console.log("lowestRuleBreak", lowestRuleBreak);
         possibleSetups = 0;
         nearestDiff = errorConst;
         nearestResult = null;
@@ -165,6 +171,18 @@ export function Calculator({ target }) {
   const [track, setTrack] = useState("XX");
   const [loaded, setLoaded] = useState(false);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
+
+  const getIdentifier = () => {
+    if (typeof window !== "undefined") {
+      if (!localStorage["identifier"] || localStorage["identifier"].length !== 8) {
+        localStorage["identifier"] = Array.from(Array(8)).map(
+          () => String.fromCharCode(Math.floor(Math.random() * 26) + 65)
+        ).join("");
+      }
+      return localStorage["identifier"] + "-" + target.toUpperCase()
+    }
+    return "UNKNOWN"
+  }
 
   useEffect(() => {
     try {
@@ -254,7 +272,65 @@ export function Calculator({ target }) {
     // setPreviousRuns([]);
   }
 
-  console.log("track", track);
+  const createFeedback = (row, biasValue, v) => {
+    const matchedRuns = previousRuns.filter(x => (
+      x.track === track &&
+      arrayFloatEqual(x.carSetup, carSetup)
+    ))
+
+    if (matchedRuns.length) {
+      setPreviousRuns(
+        previousRuns.map(x => x.id === matchedRuns[0].id ? {
+          ...x,
+          ["feedback_" + row.index]: {
+            value: biasValue,
+            timestamp: +new Date(),
+            feedback: v
+          },
+        } : x)
+      )
+    } else {
+      setPreviousRuns([
+        {
+          track,
+          carSetup: JSON.parse(JSON.stringify(carSetup)),
+          ["feedback_" + row.index]: {
+            value: biasValue,
+            timestamp: +new Date(),
+            feedback: v
+          },
+          id: +new Date(),
+        }, ...previousRuns
+      ])
+    }
+    setLastCarSetup(carSetup)
+    setFeedback(
+      feedback.map((x, idx) => idx === row.index ? [
+        ...x.filter(x => x.value !== biasValue), {
+          value: biasValue,
+          timestamp: +new Date(),
+          feedback: v
+        }
+      ]: x)
+    )
+
+    if (v === "optimal") {
+      fetch(`https://f1setup.deta.dev/report`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          uid: getIdentifier(),
+          track,
+          value: biasValue,
+          feedback: v,
+          index: row.index,
+        })
+      });
+    }
+  }
 
   return (
     <Container disableGutters maxWidth="xl" key={target}>
@@ -487,47 +563,7 @@ export function Calculator({ target }) {
                                 value={currentFeedback}
                                 disabled={!isValidSetup.every(x => x)}
                                 onChange={(e) => {
-
-                                  const matchedRuns = previousRuns.filter(x => (
-                                    x.track === track &&
-                                    arrayFloatEqual(x.carSetup, carSetup)
-                                  ))
-
-                                  if (matchedRuns.length) {
-                                    setPreviousRuns(
-                                      previousRuns.map(x => x.id === matchedRuns[0].id ? {
-                                        ...x,
-                                        ["feedback_" + row.index]: {
-                                          value: biasValue,
-                                          timestamp: +new Date(),
-                                          feedback: e.target.value
-                                        },
-                                      } : x)
-                                    )
-                                  } else {
-                                    setPreviousRuns([
-                                      {
-                                        track,
-                                        carSetup: JSON.parse(JSON.stringify(carSetup)),
-                                        ["feedback_" + row.index]: {
-                                          value: biasValue,
-                                          timestamp: +new Date(),
-                                          feedback: e.target.value
-                                        },
-                                        id: +new Date(),
-                                      }, ...previousRuns
-                                    ])
-                                  }
-                                  setLastCarSetup(carSetup)
-                                  setFeedback(
-                                    feedback.map((x, idx) => idx === row.index ? [
-                                      ...x.filter(x => x.value !== biasValue), {
-                                        value: biasValue,
-                                        timestamp: +new Date(),
-                                        feedback: e.target.value
-                                      }
-                                    ]: x)
-                                  )
+                                  createFeedback(row, biasValue, e.target.value)
                                 }}
                               >
                                 <MenuItem value='optimal'>Optimal</MenuItem>
@@ -629,18 +665,18 @@ export function Calculator({ target }) {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontSize: 16 }}><b>Previous Runs</b></TableCell>
-                    <TableCell sx={{ fontSize: 16 }}><b>FWA</b></TableCell>
-                    <TableCell sx={{ fontSize: 16 }}><b>RWA</b></TableCell>
-                    <TableCell sx={{ fontSize: 16 }}><b>ARD</b></TableCell>
-                    <TableCell sx={{ fontSize: 16 }}><b>TC</b></TableCell>
-                    <TableCell sx={{ fontSize: 16 }}><b>TO</b></TableCell>
-                    <TableCell sx={{ fontSize: 16 }}><b>Oversteer</b></TableCell>
-                    <TableCell sx={{ fontSize: 16 }}><b>Braking</b></TableCell>
-                    <TableCell sx={{ fontSize: 16 }}><b>Cornering</b></TableCell>
-                    <TableCell sx={{ fontSize: 16 }}><b>Traction</b></TableCell>
-                    <TableCell sx={{ fontSize: 16 }}><b>Straights</b></TableCell>
-                    <TableCell sx={{ fontSize: 16 }}>Operations</TableCell>
+                    <TableCell><b>Previous Runs</b></TableCell>
+                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>FWA</b></TableCell>
+                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>RWA</b></TableCell>
+                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>ARD</b></TableCell>
+                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>TC</b></TableCell>
+                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>TO</b></TableCell>
+                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>Oversteer</b></TableCell>
+                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>Braking</b></TableCell>
+                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>Cornering</b></TableCell>
+                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>Traction</b></TableCell>
+                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>Straights</b></TableCell>
+                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -648,10 +684,10 @@ export function Calculator({ target }) {
                     previousRuns.map(x => {
                       return (
                         <TableRow key={x.id}>
-                          <TableCell sx={{ fontSize: 16, p: 0.5, pl: 2 }}>{trackMap[x.track]?.name}</TableCell>
+                          <TableCell sx={{ fontSize: 14, p: 0.5, pl: 2 }}>{trackMap[x.track]?.name}</TableCell>
                           {
                             [0, 1, 2, 3, 4].map(idx => (
-                              <TableCell key={idx} sx={{ fontSize: 16, p: 0.5 }}>{
+                              <TableCell key={idx} sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}>{
                                 CarSetupParams[idx].render(
                                   x.carSetup[idx] * (
                                     CarSetupParams[idx].max - CarSetupParams[idx].min
@@ -662,7 +698,7 @@ export function Calculator({ target }) {
                           }
                           {
                             [0, 1, 2, 3, 4].map(idx => (
-                              <TableCell key={idx} sx={{ fontSize: 16, p: 0.5 }}>
+                              <TableCell key={idx} sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}>
                                 {
                                   x["feedback_" + idx] && (
                                     <Chip
@@ -676,17 +712,21 @@ export function Calculator({ target }) {
                           }
                           <TableCell sx={{ textAlign: 'right', p: 0.5, pr: 2 }}>
                             <Stack spacing={1} direction="row-reverse">
-                              <Button variant="contained" color="secondary" onClick={
+                              <Button variant="contained" color="info" sx={{ minWidth: 32, p: 1 }}  onClick={
                                 () => {
                                   setBiasParam(setupToBias(x.carSetup));
                                   setCarSetup(x.carSetup);
                                 }
-                              }>Load</Button>
-                              <Button variant="contained" color="error" onClick={
+                              }>
+                                <OpenInNew />
+                              </Button>
+                              <Button variant="contained" color="error" sx={{ minWidth: 32, p: 1 }} onClick={
                                 () => {
                                   setPreviousRuns(previousRuns.filter(r => r.id !== x.id))
                                 }
-                              }>Delete</Button>
+                              }>
+                                <Delete />
+                              </Button>
                             </Stack>
                           </TableCell>
                         </TableRow>
