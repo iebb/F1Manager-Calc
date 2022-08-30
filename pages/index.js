@@ -33,6 +33,7 @@ import {useEffect, useState} from "react";
 import {SnackbarProvider, useSnackbar} from 'notistack';
 import {trackMap, tracks} from "../consts/tracks";
 import {Delete, OpenInNew} from "@mui/icons-material";
+import Image from "next/image";
 
 const feedbackColors = {
   optimal: "info",
@@ -156,7 +157,7 @@ const randomSetup = () => CarSetupParams.map(params => {
 })
 
 
-export function Calculator({ target }) {
+export function Calculator({ target, preset }) {
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -170,7 +171,6 @@ export function Calculator({ target }) {
   const [possibleSetups, setPossibleSetups] = useState(952560);
   const [track, setTrack] = useState("XX");
   const [loaded, setLoaded] = useState(false);
-  const [preset, setPreset] = useState({});
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
 
   const getIdentifier = () => {
@@ -205,7 +205,6 @@ export function Calculator({ target }) {
       setPreviousRuns([]);
       setTrack("XX");
     }
-    fetch(`/stats/values`).then(r => r.json()).then(r => setPreset(r));
     setLoaded(true);
   }, [target])
 
@@ -321,7 +320,7 @@ export function Calculator({ target }) {
     )
 
     if (v === "optimal" && Number(localStorage.c) > 6) {
-      fetch(`/stats/report`, {
+      fetch(`https://f1setup.deta.dev/report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -338,6 +337,7 @@ export function Calculator({ target }) {
   }
 
   const loadPreset = () => {
+    console.log(preset[track], preset, track)
     if (preset[track]) {
       const {setup} = nearestSetup(
         preset[track], 2, [[], [], [], [], []]
@@ -397,7 +397,10 @@ export function Calculator({ target }) {
                             }}
                             label="Track"
                           >
-                            {tracks.map(t => <MenuItem key={t.id} value={t.id}>{t.name}, {t.country}</MenuItem>)}
+                            {tracks.map(t => <MenuItem key={t.id} value={t.id}>
+                              <Image src={require(`../assets/flags/${t.code}.svg`)} width={24} height={16}/>
+                              <span style={{ marginLeft: 10 }}> {t.name}, {t.country}</span>
+                            </MenuItem>)}
                           </Select>
                         </FormControl>
                       </div>
@@ -759,7 +762,13 @@ export function Calculator({ target }) {
 
 export default function CalculatorPage() {
   const [tab, setTab] = useState(1);
+  const [preset, setPreset] = useState({});
   const slots = [1, 2, 3, 4, 5];
+
+  useEffect(() => {
+    fetch(`https://f1setup.deta.dev/values`).then(r => r.json()).then(r => setPreset(r));
+  }, []);
+
   return (
     <SnackbarProvider
       maxSnack={3}
@@ -791,7 +800,7 @@ export default function CalculatorPage() {
         {
           slots.map(
             s => <div style={tab !== s ? {display: 'none'} : null} key={s}>
-              <Calculator target={`car_${s}`} key={s}/>
+              <Calculator target={`car_${s}`} key={s} preset={preset} />
             </div>
           )
         }
