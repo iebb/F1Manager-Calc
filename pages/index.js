@@ -170,6 +170,7 @@ export function Calculator({ target }) {
   const [possibleSetups, setPossibleSetups] = useState(952560);
   const [track, setTrack] = useState("XX");
   const [loaded, setLoaded] = useState(false);
+  const [preset, setPreset] = useState({});
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
 
   const getIdentifier = () => {
@@ -204,6 +205,7 @@ export function Calculator({ target }) {
       setPreviousRuns([]);
       setTrack("XX");
     }
+    fetch(`/api/values`).then(r => r.json()).then(r => setPreset(r));
     setLoaded(true);
   }, [target])
 
@@ -318,7 +320,7 @@ export function Calculator({ target }) {
       ]: x)
     )
 
-    if (v === "optimal" && Number(localStorage.c) > 10) {
+    if (v === "optimal" && Number(localStorage.c) > 6) {
       fetch(`/api/report`, {
         method: 'POST',
         headers: {
@@ -332,6 +334,16 @@ export function Calculator({ target }) {
           index: row.index,
         })
       });
+    }
+  }
+
+  const loadPreset = () => {
+    if (preset[track]) {
+      const {setup} = nearestSetup(
+        preset[track], 2, [[], [], [], [], []]
+      );
+      setBiasParam(setupToBias(setup));
+      setCarSetup(setup);
     }
   }
 
@@ -349,13 +361,14 @@ export function Calculator({ target }) {
         <DialogTitle id="alert-dialog-title">Clear Feedbacks?</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Since you moved to a new track, do you need to clear all previous feedbacks?
+            Since you moved to a new track, do you need to load the preset value and clear all previous feedbacks?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button variant="contained" color="error" onClick={() => {
             setOpenClearFeedback(false);
             clearFeedbacks();
+            loadPreset();
           }}>Clear</Button>
           <Button variant="contained" onClick={() => {
             setOpenClearFeedback(false);
@@ -380,9 +393,7 @@ export function Calculator({ target }) {
                             sx={{ width: "100%" }}
                             onChange={(e) => {
                               setTrack(e.target.value);
-                              if (feedback.map(x => x.length).some(x => x)) {
-                                setOpenClearFeedback(true);
-                              }
+                              setOpenClearFeedback(true);
                             }}
                             label="Track"
                           >
@@ -394,11 +405,11 @@ export function Calculator({ target }) {
                     <TableCell sx={{ textAlign: 'right' }}>
                       <Grid direction="row-reverse" container spacing={1}>
                         <Grid item>
-                          <Button variant="contained" color="warning" onClick={
+                          <Button variant="contained" color="secondary" onClick={
                             () => {
                               clearFeedbacks()
                             }
-                          }>Reset</Button>
+                          }>Load Preset</Button>
                         </Grid>
                       </Grid>
                     </TableCell>
