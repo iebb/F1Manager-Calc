@@ -258,6 +258,10 @@ export function Calculator({ target }) {
         { variant: "error" }
       );
     }
+
+    if (typeof window !== "undefined") {
+      localStorage.c = Number(localStorage.c || 0) + 1
+    }
   }
 
   const clearAll = () => {
@@ -314,11 +318,10 @@ export function Calculator({ target }) {
       ]: x)
     )
 
-    if (v === "optimal") {
+    if (v === "optimal" && Number(localStorage.c) > 10) {
       fetch(`/api/report`, {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
