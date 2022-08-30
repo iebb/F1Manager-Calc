@@ -64,8 +64,8 @@ export const BiasParams = [
     render: x => x.toFixed(3),
   },
   {
-    // name: "Breaking Stability",
-    name: "Breaking",
+    // name: "Braking Stability",
+    name: "Braking",
     index: 1,
     offset: 0.45,
     effect: [-0.2, 0.2, 0.15, -0.25, 0.2],
