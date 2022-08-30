@@ -3,7 +3,7 @@ export const tracks = [
   {name: 'Sakhir', location: 'Sakhir', country: 'Bahrain', code: 'BH'},
   {name: 'Jeddah', location: 'Jeddah', country: 'Saudi Arabia', code: 'SA'},
   {name: 'Melbourne', location: 'Melbourne', country: 'Australia', code: 'AU'},
-  {name: 'Imola', location: 'Imola', country: 'Italy', code: 'SM'},
+  {name: 'Imola', location: 'Imola', country: 'Italy', code: 'IT', suffix: "EMI"},
   {name: 'Miami', location: 'Miami', country: 'United States', code: 'US', suffix: "MIAMI"},
   {name: 'Catalunya', location: 'Barcelona', country: 'Spain', code: 'ES'},
   {name: 'Monte Carlo', location: 'Monte Carlo', country: 'Monaco', code: 'MC'},

@@ -411,8 +411,8 @@ export function Calculator({ target, preset }) {
                             label="Track"
                           >
                             {tracks.map(t => <MenuItem key={t.id} value={t.id}>
-                              <Image src={require(`../assets/flags/${t.code}.svg`)} width={24} height={16} alt={t.country} />
-                              <span style={{ marginLeft: 10 }}> {t.name}, {t.country}</span>
+                              <Image src={require(`../assets/flags/${t.id}.svg`)} width={24} height={20} alt={t.country} style={{ display: 'inline-block' }} />
+                              <Typography sx={{ m: 0, ml: 1,  display: 'inline-block' }}> {t.name}, {t.country}</Typography>
                             </MenuItem>)}
                           </Select>
                         </FormControl>
@@ -718,7 +718,10 @@ export function Calculator({ target, preset }) {
                     previousRuns.map(x => {
                       return (
                         <TableRow key={x.id}>
-                          <TableCell sx={{ fontSize: 14, p: 0.5, pl: 2 }}>{trackMap[x.track]?.name}</TableCell>
+                          <TableCell sx={{ fontSize: 14, p: 0.5, pl: 2 }}>
+                            <Image src={require(`../assets/flags/${x.track}.svg`)} width={24} height={20} alt={x.track} style={{ display: 'inline-block' }} />
+                            <Typography sx={{ m: 0, ml: 1,  display: 'inline-block' }}>{trackMap[x.track]?.name}</Typography>
+                          </TableCell>
                           {
                             [0, 1, 2, 3, 4].map(idx => (
                               <TableCell key={idx} sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}>{
