@@ -16,12 +16,12 @@ export const tracks = [
   {name: 'Spa-Francorchamps', location: 'Spa-Francorchamps', country: 'Belgium', code: 'BE'},
   {name: 'Zandvoort', location: 'Zandvoort', country: 'Netherlands', code: 'NL'},
   {name: 'Monza', location: 'Monza', country: 'Italy', code: 'IT'},
-  {name: 'Singapore', location: 'Marina Bay', country: 'Singapore', code: 'SG'},
+  {name: 'Marina Bay', location: 'Marina Bay', country: 'Singapore', code: 'SG'},
   {name: 'Suzuka', location: 'Suzuka', country: 'Japan', code: 'JP'},
   {name: 'Austin', location: 'Austin', country: 'United States', code: 'US', suffix: "AUSTIN"},
   {name: 'Mexico City', location: 'Mexico City', country: 'Mexico', code: 'MX'},
   {name: 'Interlagos', location: 'São Paulo', country: 'Brazil', code: 'BR'},
-  {name: 'Yas Marina Circuit', location: 'Yas Island', country: 'United Arab Emirates', code: 'AE'},
+  {name: 'Yas Marina', location: 'Yas Island', country: 'UAE', code: 'AE'},
 ].map(x => x.suffix ? {...x, id: x.code + "-" + x.suffix} : {...x, suffix: "", id: x.code})
 
 export const trackMap = {};
