@@ -205,7 +205,7 @@ export function Calculator({ target }) {
       setPreviousRuns([]);
       setTrack("XX");
     }
-    fetch(`/api/values`).then(r => r.json()).then(r => setPreset(r));
+    fetch(`/stats/values`).then(r => r.json()).then(r => setPreset(r));
     setLoaded(true);
   }, [target])
 
@@ -321,7 +321,7 @@ export function Calculator({ target }) {
     )
 
     if (v === "optimal" && Number(localStorage.c) > 6) {
-      fetch(`/api/report`, {
+      fetch(`/stats/report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

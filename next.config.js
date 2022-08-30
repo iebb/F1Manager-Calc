@@ -8,6 +8,10 @@ const nextConfig = {
         source: '/api/:path*',
         destination: 'https://f1setup.deta.dev/:path*',
       },
+      {
+        source: '/stats/:path*',
+        destination: 'https://f1setup.deta.dev/:path*',
+      },
     ]
   },
 }
