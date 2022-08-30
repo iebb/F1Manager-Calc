@@ -2,7 +2,7 @@ import {
   Box,
   Button,
   Chip,
-  Container,
+  Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
   Divider,
   FormControl,
   Grid,
@@ -164,6 +164,7 @@ export function Calculator({ target }) {
   const [possibleSetups, setPossibleSetups] = useState(952560);
   const [track, setTrack] = useState("XX");
   const [loaded, setLoaded] = useState(false);
+  const [openClearFeedback, setOpenClearFeedback] = useState(false);
 
   useEffect(() => {
     try {
@@ -258,6 +259,32 @@ export function Calculator({ target }) {
   return (
     <Container disableGutters maxWidth="xl" key={target}>
       <Divider variant="fullWidth" />
+      <Dialog
+        open={openClearFeedback}
+        onClose={() => {
+          setOpenClearFeedback(false);
+        }}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Clear Feedbacks?</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Since you moved to a new track, do you need to clear all previous feedbacks?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" color="error" onClick={() => {
+            setOpenClearFeedback(false);
+            clearFeedbacks();
+          }}>Clear</Button>
+          <Button variant="contained" onClick={() => {
+            setOpenClearFeedback(false);
+          }} autoFocus>
+            Preserve
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 6 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} lg={6}>
@@ -274,6 +301,9 @@ export function Calculator({ target }) {
                             sx={{ width: "100%" }}
                             onChange={(e) => {
                               setTrack(e.target.value);
+                              if (feedback.map(x => x.length).some(x => x)) {
+                                setOpenClearFeedback(true);
+                              }
                             }}
                             label="Track"
                           >
