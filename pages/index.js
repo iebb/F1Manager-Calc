@@ -337,13 +337,12 @@ export function Calculator({ target, preset }) {
   }
 
   const loadPreset = () => {
-    console.log(preset[track], preset, track)
     if (preset[track]) {
       const {setup} = nearestSetup(
         preset[track], 2, [[], [], [], [], []]
       );
-      setBiasParam(setupToBias(setup));
       setCarSetup(setup);
+      setBiasParam(setupToBias(setup));
     }
   }
 
