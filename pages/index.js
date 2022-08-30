@@ -315,7 +315,7 @@ export function Calculator({ target }) {
     )
 
     if (v === "optimal") {
-      fetch(`https://f1setup.deta.dev/report`, {
+      fetch(`/api/report`, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
