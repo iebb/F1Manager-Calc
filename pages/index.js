@@ -150,7 +150,7 @@ const nearestSetup = (biasParam, feedbacks) => {
       return;
     }
     const params = CarSetupParams[v];
-    const step = (params.max - params.min) / params.step;
+    const step = Math.round((params.max - params.min) / params.step);
     for(let i = 0; i <= step; i++) {
       _dfs(v+1, [...arr, i / step]);
     }
@@ -181,7 +181,7 @@ export function Calculator({ target, preset }) {
   const [biasParamText, setBiasParamText] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
   const [feedback, setFeedback] = useState([[], [], [], [], []]);
   const [previousRuns, setPreviousRuns] = useState([]);
-  const [possibleSetups, setPossibleSetups] = useState(952560);
+  const [possibleSetups, setPossibleSetups] = useState(1012095);
   const [track, setTrack] = useState("XX");
   const [loaded, setLoaded] = useState(false);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
