@@ -45,11 +45,11 @@ const feedbackColors = {
 }
 
 const optimalBreakpoint = 0.006;
-const optimalBreakpoint2 = 0.0075;
+const optimalBreakpoint2 = 0.008;
 const greatBreakpoint = 0.04;
-const greatBreakpoint2 = 0.04;
+const greatBreakpoint2 = 0.045;
 const goodBreakpoint = 0.1;
-const goodBreakpoint2 = 0.1;
+const goodBreakpoint2 = 0.11;
 const eps = 1e-5;
 const errorConst = 1e20;
 
