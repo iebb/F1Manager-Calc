@@ -45,12 +45,14 @@ const feedbackColors = {
 }
 
 const optimalBreakpoint = 0.006;
-const optimalBreakpoint2 = 0.008;
+const optimalBreakpointUpperLimit = 0.008;
 const greatBreakpoint = 0.04;
-const greatBreakpoint2 = 0.045;
+const greatBreakpointUpperLimit = 0.04;
 const goodBreakpoint = 0.1;
-const goodBreakpoint2 = 0.11;
-const eps = 1e-5;
+const goodBreakpointUpperLimit = 0.1;
+
+const DENOMINATOR = 5600;
+const eps = 1e-6;
 const errorConst = 1e20;
 
 const arrayFloatEqual = (a, b) => {
@@ -95,22 +97,25 @@ const nearestSetup = (biasParam, feedbacks) => {
       for (let idx = 0; idx < 5; idx++) {
         const x = _result[idx];
         for(const fs of feedbacks[idx]) {
+          const dx2 = Math.round((x - fs.value) * DENOMINATOR);
+          const ax = Math.abs(dx2);
+
           const dx = Math.abs(x - fs.value);
           const f = fs.feedback;
-          const scale = {bad: 1, good: 3, great: 6, optimal: 12}
+          const scale = {bad: 3, good: 3, great: 3, optimal: 3}
           if (f !== "unknown") {
             if (
               (f === 'bad' && (dx < goodBreakpoint - eps))
               ||
-              (f === 'bad+' && (fs.value < x + goodBreakpoint - eps))
+              (f === 'bad+' && (fs.value - x < goodBreakpoint - eps))
               ||
-              (f === 'bad-' && (fs.value > x - goodBreakpoint + eps))
+              (f === 'bad-' && (fs.value - x > - goodBreakpoint + eps))
               ||
-              (f === 'good' && ((dx > goodBreakpoint2 + eps) || (dx < greatBreakpoint - eps)))
+              (f === 'good' && ((dx > goodBreakpointUpperLimit + eps) || (dx < greatBreakpoint - eps)))
               ||
-              (f === 'great' && ((dx > greatBreakpoint2 + eps) || (dx < optimalBreakpoint - eps)))
+              (f === 'great' && ((dx > greatBreakpointUpperLimit + eps) || (dx < optimalBreakpoint - eps)))
               ||
-              (f === 'optimal' && (dx > optimalBreakpoint2 + eps))
+              (f === 'optimal' && (dx >= optimalBreakpointUpperLimit + eps))
             ) {
               ruleBreaks += scale[f];
             }
@@ -462,7 +467,9 @@ export function Calculator({ target, preset }) {
                                 valueLabelDisplay="on"
                                 value={carSetup[row.index]}
                                 onChange={(e, value) => {
-                                  const setup = carSetup.map((x, idx) => idx === row.index ? value : x);
+                                  const setup = carSetup.map((x, idx) => idx === row.index ? (
+                                    Math.round(value * 560) / 560
+                                  ): x);
                                   setCarSetup(setup)
                                   setBiasParam(setupToBias(setup))
                                   setIsValidSetup(
@@ -814,7 +821,7 @@ export default function CalculatorPage() {
         <Typography variant="h3" component="h3">F1 Manager Setup Calculator</Typography>
         <Divider variant="fullWidth" sx={{ mt: 2, mb: 2 }}/>
         <Typography sx={{ mt: 1 }}>
-          How to use / How it works / Give award: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
+          How to use / How it works / Give award: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a> &middot; Feedbacks / Bug Report: <a href="https://discord.gg/u46QWWaNfV">Discord</a>
         </Typography>
         <Typography sx={{ mt: 1, color: '#ffff00' }}>
           Fixed a rounding bug which lead to the maximum Setup ignored, being unable to find the optimal setup.
