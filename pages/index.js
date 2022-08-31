@@ -812,6 +812,13 @@ export default function CalculatorPage() {
           xl: 6,
         }, pb: 3 }}>
         <Typography variant="h3" component="h3">F1 Manager Setup Calculator</Typography>
+        <Divider variant="fullWidth" sx={{ mt: 2, mb: 2 }}/>
+        <Typography sx={{ mt: 1 }}>
+          How to use / How it works / Give award: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
+        </Typography>
+        <Typography sx={{ mt: 1, color: '#ffff00' }}>
+          Fixed a rounding bug which lead to the maximum Setup ignored, being unable to find the optimal setup.
+        </Typography>
         <Divider variant="fullWidth" sx={{ mt: 2 }} />
       </Container>
       <Container maxWidth="xl" component="main">
@@ -834,10 +841,6 @@ export default function CalculatorPage() {
       </Container>
       <Divider variant="fullWidth" />
       <Container  maxWidth="xl" component="main" sx={{ pt: 2, pb: 3 }}>
-        <Typography sx={{ mt: 1 }}>
-          How to use / How it works / Give award: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
-        </Typography>
-        <Divider variant="fullWidth" sx={{ mt: 2, mb: 2 }}/>
         <Typography>
           Another ieb Project &middot; {' '}
           GitHub: <a href="https://github.com/iebb/F1Manager-Calc">iebb/F1Manager-Calc</a> &middot; {' '}
