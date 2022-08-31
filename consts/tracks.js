@@ -18,7 +18,7 @@ export const tracks = [
   {name: 'Monza', location: 'Monza', country: 'Italy', code: 'IT'},
   {name: 'Marina Bay', location: 'Marina Bay', country: 'Singapore', code: 'SG'},
   {name: 'Suzuka', location: 'Suzuka', country: 'Japan', code: 'JP'},
-  {name: 'Austin', location: 'Austin', country: 'United States', code: 'US', suffix: "AUSTIN"},
+  {name: 'Austin', location: 'Austin', country: 'United States', code: 'US'},
   {name: 'Mexico City', location: 'Mexico City', country: 'Mexico', code: 'MX'},
   {name: 'Interlagos', location: 'São Paulo', country: 'Brazil', code: 'BR'},
   {name: 'Yas Marina', location: 'Yas Island', country: 'UAE', code: 'AE'},
