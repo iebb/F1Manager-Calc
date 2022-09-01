@@ -28,6 +28,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import {BiasParams, CarSetupParams} from "../consts/params";
 import {useEffect, useState} from "react";
 import {SnackbarProvider, useSnackbar} from 'notistack';
@@ -44,6 +45,7 @@ const feedbackColors = {
   "bad-": "error",
 }
 
+const MAX_SETUP_CANDIDATES = 100;
 const eps = 1e-6;
 const optimalBreakpoint = 0.007; // technically 39/5600 = 0.0069642857142857146 but fine
 const greatBreakpoint = 0.04 + eps;
@@ -137,9 +139,13 @@ const nearestSetup = (biasParam, feedbacks) => {
           }
           possibleSetups++;
 
-          if (possibleSetupList.length < 10 || diff < possibleSetupList[9].diff) {
+          if (
+            possibleSetupList.length < MAX_SETUP_CANDIDATES ||
+            diff < possibleSetupList[MAX_SETUP_CANDIDATES - 1].diff) {
             possibleSetupList.push({arr, diff});
-            possibleSetupList = possibleSetupList.sort((x, y) => x.diff - y.diff).slice(0, 10)
+            possibleSetupList = possibleSetupList.sort(
+              (x, y) => x.diff - y.diff
+            ).slice(0, MAX_SETUP_CANDIDATES)
           }
 
         }
@@ -155,7 +161,7 @@ const nearestSetup = (biasParam, feedbacks) => {
   }
   _dfs(0, []);
 
-  possibleSetupList = possibleSetupList.sort((x, y) => x.diff - y.diff).slice(0, 10)
+  possibleSetupList = possibleSetupList.sort((x, y) => x.diff - y.diff).slice(0, MAX_SETUP_CANDIDATES)
   console.log(possibleSetupList);
   return {setup: nearestResult, possibleSetups, lowestRuleBreak, possibleSetupList};
 }
@@ -173,13 +179,20 @@ export function Calculator({ target, preset }) {
 
   const [isValidSetup, setIsValidSetup] = useState([true, true, true, true, true]);
   const [lastCarSetup, setLastCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
+
   const [carSetup, _setCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
-  const [carSetupList, setCarSetupList] = useState([]);
   const [biasParam, _setBiasParam] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
+
+  const [prevCarSetup, setPrevCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
+  const [prevBiasParam, setPrevBiasParam] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
+
+
+  const [carSetupList, setCarSetupList] = useState([]);
   const [biasParamText, setBiasParamText] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
   const [feedback, setFeedback] = useState([[], [], [], [], []]);
   const [previousRuns, setPreviousRuns] = useState([]);
   const [possibleSetups, setPossibleSetups] = useState(1012095);
+
   const [track, setTrack] = useState("XX");
   const [loaded, setLoaded] = useState(false);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
@@ -203,12 +216,16 @@ export function Calculator({ target, preset }) {
         isValidSetup,
         carSetup,
         biasParam,
+        prevCarSetup,
+        prevBiasParam,
         feedback,
         previousRuns,
       } = JSON.parse(localStorage[target])
       setFeedback(feedback);
       _setBiasParam(biasParam);
       _setCarSetup(carSetup);
+      setPrevCarSetup(prevCarSetup);
+      setPrevBiasParam(prevBiasParam);
       setPreviousRuns(previousRuns || []);
       setTrack(track);
       setIsValidSetup(isValidSetup);
@@ -224,6 +241,8 @@ export function Calculator({ target, preset }) {
       isValidSetup,
       carSetup,
       biasParam,
+      prevCarSetup,
+      prevBiasParam,
       feedback,
       track,
       previousRuns,
@@ -251,6 +270,8 @@ export function Calculator({ target, preset }) {
   }
 
   const findNearest = () => {
+    setPrevCarSetup(carSetup);
+    setPrevBiasParam(biasParam);
     const {setup, possibleSetups, lowestRuleBreak, possibleSetupList} = nearestSetup(biasParam, feedback);
     if (setup) {
       if (lowestRuleBreak > 0) {
@@ -474,7 +495,7 @@ export function Calculator({ target, preset }) {
                               />
                             </TableCell>
                             <TableCell sx={{ fontSize: 16, textAlign: 'right' }}>
-                              <Typography sx={{ color: carSetupDiff > 0 ? "#ff1744" : carSetupDiff < 0 ? "#76ff03" : "white" }}>{carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {
+                              <Typography sx={{ color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}>{carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {
                                 row.render(carSetup[row.index] * (row.max - row.min) + row.min)
                               }</Typography>
                               {
@@ -526,22 +547,6 @@ export function Calculator({ target, preset }) {
                           <div style={{ padding: 5 }}>
                             <Typography sx={{ color: "#777" }}>{possibleSetups} Setups Possible</Typography>
                           </div>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell colSpan={3} sx={{ textAlign: 'right' }}>
-                        <Stack direction="row-reverse" spacing={1}>
-                          {
-                            carSetupList.map(({arr, diff}, _idx) => (
-                              <Button sx={{ minWidth: 48, p: 1 }} key={_idx} variant="contained" color="primary" onClick={
-                                () => {
-                                  setBiasParam(setupToBias(arr));
-                                  setCarSetup(arr);
-                                }
-                              }>#{_idx + 1}<br/>{(diff).toFixed(0)}%</Button>
-                            ))
-                          }
                         </Stack>
                       </TableCell>
                     </TableRow>
@@ -696,6 +701,75 @@ export function Calculator({ target, preset }) {
                 </Table>
               </TableContainer>
             </Grid>
+            <Grid item xs={12} lg={12} sx={{ mt: 3 }}>
+              <div style={{ display: 'flex', height: '100%' }}>
+                <div style={{ flexGrow: 1 }}>
+                  <DataGrid
+                    autoHeight
+                    rows={carSetupList.map((x, id) => {
+                      const biasParams = setupToBias(x.arr);
+                      return {...x, biasParams, id: id + 1}
+                    })}
+                    columns={[
+                      {
+                        field: 'id', headerName: 'Setup #',
+                        renderCell : ({ row, value }) =>
+                          <Button variant="contained" color="info" sx={{ pt: 0.2, pb: 0.2 }} onClick={
+                            () => {
+                              setBiasParam(setupToBias(row.arr));
+                              setCarSetup(row.arr);
+                            }
+                          }>#{value}</Button>
+                      },
+                      {
+                        field: 'diff', headerName: '%',
+                        valueGetter: ({ value }) => value.toFixed(1) + "%",
+                      },
+                      ...CarSetupParams.map(param => {
+                        const idx = param.index;
+                        return {
+                          field: 'arr_' + idx,
+                          headerName: param.name,
+                          valueGetter: ({ row }) => row.arr[idx],
+                          renderCell: ({ row }) => {
+                            const value = row.arr[idx]
+                            const carSetupDiff = value - prevCarSetup[idx];
+                            return <Typography sx={{
+                              fontSize: 13, p: 0.5, textAlign: "center",
+                              color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}
+                            >
+                              {carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {
+                              param.render(value * (param.max - param.min) + param.min)
+                            }</Typography>
+                          },
+                        }
+                      }),
+                      ...BiasParams.map(param => {
+                        const idx = param.index;
+                        return {
+                          field: 'biasArr_' + idx,
+                          headerName: param.name,
+                          valueGetter: ({ row }) => row.arr[idx],
+                          renderCell: ({ row }) => {
+                            const value = row.biasParams[idx]
+                            const carSetupDiff = value - prevBiasParam[idx];
+                            return <Typography sx={{
+                              fontSize: 13, p: 0.5, textAlign: "center",
+                              color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}
+                            >
+                              {carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {value.toFixed(4)}
+                            </Typography>
+                          },
+                        }
+                      })
+                    ]}
+                    pageSize={10}
+                    density="compact"
+                    rowsPerPageOptions={[10, 20, 40]}
+                  />
+                </div>
+              </div>
+            </Grid>
             <Grid item xs={12} lg={12} sx={{ mt: 5 }}>
               <TableContainer component={Paper}>
                 <Table>
@@ -780,7 +854,8 @@ export function Calculator({ target, preset }) {
         </Container>
       </Container>
     )
-  } catch {
+  } catch (e) {
+    console.error(e);
     delete localStorage[target];
     document.location.reload();
   }

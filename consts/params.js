@@ -23,7 +23,7 @@ export const CarSetupParams = [
     render: x => x.toFixed(1),
   },
   {
-    name: "Anti-Roll Dist",
+    name: "Anti-Roll",
     index: 2,
     min: 1,
     max: 9,
