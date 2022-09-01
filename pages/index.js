@@ -738,10 +738,10 @@ export function Calculator({ target, preset }) {
                         return {
                           field: 'arr_' + idx,
                           headerName: param.name,
-                          valueGetter: ({ row }) => row.arr[idx],
+                          valueGetter: ({ row }) => row.arr ? row.arr[idx] : 0,
                           renderCell: ({ row }) => {
-                            const value = row.arr[idx]
-                            const carSetupDiff = value - prevCarSetup[idx];
+                            const value = row.arr ? row.arr[idx] : 0;
+                            const carSetupDiff = value - (prevCarSetup ? prevCarSetup[idx] : 0);
                             return <Typography sx={{
                               fontSize: 13, p: 0.5, textAlign: "center",
                               color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}
@@ -761,10 +761,10 @@ export function Calculator({ target, preset }) {
                         return {
                           field: 'biasArr_' + idx,
                           headerName: param.name,
-                          valueGetter: ({ row }) => row.arr[idx],
+                          valueGetter: ({ row }) => row.biasParams ? row.biasParams[idx] : 0,
                           renderCell: ({ row }) => {
-                            const value = row.biasParams[idx]
-                            const carSetupDiff = value - prevBiasParam[idx];
+                            const value = row.biasParams ? row.biasParams[idx] : 0;
+                            const carSetupDiff = value - (prevBiasParam ? prevBiasParam[idx] : 0);
                             return <Typography sx={{
                               fontSize: 13, p: 0.5, textAlign: "center",
                               color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}
@@ -891,18 +891,12 @@ export default function CalculatorPage() {
         horizontal: 'right',
       }}
     >
-      <Container maxWidth="xl" component="main" sx={{ pt: {
-          xs: 2,
-          sm: 2,
-          md: 2,
-          lg: 2,
-          xl: 6,
-        }, pb: 3 }}>
+      <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 3 }}>
         <Typography variant="h3" component="h3">F1 Manager Setup Calculator</Typography>
         <Divider variant="fullWidth" sx={{ mt: 2, mb: 2 }}/>
-        <Typography sx={{ mt: 1 }}>
-          How to use / How it works / Give award: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
-          <br />Feedbacks / Bug Report: <a href="https://discord.gg/u46QWWaNfV">Discord</a>
+        <Typography sx={{ mt: 1, fontSize: 18 }}>
+          Tutorial / Give award / Favourite: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
+          <br />Feedbacks / Bug Report: <a href="https://discord.gg/u46QWWaNfV">Discord</a> &middot; Donations: <a href="https://ko-fi.com/ieb233" style={{ color: "#ff9999" }}>Ko-fi ♥</a>
         </Typography>
         <Divider variant="fullWidth" sx={{ mt: 2 }} />
       </Container>
