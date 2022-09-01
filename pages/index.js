@@ -901,10 +901,8 @@ export default function CalculatorPage() {
         <Typography variant="h3" component="h3">F1 Manager Setup Calculator</Typography>
         <Divider variant="fullWidth" sx={{ mt: 2, mb: 2 }}/>
         <Typography sx={{ mt: 1 }}>
-          How to use / How it works / Give award: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a> &middot; Feedbacks / Bug Report: <a href="https://discord.gg/u46QWWaNfV">Discord</a>
-        </Typography>
-        <Typography sx={{ mt: 1, color: '#ffff00' }}>
-          Fixed a rounding bug which lead to the maximum Setup ignored, being unable to find the optimal setup.
+          How to use / How it works / Give award: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
+          <br />Feedbacks / Bug Report: <a href="https://discord.gg/u46QWWaNfV">Discord</a>
         </Typography>
         <Divider variant="fullWidth" sx={{ mt: 2 }} />
       </Container>
