@@ -744,6 +744,10 @@ export function Calculator({ target, preset }) {
                           },
                         }
                       }),
+                      {
+                        field: 'arr', headerName: '⇒',
+                        renderCell: () => "⇒",
+                      },
                       ...BiasParams.map(param => {
                         const idx = param.index;
                         return {
