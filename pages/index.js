@@ -46,7 +46,7 @@ const feedbackColors = {
   "bad-": "error",
 }
 
-const MAX_SETUP_CANDIDATES = 1999;
+const MAX_SETUP_CANDIDATES = 999;
 const eps = 1e-6;
 const optimalBreakpoint = 0.007; // technically 39/5600 = 0.0069642857142857146 but fine
 const greatBreakpoint = 0.04 + eps;
@@ -723,7 +723,7 @@ export function Calculator({ target, preset }) {
                       {
                         field: 'id', headerName: 'Setup #',
                         renderCell : ({ row, value }) =>
-                          <Button variant="contained" color={value ? "info" : "secondary"} sx={{ pt: 0.2, pb: 0.2 }} onClick={
+                          <Button variant="contained" color={value ? "info" : "secondary"} sx={{ pt: 0.2, pb: 0.2, minWidth: 80 }} onClick={
                             () => {
                               setBiasParam(setupToBias(row.arr));
                               setCarSetup(row.arr);
@@ -776,9 +776,8 @@ export function Calculator({ target, preset }) {
                         }
                       })
                     ]}
-                    pageSize={10}
                     density="compact"
-                    rowsPerPageOptions={[10, 20, 40]}
+                    rowsPerPageOptions={[10, 20, 40, 100, 200]}
                   />
                 </div>
               </div>
