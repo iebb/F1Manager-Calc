@@ -34,6 +34,7 @@ import {useEffect, useState} from "react";
 import {SnackbarProvider, useSnackbar} from 'notistack';
 import {trackMap, tracks} from "../consts/tracks";
 import {Delete, OpenInNew} from "@mui/icons-material";
+import KofiButton from "kofi-button";
 import Image from "next/image";
 
 const feedbackColors = {
@@ -894,10 +895,18 @@ export default function CalculatorPage() {
       <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 3 }}>
         <Typography variant="h3" component="h3">F1 Manager Setup Calculator</Typography>
         <Divider variant="fullWidth" sx={{ mt: 2, mb: 2 }}/>
-        <Typography sx={{ mt: 1, fontSize: 18 }}>
-          Tutorial / Give award / Favourite: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
-          <br />Feedbacks / Bug Report: <a href="https://discord.gg/u46QWWaNfV">Discord</a> &middot; Donations: <a href="https://ko-fi.com/ieb233" style={{ color: "#ff9999" }}>Ko-fi ♥</a>
-        </Typography>
+        <div>
+          <div style={{ float: 'left' }} >
+            <Typography sx={{ mt: 1, fontSize: 18 }}>
+              Tutorial / Give award / Favourite: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
+            </Typography>
+            <Typography sx={{ mt: 1, fontSize: 18 }}>
+              Feedbacks / Bug Report: <a href="https://discord.gg/u46QWWaNfV">Discord</a>
+            </Typography>
+          </div>
+          <div style={{ float: 'right' }} ><KofiButton kofiID='A0A8ERCTF' title="Support Me on Ko-fi" color='#29abe0' style={{ display: "none"}} /></div>
+          <div style={{ clear: 'both' }} />
+        </div>
         <Divider variant="fullWidth" sx={{ mt: 2 }} />
       </Container>
       <Container maxWidth="xl" component="main">

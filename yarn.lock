@@ -1513,6 +1513,11 @@ json5@^1.0.1:
     array-includes "^3.1.5"
     object.assign "^4.1.3"
 
+kofi-button@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/kofi-button/-/kofi-button-1.1.1.tgz#79d34e65697ee8bb93467529b7d905e715c07bc1"
+  integrity sha512-6LjKH46C5L0WXgd7lcCCZ6sZyrtjv7tLA5XLBnuayyzrSDRP6yQKt00zL7IH2QxixqQtyxAqpefwUglmmtD9IA==
+
 language-subtag-registry@~0.3.2:
   version "0.3.22"
   resolved "https://registry.yarnpkg.com/language-subtag-registry/-/language-subtag-registry-0.3.22.tgz#2e1500861b2e457eba7e7ae86877cbd08fa1fd1d"
