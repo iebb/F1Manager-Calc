@@ -45,7 +45,7 @@ const feedbackColors = {
   "bad-": "error",
 }
 
-const MAX_SETUP_CANDIDATES = 100;
+const MAX_SETUP_CANDIDATES = 99;
 const eps = 1e-6;
 const optimalBreakpoint = 0.007; // technically 39/5600 = 0.0069642857142857146 but fine
 const greatBreakpoint = 0.04 + eps;
@@ -706,20 +706,28 @@ export function Calculator({ target, preset }) {
                 <div style={{ flexGrow: 1 }}>
                   <DataGrid
                     autoHeight
-                    rows={carSetupList.map((x, id) => {
-                      const biasParams = setupToBias(x.arr);
-                      return {...x, biasParams, id: id + 1}
-                    })}
+                    rows={[
+                      {
+                        arr: prevCarSetup,
+                        biasParams: prevBiasParam,
+                        diff: 0,
+                        id: 0,
+                      },
+                      ...carSetupList.map((x, id) => {
+                        const biasParams = setupToBias(x.arr);
+                        return {...x, biasParams, id: id + 1}
+                      })
+                    ]}
                     columns={[
                       {
                         field: 'id', headerName: 'Setup #',
                         renderCell : ({ row, value }) =>
-                          <Button variant="contained" color="info" sx={{ pt: 0.2, pb: 0.2 }} onClick={
+                          <Button variant="contained" color={value ? "info" : "secondary"} sx={{ pt: 0.2, pb: 0.2 }} onClick={
                             () => {
                               setBiasParam(setupToBias(row.arr));
                               setCarSetup(row.arr);
                             }
-                          }>#{value}</Button>
+                          }>{value ? "#" + value : "PRV"}</Button>
                       },
                       {
                         field: 'diff', headerName: '%',
