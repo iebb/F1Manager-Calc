@@ -30,7 +30,12 @@ export const CarSetupParams = [
     step: 1,
     decimals: 0,
     effect: [7/16, 1/4, 1, 37/16, 25/32],
-    render: x => `${(10-x).toFixed(0)}:${x.toFixed(0)}`,
+    render: x => {
+      if (Math.abs(Math.round(x) - x) < 1e-6) {
+        return `${(10-x).toFixed(0)}:${x.toFixed(0)}`
+      }
+      return `${(10-x).toFixed(2)}:${x.toFixed(2)}`
+    },
   },
   {
     name: "Tyre Camber",

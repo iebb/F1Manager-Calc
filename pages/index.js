@@ -44,11 +44,11 @@ const feedbackColors = {
   "bad-": "error",
 }
 
-const optimalBreakpoint = 0.007; // technically 39/5600 = 0.0069642857142857146 but fine
-const greatBreakpoint = 0.04 + 1e-6;
-const goodBreakpoint = 0.1 + 1e-6;
-
 const eps = 1e-6;
+const optimalBreakpoint = 0.007; // technically 39/5600 = 0.0069642857142857146 but fine
+const greatBreakpoint = 0.04 + eps;
+const goodBreakpoint = 0.1 + eps;
+
 const errorConst = 1e20;
 
 const arrayFloatEqual = (a, b) => {
@@ -98,17 +98,17 @@ const nearestSetup = (biasParam, feedbacks) => {
           // const scale = {bad: 1, good: 2, great: 3, optimal: 4}
           if (f !== "unknown") {
             if (
-              (f === 'bad' && (dx < goodBreakpoint - eps))
+              (f === 'bad' && (dx < goodBreakpoint))
               ||
-              (f === 'bad+' && (fs.value - x < goodBreakpoint - eps))
+              (f === 'bad+' && (fs.value - x < goodBreakpoint))
               ||
-              (f === 'bad-' && (fs.value - x > - goodBreakpoint + eps))
+              (f === 'bad-' && (fs.value - x > - goodBreakpoint))
               ||
-              (f === 'good' && ((dx > goodBreakpoint + eps) || (dx < greatBreakpoint - eps)))
+              (f === 'good' && ((dx > goodBreakpoint) || (dx < greatBreakpoint)))
               ||
-              (f === 'great' && ((dx > greatBreakpoint + eps) || (dx < optimalBreakpoint - eps)))
+              (f === 'great' && ((dx > greatBreakpoint) || (dx < optimalBreakpoint)))
               ||
-              (f === 'optimal' && (dx >= optimalBreakpoint + eps))
+              (f === 'optimal' && (dx >= optimalBreakpoint))
             ) {
               ruleBreaks += 1;
             }
