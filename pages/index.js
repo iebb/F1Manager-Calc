@@ -46,7 +46,7 @@ const feedbackColors = {
   "bad-": "error",
 }
 
-const MAX_SETUP_CANDIDATES = 99;
+const MAX_SETUP_CANDIDATES = 399;
 const eps = 1e-6;
 const optimalBreakpoint = 0.007; // technically 39/5600 = 0.0069642857142857146 but fine
 const greatBreakpoint = 0.04 + eps;
