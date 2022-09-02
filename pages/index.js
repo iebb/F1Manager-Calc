@@ -904,12 +904,6 @@ export default function CalculatorPage() {
     }));
   }
 
-  const calcMemo = useMemo(() => slots.map(s =>
-    <div style={tab !== s.id ? {display: 'none'} : null} key={s.id}>
-      <Calculator target={s.slotNaming} key={s.id} preset={preset} />
-    </div>
-  ), []);
-
   return (
     <SnackbarProvider
       maxSnack={3}
@@ -976,7 +970,11 @@ export default function CalculatorPage() {
           </Tabs>
         </Box>
         {
-          calcMemo
+          slots.map(s =>
+            <div style={tab !== s.id ? {display: 'none'} : null} key={s.id}>
+              <Calculator target={s.slotNaming} key={s.id} preset={preset} />
+            </div>
+          )
         }
       </Container>
       <Divider variant="fullWidth" />
