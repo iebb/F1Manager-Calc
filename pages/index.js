@@ -10,7 +10,7 @@ import {
   DialogTitle,
   Divider,
   FormControl,
-  Grid,
+  Grid, IconButton, Input,
   InputLabel,
   MenuItem,
   Paper,
@@ -30,10 +30,10 @@ import {
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import {BiasParams, CarSetupParams} from "../consts/params";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {SnackbarProvider, useSnackbar} from 'notistack';
 import {trackMap, tracks} from "../consts/tracks";
-import {Delete, OpenInNew} from "@mui/icons-material";
+import {Delete, Edit, OpenInNew} from "@mui/icons-material";
 import KofiButton from "kofi-button";
 import Image from "next/image";
 import {PresetSnapshot} from "../consts/presets";
@@ -878,12 +878,37 @@ export function Calculator({ target, preset }) {
 
 export default function CalculatorPage() {
   const [tab, setTab] = useState(1);
-  const [preset, setPreset] = useState(PresetSnapshot);
-  const slots = [1, 2, 3, 4, 5];
+  const [editText, setEditText] = useState("");
+  const [openRenameId, setOpenRenameId] = useState(0);
+  const totalSlots = 8;
+  const preset = PresetSnapshot;
 
-  // useEffect(() => {
-  //   fetch(`https://f1setup.deta.dev/values`).then(r => r.json()).then(r => setPreset(r));
-  // }, []);
+  let defaultSlots = Array.from(Array(totalSlots)).map((x, i) => ({
+    id: i+1,
+    slotNaming: `car_${i+1}`,
+    slotTitle: `Slot ${i+1}`,
+  }));
+
+  try {
+    const config = JSON.parse(localStorage.config)
+    defaultSlots = config.slots;
+  } catch (e) {
+    console.log(e);
+  }
+
+  const [slots, setSlots] = useState(defaultSlots);
+
+  if (typeof window !== "undefined") {
+    localStorage.setItem("config", JSON.stringify({
+      slots,
+    }));
+  }
+
+  const calcMemo = useMemo(() => slots.map(s =>
+    <div style={tab !== s.id ? {display: 'none'} : null} key={s.id}>
+      <Calculator target={s.slotNaming} key={s.id} preset={preset} />
+    </div>
+  ), []);
 
   return (
     <SnackbarProvider
@@ -894,6 +919,26 @@ export default function CalculatorPage() {
       }}
     >
       <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 3 }}>
+        <Dialog
+          open={openRenameId > 0}
+          onClose={() => {
+            setSlots(slots.map(x => x.id === openRenameId ? {...x, slotTitle: editText} : x))
+            setOpenRenameId(0);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Rename This Slot</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {
+                openRenameId > 0 && (
+                  <Input value={editText} onChange={e => setEditText(e.target.value)}/>
+                )
+              }
+            </DialogContentText>
+          </DialogContent>
+        </Dialog>
         <Typography variant="h3" component="h3">F1 Manager Setup Calculator</Typography>
         <Divider variant="fullWidth" sx={{ mt: 2, mb: 2 }}/>
         <div>
@@ -915,17 +960,23 @@ export default function CalculatorPage() {
           <Tabs value={tab} onChange={(_, f) => setTab(f)}>
             {
               slots.map(
-                s => <Tab label={`Slot #${s}`} value={s} key={s}/>
+                s => <Tab label={
+                  <span>
+                    {s.slotTitle}
+                    <IconButton size="small" sx={{ ml: 1 }} onClick={() => {
+                      setEditText(s.slotTitle);
+                      setOpenRenameId(s.id);
+                    }}>
+                      <Edit />
+                    </IconButton>
+                  </span>
+                } value={s.id} key={s.id}/>
               )
             }
           </Tabs>
         </Box>
         {
-          slots.map(
-            s => <div style={tab !== s ? {display: 'none'} : null} key={s}>
-              <Calculator target={`car_${s}`} key={s} preset={preset} />
-            </div>
-          )
+          calcMemo
         }
       </Container>
       <Divider variant="fullWidth" />
