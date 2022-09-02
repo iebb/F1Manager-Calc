@@ -353,7 +353,7 @@ export function Calculator({ target, preset }) {
       ]: x)
     )
 
-    if (v === "optimal" && Number(localStorage.c) > 6) {
+    if (v === "optimal" && Number(localStorage.c) > 6 && Object.keys(preset).length) {
       fetch(`https://f1setup.deta.dev/report`, {
         method: 'POST',
         headers: {
@@ -755,6 +755,7 @@ export function Calculator({ target, preset }) {
                       }),
                       {
                         field: 'arr', headerName: '⇒',
+                        width: 8,
                         renderCell: () => "⇒",
                       },
                       ...BiasParams.map(param => {
@@ -770,7 +771,7 @@ export function Calculator({ target, preset }) {
                               fontSize: 13, p: 0.5, textAlign: "center",
                               color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}
                             >
-                              {carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {value.toFixed(4)}
+                              {value.toFixed(4)} {carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""}
                             </Typography>
                           },
                         }
