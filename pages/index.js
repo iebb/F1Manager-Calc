@@ -36,6 +36,7 @@ import {trackMap, tracks} from "../consts/tracks";
 import {Delete, OpenInNew} from "@mui/icons-material";
 import KofiButton from "kofi-button";
 import Image from "next/image";
+import {PresetSnapshot} from "../consts/presets";
 
 const feedbackColors = {
   optimal: "info",
@@ -877,12 +878,12 @@ export function Calculator({ target, preset }) {
 
 export default function CalculatorPage() {
   const [tab, setTab] = useState(1);
-  const [preset, setPreset] = useState({});
+  const [preset, setPreset] = useState(PresetSnapshot);
   const slots = [1, 2, 3, 4, 5];
 
-  useEffect(() => {
-    fetch(`https://f1setup.deta.dev/values`).then(r => r.json()).then(r => setPreset(r));
-  }, []);
+  // useEffect(() => {
+  //   fetch(`https://f1setup.deta.dev/values`).then(r => r.json()).then(r => setPreset(r));
+  // }, []);
 
   return (
     <SnackbarProvider
