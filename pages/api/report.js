@@ -20,8 +20,12 @@ export default async (req, res) => {
     );
     await db.collection(`reports_${year}${month}`).updateOne(
       { track },
-      { $push: { [`params_${index}`]: value } },
-      { $push: { [`feedbacks_${index}`]: { uid, track, value, feedback, index } } },
+      {
+        $push: {
+          [`params_${index}`]: value,
+          [`feedbacks_${index}`]: { uid, track, value, feedback, index }
+        }
+      },
       { upsert: true },
     );
   }
