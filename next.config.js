@@ -5,11 +5,11 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/:path*',
+        source: '/old-api/:path*',
         destination: 'https://f1setup.deta.dev/:path*',
       },
       {
-        source: '/stats/:path*',
+        source: '/old-stats/:path*',
         destination: 'https://f1setup.deta.dev/:path*',
       },
     ]

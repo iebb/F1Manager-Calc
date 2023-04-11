@@ -10,7 +10,9 @@ import {
   DialogTitle,
   Divider,
   FormControl,
-  Grid, IconButton, Input,
+  Grid,
+  IconButton,
+  Input,
   InputLabel,
   MenuItem,
   Paper,
@@ -28,15 +30,16 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import {DataGrid} from '@mui/x-data-grid';
 import {BiasParams, CarSetupParams} from "../consts/params";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useState} from "react";
 import {SnackbarProvider, useSnackbar} from 'notistack';
 import {trackMap, tracks} from "../consts/tracks";
 import {Delete, Edit, OpenInNew} from "@mui/icons-material";
 import KofiButton from "kofi-button";
 import Image from "next/image";
 import {PresetSnapshot} from "../consts/presets";
+import axios from "axios";
 
 const feedbackColors = {
   optimal: "info",
@@ -164,7 +167,6 @@ const nearestSetup = (biasParam, feedbacks) => {
   _dfs(0, []);
 
   possibleSetupList = possibleSetupList.sort((x, y) => x.diff - y.diff).slice(0, MAX_SETUP_CANDIDATES)
-  console.log(possibleSetupList);
   return {setup: nearestResult, possibleSetups, lowestRuleBreak, possibleSetupList};
 }
 
@@ -355,18 +357,12 @@ export function Calculator({ target, preset }) {
     )
 
     if (v === "optimal" && Number(localStorage.c) > 6 && Object.keys(preset).length) {
-      fetch(`https://f1setup.deta.dev/report`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          uid: getIdentifier(),
-          track,
-          value: biasValue,
-          feedback: v,
-          index: row.index,
-        })
+      axios.post(`/api/report`, {
+        uid: getIdentifier(),
+        track,
+        value: biasValue,
+        feedback: v,
+        index: row.index,
       });
     }
   }
