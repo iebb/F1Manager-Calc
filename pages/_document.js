@@ -12,6 +12,7 @@ class MyDocument extends Document {
           />
         </Head>
         <body>
+        <div dangerouslySetInnerHTML={{ __html: `<script defer data-domain="f1setup.it" src="https://analytics.nekoko.it/js/script.js"></script>` }} />
         <Main />
         <NextScript />
         </body>
