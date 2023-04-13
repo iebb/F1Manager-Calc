@@ -159,6 +159,14 @@ export function Calculator({ target, preset }) {
         );
         setPossibleSetups(0);
       } else {
+
+        if (possibleSetups === 1) {
+          axios.post(`/api/report_vals`, {
+            uid: getIdentifier(),
+            track,
+            values: setup,
+          });
+        }
         setPossibleSetups(possibleSetups);
       }
       setBiasParam(setupToBias(setup));
