@@ -31,7 +31,7 @@ export function CalculatorPage() {
   const [tab, setTab] = useState(1);
   const [slots, setSlots] = useState(defaultSlots);
   const [editText, setEditText] = useState("");
-  const [openRenameId, setOpenRenameId] = useState(0);
+  const [openRenameId, setOpenRenameId] = useState(null);
 
   try {
     const config = JSON.parse(localStorage.config)
@@ -51,10 +51,10 @@ export function CalculatorPage() {
     <Container maxWidth="xl" component="main">
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Dialog
-          open={openRenameId > 0}
+          open={openRenameId !== null}
           onClose={() => {
             setSlots(slots.map((x, _idx) => _idx === openRenameId ? {...x, slotTitle: editText} : x))
-            setOpenRenameId(0);
+            setOpenRenameId(null);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
