@@ -33,14 +33,14 @@ import {
 import {DataGrid} from '@mui/x-data-grid';
 import {BiasParams, CarSetupParams} from "../consts/params";
 import {useEffect, useState} from "react";
-import {SnackbarProvider, useSnackbar} from 'notistack';
+import {useSnackbar} from 'notistack';
 import {trackMap, tracks} from "../consts/tracks";
 import {Delete, Edit, OpenInNew} from "@mui/icons-material";
-import KofiButton from "kofi-button";
 import Image from "next/image";
 import {PresetSnapshot} from "../consts/presets";
 import axios from "axios";
 import {arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBias} from "../libs/setup";
+import dynamic from "next/dynamic";
 
 const feedbackColors = {
   optimal: "info",
@@ -754,7 +754,7 @@ export function Calculator({ target, preset }) {
 
 }
 
-export default function CalculatorPage() {
+export function CalculatorPage() {
   const [tab, setTab] = useState(1);
   const [editText, setEditText] = useState("");
   const [openRenameId, setOpenRenameId] = useState(0);
@@ -783,15 +783,7 @@ export default function CalculatorPage() {
   }
 
   return (
-    <SnackbarProvider
-      maxSnack={3}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-    >
-      <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 3 }}>
-
+      <Container maxWidth="xl" component="main">
         <Dialog
           open={openRenameId > 0}
           onClose={() => {
@@ -812,24 +804,6 @@ export default function CalculatorPage() {
             </DialogContentText>
           </DialogContent>
         </Dialog>
-
-        <Typography variant="h3" component="h3">F1 Manager Setup Calculator</Typography>
-        <Divider variant="fullWidth" sx={{ mt: 2, mb: 2 }}/>
-        <div>
-          <div style={{ float: 'left' }} >
-            <Typography sx={{ mt: 1, fontSize: 18 }}>
-              Tutorial / Give award / Favourite: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
-            </Typography>
-            <Typography sx={{ mt: 1, fontSize: 18 }}>
-              Feedbacks / Bug Report: <a href="https://discord.gg/u46QWWaNfV">Discord</a>
-            </Typography>
-          </div>
-          <div style={{ float: 'right' }} ><KofiButton kofiID='A0A8ERCTF' title="Support Me on Ko-fi" color='#29abe0' style={{ display: "none"}} /></div>
-          <div style={{ clear: 'both' }} />
-        </div>
-        <Divider variant="fullWidth" sx={{ mt: 2 }} />
-      </Container>
-      <Container maxWidth="xl" component="main">
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tab} onChange={(_, f) => setTab(f)}>
             {
@@ -853,14 +827,9 @@ export default function CalculatorPage() {
           <Calculator target={slots[tab].slotNaming} preset={preset} />
         </div>
       </Container>
-      <Divider variant="fullWidth" />
-      <Container  maxWidth="xl" component="main" sx={{ pt: 2, pb: 3 }}>
-        <Typography>
-          Another ieb Project &middot; {' '}
-          GitHub: <a href="https://github.com/iebb/F1Manager-Calc">iebb/F1Manager-Calc</a> &middot; {' '}
-          Contact: <a href="https://twitter.com/CyberHono">@CyberHono</a>
-        </Typography>
-      </Container>
-    </SnackbarProvider>
   );
 }
+
+export default dynamic(() => Promise.resolve(CalculatorPage), {
+  ssr: false,
+});

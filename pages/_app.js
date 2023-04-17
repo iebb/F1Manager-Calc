@@ -1,8 +1,11 @@
 import '../styles/globals.css'
 import Head from "next/head";
-import dynamic from "next/dynamic";
+import {SessionProvider} from "next-auth/react"
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import ReactGA from "react-ga4";
+import Header from "../components/Header";
+import {SnackbarProvider} from "notistack";
+import Footer from "../components/Footer";
 
 const theme = createTheme({
   palette: {
@@ -18,23 +21,31 @@ const theme = createTheme({
   },
 });
 
-
 ReactGA.initialize("G-XNCFQVHQMX");
-function MyApp({ Component, pageProps }) {
+export default function MyApp({
+                                Component,
+                                pageProps: { session, ...pageProps }
+                              }) {
   return (
-    <>
+    <SessionProvider session={session} refetchInterval={5 * 60}>
       <Head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
         <title>F1 Manager Setup Calculator</title>
       </Head>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Component {...pageProps} />
+        <SnackbarProvider
+          maxSnack={3}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <CssBaseline />
+          <Header />
+          <Component {...pageProps} />
+          <Footer />
+        </SnackbarProvider>
       </ThemeProvider>
-    </>
+    </SessionProvider>
   )
 }
-
-export default dynamic(() => Promise.resolve(MyApp), {
-  ssr: false,
-});
