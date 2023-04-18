@@ -1,7 +1,7 @@
 import {useSnackbar} from "notistack";
 import {useEffect, useState} from "react";
 import {BiasParams, CarSetupParams} from "../../consts/params";
-import {arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBias} from "../../libs/setup";
+import {arrayFloatEqual, biasToSetup, eps, nearestSetup, setupToBias} from "../../libs/setup";
 import axios from "axios";
 import {
   Button,
@@ -346,28 +346,15 @@ export function Calculator({ slot, target, preset }) {
                           <Button variant="contained" onClick={findNearest}>Find Setup</Button>
                           <Button variant="contained" color="secondary" onClick={
                             () => {
-                              const setup = [1, 1, 1, 1, 1];
-                              setCarSetup(setup);
+                              setCarSetup(preset[track]);
                             }
-                          }>Max</Button>
+                          }>Preset</Button>
                           <Button variant="contained" color="secondary" onClick={
                             () => {
                               const setup = [0.5, 0.5, 0.5, 0.5, 0.5];
                               setCarSetup(setup);
                             }
-                          }>Mid</Button>
-                          <Button variant="contained" color="secondary" onClick={
-                            () => {
-                              const setup = [0, 0, 0, 0, 0];
-                              setCarSetup(setup);
-                            }
-                          }>Min</Button>
-                          <Button variant="contained" color="error" onClick={
-                            () => {
-                              const setup = randomSetup();
-                              setCarSetup(setup);
-                            }
-                          }>Random</Button>
+                          }>Reset</Button>
                           <div style={{ padding: 5 }}>
                             <Typography sx={{ color: "#777" }}>{possibleSetups} Setups Possible</Typography>
                           </div>
