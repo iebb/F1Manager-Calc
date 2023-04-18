@@ -47,7 +47,7 @@ const feedbackColors = {
   "bad-": "error",
 }
 
-export function Calculator({ slot, target, preset }) {
+export function Calculator({ slot, preset }) {
 
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
@@ -71,33 +71,23 @@ export function Calculator({ slot, target, preset }) {
   } = slot;
 
 
-  useEffect(() => {
-    if (
-      slot.id && (
-        (!isValidSetup) ||
-        (!carSetup) ||
-        (!biasParam) ||
-        (!prevCarSetup) ||
-        (!prevBiasParam) ||
-        (!feedback) ||
-        (!track) ||
-        (!previousRuns)
-      )
+  if (
+    slot.id && (
+      (!isValidSetup) || (!carSetup) || (!biasParam) || (!prevCarSetup) || (!prevBiasParam) || (!feedback) || (!track) || (!previousRuns)
     )
+  ) {
+    update({
+      isValidSetup: [true, true, true, true, true],
+      carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+      biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+      prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+      prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+      feedback: [[], [], [], [], []],
+      track: "XX",
+      previousRuns: [],
+    });
+  }
 
-      update({
-        isValidSetup: [true, true, true, true, true],
-        carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-        biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
-        prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-        prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
-        feedback: [[], [], [], [], []],
-        track: "XX",
-        previousRuns: [],
-      });
-  }, [
-    update, slot, isValidSetup, carSetup, biasParam, prevCarSetup, prevBiasParam, feedback, track, previousRuns
-  ])
 
   const setCarSetup = (e) => {
     const bias = setupToBias(e);
@@ -219,7 +209,7 @@ export function Calculator({ slot, target, preset }) {
   try {
 
     return (
-      <Container disableGutters maxWidth="xl" key={target}>
+      <Container disableGutters maxWidth="xl" key={slot.slotNaming}>
         <Divider variant="fullWidth" />
         <Dialog
           open={openClearFeedback}
@@ -397,7 +387,7 @@ export function Calculator({ slot, target, preset }) {
                       BiasParams.map(row => {
                         let feedbacks = JSON.parse(JSON.stringify(feedback[row.index]));
                         const biasValue = biasParam[row.index];
-                        const k = row.name + ":" + target;
+                        const k = row.name + ":" + slot.slotNaming;
                         let currentFeedback = "";
                         for(const fb of feedbacks) {
                           if (fb.value === biasValue) {
@@ -674,8 +664,6 @@ export function Calculator({ slot, target, preset }) {
     )
   } catch (e) {
     console.log(e);
-    // delete localStorage[target];
-    // document.location.reload();
   }
 }
 

@@ -89,7 +89,6 @@ export function TabManager() {
           <Calculator
             key={tab}
             slot={config.slots[tab]}
-            target={config.slots[tab].slotNaming}
             preset={PresetSnapshot}
           />
         )
