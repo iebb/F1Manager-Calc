@@ -17,13 +17,13 @@ export default function createCloudStorage(session) {
     },
     setItem: (key, item) => {
       return new Promise((resolve, reject) => {
-        fallbackStorage.setItem(key, item)
+        // fallbackStorage.setItem(key, item)
         axios.post(`/api/cloud/storage`, {[key]: item}).then(resolve).catch(reject)
       })
     },
     removeItem: (key) => {
       return new Promise((resolve, reject) => {
-        fallbackStorage.removeItem(key)
+        // fallbackStorage.removeItem(key)
         axios.post(`/api/cloud/storage`, {[key]: null}).then(resolve).catch(reject)
       })
     },
