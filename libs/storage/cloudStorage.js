@@ -1,13 +1,11 @@
 import axios from "axios";
 
-export default function createWebStorage(type) {
+export default function createCloudStorage(session) {
   return {
     getItem: (key)  => {
       return new Promise((resolve, reject) => {
         axios.get(`/api/cloud/storage`).then(d => {
-          resolve(
-            d.data ? d.data[key] : null
-          )
+          resolve(d.data ? d.data[key] : null)
         }).catch(r => {
           reject(r)
         })

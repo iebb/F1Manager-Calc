@@ -1,5 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
-import {useSession} from "next-auth/react";
+import {createSlice} from '@reduxjs/toolkit'
 
 const getDefaultSlotConfig = i => ({
   id: i,
@@ -7,11 +6,12 @@ const getDefaultSlotConfig = i => ({
   slotTitle: `Slot ${i}`,
 });
 const totalSlots = 4;
+const initialSlots = Array.from(Array(totalSlots)).map((x, i) => getDefaultSlotConfig(i+1));
 
 export const configSlice = createSlice({
   name: 'config',
   initialState: {
-    slots: Array.from(Array(totalSlots)).map((x, i) => getDefaultSlotConfig(i+1)),
+    slots: initialSlots,
   },
   reducers: {
     setSlots: (state,  { payload }) => {
