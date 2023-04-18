@@ -6,15 +6,9 @@ import {TabManager} from "../components/Calculator/TabManager";
 import dynamic from "next/dynamic";
 
 export function CalculatorPage() {
-  const [slot, setSlot] = useState({ id: -1, slotNaming: "undefined" });
   return (
     <Container maxWidth="xl" component="main">
-      <TabManager setActiveSlot={setSlot} />
-      <Calculator
-        key={slot.id}
-        target={slot.slotNaming}
-        preset={PresetSnapshot}
-      />
+      <TabManager />
     </Container>
   );
 }
