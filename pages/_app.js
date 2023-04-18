@@ -14,6 +14,7 @@ import configReducer from "../libs/reducers/configReducer";
 import storage from 'redux-persist/lib/storage'
 import createCloudStorage from "../libs/storage/cloudStorage";
 import dynamic from "next/dynamic";
+import {useEffect, useState} from "react";
 
 ReactGA.initialize("G-XNCFQVHQMX");
 
@@ -54,26 +55,31 @@ export function MyApp({Component, pageProps: { session, ...pageProps }}) {
 
 function SessionConsumer({ children }) {
   const session = useSession()
-  const store = configureStore(
-    {
-      reducer: {
-        config: persistReducer({
-          key: 'root',
-          version: 1,
-          storage: (
-            session.status === "authenticated"
-          ) ? createCloudStorage(session) : storage,
-        }, configReducer),
+  const [store, setStore] = useState(null);
+
+  useEffect(() => {
+    setStore(configureStore(
+      {
+        reducer: {
+          config: persistReducer({
+            key: 'root',
+            version: 1,
+            storage: (
+              session.status === "authenticated"
+            ) ? createCloudStorage(session) : storage,
+          }, configReducer),
+        },
+        middleware: (getDefaultMiddleware) =>
+          getDefaultMiddleware({
+            serializableCheck: {
+              ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+            },
+          }),
       },
-      middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-          serializableCheck: {
-            ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-          },
-        }),
-    },
-  )
-  const persistor = persistStore(store);
+    ));
+  }, [session.status])
+
+  const persistor = store && persistStore(store);
 
   if (session.status === "loading") {
     return (
@@ -84,7 +90,7 @@ function SessionConsumer({ children }) {
   }
 
   return (
-    <Provider store={store} key={session.status}>
+    <Provider store={store} key={session.userId}>
       <PersistGate loading={(
         <div style={{ width: "100%", textAlign: "center" }}>
           <CircularProgress style={{ margin: "0 auto" }} />
