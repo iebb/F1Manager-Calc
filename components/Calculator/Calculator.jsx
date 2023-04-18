@@ -488,11 +488,11 @@ export function Calculator({ slot, target, preset }) {
                                           setCarSetup(biasToSetup(bias))
                                         }}
                                         onDelete={() => {
-                                          setFeedback(
-                                            feedback.map((x, idx) => idx === row.index ?
+                                          update({
+                                            feedback: feedback.map((x, idx) => idx === row.index ?
                                               x.filter(x => x.value !== f.value) : x
                                             )
-                                          )
+                                          })
                                         }}
                                       />
                                     </Grid>
@@ -652,7 +652,9 @@ export function Calculator({ slot, target, preset }) {
                                 </Button>
                                 <Button variant="contained" color="error" sx={{ minWidth: 32, p: 1 }} onClick={
                                   () => {
-                                    setPreviousRuns(previousRuns.filter(r => r.id !== x.id))
+                                    update({
+                                      previousRuns: previousRuns.filter(r => r.id !== x.id)
+                                    })
                                   }
                                 }>
                                   <Delete />
