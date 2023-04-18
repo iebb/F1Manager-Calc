@@ -35,7 +35,7 @@ export function MyApp({
   pageProps: { session, ...pageProps },
 }) {
   return (
-    <SessionProvider session={session} refetchInterval={5 * 60}>
+    <SessionProvider session={session} refetchInterval={7 * 60}>
       <Head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
         <title>F1 Manager Setup Calculator</title>
@@ -63,7 +63,7 @@ function SessionConsumer({ children }) {
         config: persistReducer({
           key: 'root',
           version: 1,
-          storage: session.status === "unauthenticated" ? createWebStorage('web') : storage,
+          storage: session.status === "authenticated" ? createWebStorage('web') : storage,
         }, configReducer),
       },
       middleware: (getDefaultMiddleware) =>
@@ -84,6 +84,8 @@ function SessionConsumer({ children }) {
   )
 }
 
-export default dynamic(() => Promise.resolve(MyApp), {
-  ssr: false,
-});
+
+export default MyApp;
+// export default dynamic(() => Promise.resolve(MyApp), {
+//   ssr: false,
+// });

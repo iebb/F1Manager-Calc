@@ -39,7 +39,7 @@ export default function LogIn() {
           onClose={handleCloseUserMenu}
         >
           <MenuItem>
-            <Typography textAlign="center">Signed in as {session.user.name}</Typography>
+            <Typography textAlign="center">Signed in as {session.user.name}#{session.user.discord_profile.discriminator}</Typography>
           </MenuItem>
           <MenuItem onClick={() => signOut()}>
             <Typography textAlign="center">Log Out</Typography>
