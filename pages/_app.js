@@ -30,10 +30,7 @@ const theme = createTheme({
       'Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
   },
 });
-export function MyApp({
-                        Component,
-                        pageProps: { session, ...pageProps },
-                      }) {
+export function MyApp({Component, pageProps: { session, ...pageProps }}) {
   return (
     <SessionProvider session={session} refetchInterval={7 * 60}>
       <Head>

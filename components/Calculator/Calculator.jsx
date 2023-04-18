@@ -55,20 +55,7 @@ export function Calculator({ slot, target, preset }) {
   const [lastCarSetup, setLastCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
   const [carSetupList, setCarSetupList] = useState([]);
   const [possibleSetups, setPossibleSetups] = useState(1012095);
-
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
-
-  const getIdentifier = () => {
-    if (typeof window !== "undefined") {
-      if (!localStorage["identifier"] || localStorage["identifier"].length !== 8) {
-        localStorage["identifier"] = Array.from(Array(8)).map(
-          () => String.fromCharCode(Math.floor(Math.random() * 26) + 65)
-        ).join("");
-      }
-      return localStorage["identifier"] + "-" + target.toUpperCase()
-    }
-    return "UNKNOWN"
-  }
 
   const {
     track,
@@ -108,22 +95,6 @@ export function Calculator({ slot, target, preset }) {
         }}));
     }
   }, [slot, isValidSetup, carSetup, biasParam, prevCarSetup, prevBiasParam, feedback, track, previousRuns])
-
-
-
-
-  // if (loaded && typeof window !== "undefined") {
-  //   localStorage.setItem(target, JSON.stringify({
-  //     isValidSetup,
-  //     carSetup,
-  //     biasParam,
-  //     prevCarSetup,
-  //     prevBiasParam,
-  //     feedback,
-  //     track,
-  //     previousRuns,
-  //   }));
-  // }
 
   const setCarSetup = (e) => {
     const bias = setupToBias(e);
@@ -173,10 +144,6 @@ export function Calculator({ slot, target, preset }) {
         'Unable to find a valid setup matching all feedbacks. Try deleting some feedbacks.',
         { variant: "error" }
       );
-    }
-
-    if (typeof window !== "undefined") {
-      localStorage.c = Number(localStorage.c || 0) + 1
     }
   }
 
@@ -231,9 +198,8 @@ export function Calculator({ slot, target, preset }) {
         ]: x),
       }}));
 
-    if (v === "optimal" && Number(localStorage.c) > 6 && Object.keys(preset).length) {
+    if (v === "optimal" && Object.keys(preset).length) {
       axios.post(`/api/report`, {
-        uid: getIdentifier(),
         track,
         value: biasValue,
         feedback: v,
