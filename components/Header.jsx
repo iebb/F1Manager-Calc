@@ -11,7 +11,7 @@ export default function Header() {
             F1 Manager Setup Calculator
           </Typography>
         </div>
-        <div style={{ flex: "0 1 200px", textAlign: "right" }} >
+        <div style={{ flex: "0 1 250px", textAlign: "right" }} >
           <LogIn />
         </div>
       </div>

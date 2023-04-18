@@ -1,10 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  optimizeFonts: false,
+  optimizeFonts: true,
   reactStrictMode: false,
-  experiments: {
-    topLevelAwait: true,
-  },
 }
 
 module.exports = nextConfig

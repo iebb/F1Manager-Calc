@@ -1,5 +1,5 @@
 import { useSession, signIn, signOut } from "next-auth/react"
-import {Avatar, Button, IconButton, Menu, MenuItem, Tooltip, Typography} from "@mui/material";
+import {Avatar, Button, Chip, IconButton, Menu, MenuItem, Tooltip, Typography} from "@mui/material";
 import {useState} from "react";
 export default function LogIn() {
   const { data: session } = useSession()
@@ -17,8 +17,9 @@ export default function LogIn() {
   if (session) {
     return (
       <div>
+        <Chip label="cloud sync on" color="primary"/>
         <Tooltip title="Open settings">
-          <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+          <IconButton onClick={handleOpenUserMenu} sx={{ p: 0, ml: 3 }}>
             <Avatar alt={session.user.name} src={session.user.image} />
           </IconButton>
         </Tooltip>
@@ -50,7 +51,11 @@ export default function LogIn() {
   }
   return (
     <div>
-      <Button variant="contained" onClick={() => signIn("discord")}>Sign in with Discord</Button>
+      <Button
+        variant="contained"
+        sx={{ ml: 3 }}
+        onClick={() => signIn("discord")}
+      >Discord Sign in</Button>
     </div>
   )
 }

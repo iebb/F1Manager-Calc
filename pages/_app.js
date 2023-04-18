@@ -23,7 +23,7 @@ const theme = createTheme({
     mode: 'dark',
     white: {
       main: '#eee',
-      contrastText: '#000',
+      contrastText: '#222',
     },
   },
   typography: {

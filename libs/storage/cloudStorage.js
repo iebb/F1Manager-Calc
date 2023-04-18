@@ -1,32 +1,30 @@
 import axios from "axios";
+import storage from 'redux-persist/lib/storage'
 
 export default function createCloudStorage(session) {
+  const fallbackStorage = storage;
   return {
     getItem: (key)  => {
       return new Promise((resolve, reject) => {
         axios.get(`/api/cloud/storage`).then(d => {
-          resolve(d.data ? d.data[key] : null)
-        }).catch(r => {
-          reject(r)
-        })
+          if (d.data && d.data[key]) {
+            resolve(d.data[key])
+          } else {
+            fallbackStorage.getItem(key).then(resolve).catch(reject)
+          }
+        }).catch(reject)
       })
     },
     setItem: (key, item) => {
       return new Promise((resolve, reject) => {
-        axios.post(`/api/cloud/storage`, {[key]: item}).then(
-          r => resolve(r)
-        ).catch(r => {
-          reject(r)
-        })
+        fallbackStorage.setItem(key, item)
+        axios.post(`/api/cloud/storage`, {[key]: item}).then(resolve).catch(reject)
       })
     },
     removeItem: (key) => {
       return new Promise((resolve, reject) => {
-        axios.post(`/api/cloud/storage`, {[key]: null}).then(
-          r => resolve(r)
-        ).catch(r => {
-          reject(r)
-        })
+        fallbackStorage.removeItem(key)
+        axios.post(`/api/cloud/storage`, {[key]: null}).then(resolve).catch(reject)
       })
     },
   }

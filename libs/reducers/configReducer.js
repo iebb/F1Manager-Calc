@@ -18,10 +18,39 @@ const getDefaultSlotConfig = i => ({
 const totalSlots = 4;
 const initialSlots = Array.from(Array(totalSlots)).map((x, i) => getDefaultSlotConfig(i+1));
 
+const legacyConfigReader = () => {
+  if (!localStorage.config) return null;
+  try {
+    let config = JSON.parse(localStorage.config);
+    const ret = config.slots.map(x => {
+      let data = {};
+      try {
+        data = JSON.parse(localStorage[x.slotNaming]);
+      } catch {
+
+      }
+      return {
+        id: x.id,
+        slotNaming: x.slotNaming,
+        slotTitle: x.slotTitle,
+        ...data
+      };
+    })
+    for(const x of ret) {
+      delete localStorage[x.slotNaming]
+    }
+    delete localStorage.config
+    return ret
+  } catch {
+    return null;
+  }
+}
+
+
 export const configSlice = createSlice({
   name: 'config',
   initialState: {
-    slots: initialSlots,
+    slots: legacyConfigReader() || initialSlots,
   },
   reducers: {
     setSlots: (state,  { payload }) => {
