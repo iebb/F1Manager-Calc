@@ -1,28 +1,49 @@
 import { createSlice } from '@reduxjs/toolkit'
+import {useSession} from "next-auth/react";
+
+const getDefaultSlotConfig = i => ({
+  id: i,
+  slotNaming: `car_${i}`,
+  slotTitle: `Slot ${i}`,
+});
+const totalSlots = 4;
 
 export const configSlice = createSlice({
   name: 'config',
   initialState: {
-    config: [],
+    slots: Array.from(Array(totalSlots)).map((x, i) => getDefaultSlotConfig(i+1)),
   },
   reducers: {
-    increment: (state) => {
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes
-      state.value += 1
+    setSlots: (state,  { payload }) => {
+      state.slots = payload
     },
-    decrement: (state) => {
-      state.value -= 1
+    addSlot: (state) => {
+      let nextAvailableSlotId = 1;
+      for(const slot of state.slots) {
+        if (nextAvailableSlotId === slot.id) {
+          nextAvailableSlotId++;
+        }
+      }
+      state.slots = [...state.slots, getDefaultSlotConfig(nextAvailableSlotId)]
     },
-    incrementByAmount: (state, action) => {
-      state.value += action.payload
+    renameSlot: (state, { payload: { id, slotTitle } }) => {
+      state.slots = state.slots.map(
+        (x, _idx) =>
+          x.id === id ? {...x, slotTitle} : x
+      )
+    },
+    removeSlot: (state, { payload: { id } }) => {
+      state.slots = state.slots.filter((x) => x.id !== id )
     },
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { increment, decrement, incrementByAmount } = configSlice.actions
+export const {
+  setSlots,
+  renameSlot,
+  addSlot,
+  removeSlot,
+} = configSlice.actions
 
 export default configSlice.reducer

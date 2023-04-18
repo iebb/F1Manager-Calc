@@ -101,7 +101,6 @@ export function Calculator({ target, preset }) {
       setPreviousRuns(previousRuns || []);
       setTrack(track);
       setIsValidSetup(isValidSetup);
-      console.log("loaded", target);
     } catch (e) {
       console.log(e);
       setPreviousRuns([]);

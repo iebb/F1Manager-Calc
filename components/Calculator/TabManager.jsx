@@ -4,98 +4,35 @@ import {Add, Edit} from "@mui/icons-material";
 import {useState} from "react";
 import {Calculator} from "./Calculator";
 import {PresetSnapshot} from "../../consts/presets";
-import {getSession, useSession} from "next-auth/react";
-import axios from "axios";
-import {getConfig} from "../../libs/data/ConfigManager";
+import {useDispatch, useSelector} from "react-redux";
+import {addSlot, removeSlot, renameSlot} from "../../libs/reducers/configReducer";
 
-const totalSlots = 4;
+/*
 
-const getDefaultSlotConfig = i => ({
-  id: i,
-  slotNaming: `car_${i}`,
-  slotTitle: `Slot ${i}`,
-});
+ */
 
+export function TabManager() {
 
-export async function getServerSideProps(context) {
-  const session = await getSession(context)
-  let defaultConfig = Array.from(Array(totalSlots)).map((x, i) => getDefaultSlotConfig(i+1));
-  if (session.user_id) {
-    defaultConfig = await getConfig(session.user_id)
-  }
+  const config = useSelector(state => state.config)
+  const { slots } = config;
 
-  return {
-    props: {
-      user: session.user,
-      s: session,
-      defaultConfig,
-    },
-  }
-}
-export function TabManager({user, s, defaultConfig}) {
+  const dispatch = useDispatch()
 
-  console.log(user, s, defaultConfig);
-
-  const {data: session, status: sessionStatus} = useSession();
-
-  const [activeSlot, setActiveSlot] = useState({ id: -1, slotNaming: "undefined" });
+  const [activeSlot, setActiveSlot] = useState(slots[0]);
   const [tab, setTab] = useState(0);
-  const [slots, _setSlots] = useState([]);
+
   const [editText, setEditText] = useState("");
   const [openRenameSlot, setOpenRenameSlot] = useState(null);
 
-  const setSlots = (slots) => {
-    _setSlots(slots);
-    const saveConfig = {slots};
-    localStorage.setItem("config", JSON.stringify(saveConfig));
-    if (sessionStatus === "authenticated") {
-      axios.post(`/api/cloud/config`, {config: saveConfig});
-    }
-  }
-
-  const createNewSlot = () => {
-    let nextAvailableSlotId = 1;
-    for(const slot of slots) {
-      if (nextAvailableSlotId === slot.id) {
-        nextAvailableSlotId++;
-      }
-    }
-    _setSlots([...slots, getDefaultSlotConfig(nextAvailableSlotId)]);
-  }
-
   const saveSlotEdit = () => {
-    setSlots(
-      slots.map(
-        (x, _idx) =>
-          x.id === openRenameSlot.id ? {...x, slotTitle: editText} : x
-      )
-    )
+    dispatch(renameSlot({ id: openRenameSlot.id, slotTitle: editText }))
     setOpenRenameSlot(null);
   }
 
-
   if (typeof window !== "undefined" && !slots.length) {
-    if (sessionStatus === "authenticated") {
-      axios.get(`/api/cloud/config`).then(d => {
-        console.log(d.data.config);
-      });
-    } else {
-      try {
-        if (typeof localStorage.config === "undefined") {
-          setSlots(defaultSlots);
-          setActiveSlot(defaultSlots[0]);
-        } else {
-          const config = JSON.parse(localStorage.config)
-          if (config?.slots?.length > 0) {
-            setSlots(config.slots);
-            setActiveSlot(config.slots[0]);
-          }
-        }
-      } catch (e) {
-        console.log(e);
-        _setSlots(defaultSlots);
-        setActiveSlot(defaultSlots[0]);
-      }
+    if (config?.slots?.length > 0) {
+      setSlots(config.slots);
+      setActiveSlot(config.slots[0]);
     }
   }
 
@@ -127,9 +64,7 @@ export function TabManager({user, s, defaultConfig}) {
                 <div style={{ marginTop: 20, textAlign: "right" }}>
                   <Button sx={{m: 1}} variant="contained" color="error" onClick={
                     () => {
-                      setSlots(
-                        slots.filter((x, _idx) => x.id !== openRenameSlot.id)
-                      )
+                      dispatch(removeSlot({ id: openRenameSlot.id }));
                       setOpenRenameSlot(null);
                     }
                   }>Delete this Slot</Button>
@@ -158,8 +93,7 @@ export function TabManager({user, s, defaultConfig}) {
               } value={_idx} key={_idx}/>
             )
           }
-
-          <Button size="small" sx={{ padding: 0, float: "right" }} onClick={createNewSlot}><Add /></Button>
+          <Button size="small" sx={{ padding: 0, float: "right" }} onClick={() => dispatch(addSlot())}><Add /></Button>
         </Tabs>
       </Box>
       {
