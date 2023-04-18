@@ -19,31 +19,44 @@ const totalSlots = 4;
 const initialSlots = Array.from(Array(totalSlots)).map((x, i) => getDefaultSlotConfig(i+1));
 
 const legacyConfigReader = () => {
-  if (!localStorage.config) return null;
-  try {
-    let config = JSON.parse(localStorage.config);
-    const ret = config.slots.map(x => {
-      let data = {};
-      try {
-        data = JSON.parse(localStorage[x.slotNaming]);
-      } catch {
+  if (typeof window === "undefined") return null;
+  if (localStorage.config) {
+    try {
+      let config = JSON.parse(localStorage.config);
+      const ret = config.slots.map(x => {
+        let data = {};
+        try {
+          data = JSON.parse(localStorage[x.slotNaming]);
+        } catch {
 
+        }
+        return {
+          id: x.id,
+          slotNaming: x.slotNaming,
+          slotTitle: x.slotTitle,
+          ...data
+        };
+      })
+      for(const x of ret) {
+        delete localStorage[x.slotNaming]
       }
-      return {
-        id: x.id,
-        slotNaming: x.slotNaming,
-        slotTitle: x.slotTitle,
-        ...data
-      };
-    })
-    for(const x of ret) {
-      delete localStorage[x.slotNaming]
+      delete localStorage.config
+      return ret
+    } catch {
+      return null;
     }
-    delete localStorage.config
-    return ret
-  } catch {
-    return null;
   }
+
+  if (localStorage["persist:root"]) {
+    try {
+      let config = JSON.parse(localStorage["persist:root"]);
+      return JSON.parse(config.slots);
+    } catch {
+      return null;
+    }
+  }
+
+
 }
 
 
