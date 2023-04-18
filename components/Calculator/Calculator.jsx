@@ -4,7 +4,8 @@ import {BiasParams, CarSetupParams} from "../../consts/params";
 import {arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBias} from "../../libs/setup";
 import axios from "axios";
 import {
-  Button, Chip,
+  Button,
+  Chip,
   Container,
   Dialog,
   DialogActions,
@@ -13,16 +14,20 @@ import {
   DialogTitle,
   Divider,
   FormControl,
-  Grid, InputLabel,
+  Grid,
+  InputLabel,
   MenuItem,
   Paper,
-  Select, Slider, Stack,
+  Select,
+  Slider,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow, TextField,
+  TableRow,
+  TextField,
   Typography
 } from "@mui/material";
 import {trackMap, tracks} from "../../consts/tracks";
@@ -738,7 +743,6 @@ export function Calculator({ target, preset }) {
     // delete localStorage[target];
     // document.location.reload();
   }
-
 }
 
 export default dynamic(() => Promise.resolve(Calculator), {

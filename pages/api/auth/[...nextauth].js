@@ -31,6 +31,13 @@ export const authOptions = {
     // ...add more providers here
   ],
   callbacks: {
+    async session({ session, token, user }) {
+      // Send properties to the client, like an access_token and user id from a provider.
+      session.userId = user.id
+      session.user = user
+
+      return session
+    },
     async signIn({ user, account, profile, email, credentials }) {
       if(user) {
         account.discord_profile = profile;
