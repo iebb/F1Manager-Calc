@@ -43,8 +43,6 @@ export const configSlice = createSlice({
       )
     },
     updateSlot: (state, { payload: { id, payload } }) => {
-
-      console.log("updateSlot", id, payload);
       state.slots = [...state.slots.map(
         x => x.id === id ? {...x, ...payload} : x
       )]

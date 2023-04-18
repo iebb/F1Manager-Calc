@@ -328,8 +328,6 @@ export function Calculator({ slot, target, preset }) {
                   <TableBody>
                     {
                       CarSetupParams.map(row => {
-                        console.log(carSetup);
-                        console.log(lastCarSetup);
                         let carSetupDiff = carSetup[row.index] - lastCarSetup[row.index];
                         if (Math.abs(carSetupDiff) < eps) {
                           carSetupDiff = 0;
