@@ -57,6 +57,11 @@ export function Calculator({ slot, target, preset }) {
   const [possibleSetups, setPossibleSetups] = useState(1012095);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
 
+
+  const update = (payload) => {
+    dispatch(updateSlot({id: slot.id, payload}));
+  }
+
   const {
     track,
     isValidSetup,
@@ -82,42 +87,42 @@ export function Calculator({ slot, target, preset }) {
         (!previousRuns)
       )
     )
-    {
-      dispatch(updateSlot({id: slot.id, payload: {
-          isValidSetup: [true, true, true, true, true],
-          carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-          biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
-          prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-          prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
-          feedback: [[], [], [], [], []],
-          track: "XX",
-          previousRuns: [],
-        }}));
-    }
+
+      update({
+        isValidSetup: [true, true, true, true, true],
+        carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+        biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+        prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+        prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+        feedback: [[], [], [], [], []],
+        track: "XX",
+        previousRuns: [],
+      });
   }, [slot, isValidSetup, carSetup, biasParam, prevCarSetup, prevBiasParam, feedback, track, previousRuns])
 
   const setCarSetup = (e) => {
     const bias = setupToBias(e);
 
-    dispatch(updateSlot({id: slot.id, payload: {
-        carSetup: e,
-        biasParam: bias,
-        isValidSetup: CarSetupParams.map(p => {
-          if (e[p.index] < -1e-6 || e[p.index] >= 1+1e-6) {
-            return false;
-          }
-          const roundValue = e[p.index] * (p.max - p.min) / p.step;
-          return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
-        }),
-      }}));
+    update({
+      carSetup: e,
+      biasParam: bias,
+      isValidSetup: CarSetupParams.map(p => {
+        if (e[p.index] < -1e-6 || e[p.index] >= 1+1e-6) {
+          return false;
+        }
+        const roundValue = e[p.index] * (p.max - p.min) / p.step;
+        return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
+      }),
+    });
 
   }
 
   const findNearest = () => {
-    dispatch(updateSlot({id: slot.id, payload: {
-        prevCarSetup: carSetup,
-        prevBiasParam: biasParam,
-      }}));
+
+    update({
+      prevCarSetup: carSetup,
+      prevBiasParam: biasParam,
+    });
     const {setup, possibleSetups, lowestRuleBreak, possibleSetupList} = nearestSetup(biasParam, feedback);
     if (setup) {
       if (lowestRuleBreak > 0) {
@@ -148,9 +153,10 @@ export function Calculator({ slot, target, preset }) {
   }
 
   const clearFeedbacks = () => {
-    dispatch(updateSlot({id: slot.id, payload: {
-        feedback: [[], [], [], [], []],
-      }}));
+
+    update({
+      feedback: [[], [], [], [], []],
+    });
     setLastCarSetup(carSetup);
     // setPreviousRuns([]);
   }
@@ -161,42 +167,36 @@ export function Calculator({ slot, target, preset }) {
       arrayFloatEqual(x.carSetup, carSetup)
     ))
 
-    dispatch(updateSlot({id: slot.id, payload: {
-        previousRuns: matchedRuns.length ? (
-          previousRuns.map(x => x.id === matchedRuns[0].id ? {
-            ...x,
-            ["feedback_" + row.index]: {
-              value: biasValue,
-              timestamp: +new Date(),
-              feedback: v
-            },
-          } : x)
-        ) : (
-          [
-            {
-              track,
-              carSetup: JSON.parse(JSON.stringify(carSetup)),
-              ["feedback_" + row.index]: {
-                value: biasValue,
-                timestamp: +new Date(),
-                feedback: v
-              },
-              id: +new Date(),
-            }, ...previousRuns
-          ]
-        ),
-      }}));
 
     setLastCarSetup(carSetup)
-    dispatch(updateSlot({id: slot.id, payload: {
-        feedback: feedback.map((x, idx) => idx === row.index ? [
-          ...x.filter(x => x.value !== biasValue), {
+    update({
+      previousRuns: matchedRuns.length ? (
+        previousRuns.map(x => x.id === matchedRuns[0].id ? {
+          ...x,
+          ["feedback_" + row.index]: {
             value: biasValue,
             timestamp: +new Date(),
             feedback: v
-          }
-        ]: x),
-      }}));
+          },
+        } : x)
+      ) : ([{
+        track,
+        carSetup: JSON.parse(JSON.stringify(carSetup)),
+        ["feedback_" + row.index]: {
+          value: biasValue,
+          timestamp: +new Date(),
+          feedback: v
+        },
+        id: +new Date(),
+      }, ...previousRuns]),
+      feedback: feedback.map((x, idx) => idx === row.index ? [
+        ...x.filter(x => x.value !== biasValue), {
+          value: biasValue,
+          timestamp: +new Date(),
+          feedback: v
+        }
+      ]: x),
+    });
 
     if (v === "optimal" && Object.keys(preset).length) {
       axios.post(`/api/report`, {
