@@ -1,16 +1,19 @@
 import '../styles/globals.css'
-import {getSession, SessionProvider, useSession} from "next-auth/react"
+import {SessionProvider, useSession} from "next-auth/react"
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import ReactGA from "react-ga4";
 import Head from "next/head";
 import {SnackbarProvider} from "notistack";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import store, {cloudPersistor, cloudStore, persistor} from "../libs/store";
 import {Provider} from "react-redux";
 import {PersistGate} from "redux-persist/integration/react";
 import dynamic from "next/dynamic";
-import {Calculator} from "../components/Calculator/Calculator";
+import {configureStore} from "@reduxjs/toolkit";
+import {FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE} from "redux-persist";
+import configReducer from "../libs/reducers/configReducer";
+import storage from 'redux-persist/lib/storage'
+import createWebStorage from "../libs/storage/cloudStorage";
 
 ReactGA.initialize("G-XNCFQVHQMX");
 
@@ -54,17 +57,27 @@ export function MyApp({
 
 function SessionConsumer({ children }) {
   const session = useSession()
-  let providerStore = store;
-  let providerPersistor = persistor;
-  if (session.status === "loading" || session.status === "unauthenticated") {
-
-  } else {
-    providerStore = cloudStore;
-    providerPersistor = cloudPersistor;
-  }
+  const store = configureStore(
+    {
+      reducer: {
+        config: persistReducer({
+          key: 'root',
+          version: 1,
+          storage: session.status === "unauthenticated" ? createWebStorage('web') : storage,
+        }, configReducer),
+      },
+      middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+          serializableCheck: {
+            ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+          },
+        }),
+    },
+  )
+  const persistor = persistStore(store);
   return (
-    <Provider store={providerStore}>
-      <PersistGate loading={null} persistor={providerPersistor}>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
         {children}
       </PersistGate>
     </Provider>
