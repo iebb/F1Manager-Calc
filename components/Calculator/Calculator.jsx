@@ -35,6 +35,8 @@ import Image from "next/image";
 import {DataGrid} from "@mui/x-data-grid";
 import {Delete, OpenInNew} from "@mui/icons-material";
 import dynamic from "next/dynamic";
+import {useDispatch} from "react-redux";
+import {updateSlot} from "../../libs/reducers/configReducer";
 
 const feedbackColors = {
   optimal: "info",
@@ -45,28 +47,15 @@ const feedbackColors = {
   "bad-": "error",
 }
 
-export function Calculator({ target, preset }) {
+export function Calculator({ slot, target, preset }) {
 
   const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useDispatch();
 
-  const [isValidSetup, setIsValidSetup] = useState([true, true, true, true, true]);
   const [lastCarSetup, setLastCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
-
-  const [carSetup, _setCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
-  const [biasParam, _setBiasParam] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
-
-  const [prevCarSetup, setPrevCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
-  const [prevBiasParam, setPrevBiasParam] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
-
-
   const [carSetupList, setCarSetupList] = useState([]);
-  const [biasParamText, setBiasParamText] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
-  const [feedback, setFeedback] = useState([[], [], [], [], []]);
-  const [previousRuns, setPreviousRuns] = useState([]);
   const [possibleSetups, setPossibleSetups] = useState(1012095);
 
-  const [track, setTrack] = useState("XX");
-  const [loaded, setLoaded] = useState(false);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
 
   const getIdentifier = () => {
@@ -81,70 +70,83 @@ export function Calculator({ target, preset }) {
     return "UNKNOWN"
   }
 
+  const {
+    track,
+    isValidSetup,
+    carSetup,
+    biasParam,
+    prevCarSetup,
+    prevBiasParam,
+    feedback,
+    previousRuns,
+  } = slot;
+
+
   useEffect(() => {
-    try {
-      const {
-        track,
-        isValidSetup,
-        carSetup,
-        biasParam,
-        prevCarSetup,
-        prevBiasParam,
-        feedback,
-        previousRuns,
-      } = JSON.parse(localStorage[target])
-      setFeedback(feedback);
-      _setBiasParam(biasParam);
-      _setCarSetup(carSetup);
-      setPrevCarSetup(prevCarSetup);
-      setPrevBiasParam(prevBiasParam);
-      setPreviousRuns(previousRuns || []);
-      setTrack(track);
-      setIsValidSetup(isValidSetup);
-    } catch (e) {
-      console.log(e);
-      setPreviousRuns([]);
-      setTrack("XX");
-    }
-    setLoaded(true);
-  }, [target])
-
-  if (loaded && typeof window !== "undefined") {
-    localStorage.setItem(target, JSON.stringify({
-      isValidSetup,
-      carSetup,
-      biasParam,
-      prevCarSetup,
-      prevBiasParam,
-      feedback,
-      track,
-      previousRuns,
-    }));
-  }
-
-  const setBiasParam = (e, _idx=-1) => {
-    _setBiasParam(e);
-    setBiasParamText(
-      biasParamText.map(
-        (v, idx) => idx === _idx ? biasParamText[idx] : e[idx].toFixed(6)
+    if (
+      slot.id && (
+        (!isValidSetup) ||
+        (!carSetup) ||
+        (!biasParam) ||
+        (!prevCarSetup) ||
+        (!prevBiasParam) ||
+        (!feedback) ||
+        (!track) ||
+        (!previousRuns)
       )
-    );
-  }
+    )
+    {
+      dispatch(updateSlot({id: slot.id, payload: {
+          isValidSetup: [true, true, true, true, true],
+          carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+          biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+          prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+          prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+          feedback: [[], [], [], [], []],
+          track: "XX",
+          previousRuns: [],
+        }}));
+    }
+  }, [slot, isValidSetup, carSetup, biasParam, prevCarSetup, prevBiasParam, feedback, track, previousRuns])
+
+
+
+
+  // if (loaded && typeof window !== "undefined") {
+  //   localStorage.setItem(target, JSON.stringify({
+  //     isValidSetup,
+  //     carSetup,
+  //     biasParam,
+  //     prevCarSetup,
+  //     prevBiasParam,
+  //     feedback,
+  //     track,
+  //     previousRuns,
+  //   }));
+  // }
 
   const setCarSetup = (e) => {
-    _setCarSetup(e);
-    setIsValidSetup(CarSetupParams.map(p => {
-      if (e[p.index] < -1e-6 || e[p.index] >= 1+1e-6) {
-        return false;
-      }
-      const roundValue = e[p.index] * (p.max - p.min) / p.step;
-      return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
-    }));
+    const bias = setupToBias(e);
+
+    dispatch(updateSlot({id: slot.id, payload: {
+        carSetup: e,
+        biasParam: bias,
+        isValidSetup: CarSetupParams.map(p => {
+          if (e[p.index] < -1e-6 || e[p.index] >= 1+1e-6) {
+            return false;
+          }
+          const roundValue = e[p.index] * (p.max - p.min) / p.step;
+          return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
+        }),
+      }}));
+
   }
 
   const findNearest = () => {
-    setPrevCarSetup(carSetup);
-    setPrevBiasParam(biasParam);
+    dispatch(updateSlot({id: slot.id, payload: {
+        prevCarSetup: carSetup,
+        prevBiasParam: biasParam,
+      }}));
     const {setup, possibleSetups, lowestRuleBreak, possibleSetupList} = nearestSetup(biasParam, feedback);
     if (setup) {
       if (lowestRuleBreak > 0) {
@@ -154,7 +156,7 @@ export function Calculator({ target, preset }) {
         );
         setPossibleSetups(0);
       } else {
-/* what */
+        /* what */
         // if (possibleSetups === 1) {
         //   axios.post(`/api/report_vals`, {
         //     uid: getIdentifier(),
@@ -164,7 +166,6 @@ export function Calculator({ target, preset }) {
         // }
         setPossibleSetups(possibleSetups);
       }
-      setBiasParam(setupToBias(setup));
       setCarSetup(setup);
       setCarSetupList(possibleSetupList);
     } else {
@@ -179,14 +180,10 @@ export function Calculator({ target, preset }) {
     }
   }
 
-  const clearAll = () => {
-    setFeedback([[], [], [], [], []]);
-    setPreviousRuns([]);
-    setLastCarSetup(carSetup);
-  }
-
   const clearFeedbacks = () => {
-    setFeedback([[], [], [], [], []]);
+    dispatch(updateSlot({id: slot.id, payload: {
+        feedback: [[], [], [], [], []],
+      }}));
     setLastCarSetup(carSetup);
     // setPreviousRuns([]);
   }
@@ -197,41 +194,42 @@ export function Calculator({ target, preset }) {
       arrayFloatEqual(x.carSetup, carSetup)
     ))
 
-    if (matchedRuns.length) {
-      setPreviousRuns(
-        previousRuns.map(x => x.id === matchedRuns[0].id ? {
-          ...x,
-          ["feedback_" + row.index]: {
-            value: biasValue,
-            timestamp: +new Date(),
-            feedback: v
-          },
-        } : x)
-      )
-    } else {
-      setPreviousRuns([
-        {
-          track,
-          carSetup: JSON.parse(JSON.stringify(carSetup)),
-          ["feedback_" + row.index]: {
-            value: biasValue,
-            timestamp: +new Date(),
-            feedback: v
-          },
-          id: +new Date(),
-        }, ...previousRuns
-      ])
-    }
+    dispatch(updateSlot({id: slot.id, payload: {
+        previousRuns: matchedRuns.length ? (
+          previousRuns.map(x => x.id === matchedRuns[0].id ? {
+            ...x,
+            ["feedback_" + row.index]: {
+              value: biasValue,
+              timestamp: +new Date(),
+              feedback: v
+            },
+          } : x)
+        ) : (
+          [
+            {
+              track,
+              carSetup: JSON.parse(JSON.stringify(carSetup)),
+              ["feedback_" + row.index]: {
+                value: biasValue,
+                timestamp: +new Date(),
+                feedback: v
+              },
+              id: +new Date(),
+            }, ...previousRuns
+          ]
+        ),
+      }}));
+
     setLastCarSetup(carSetup)
-    setFeedback(
-      feedback.map((x, idx) => idx === row.index ? [
-        ...x.filter(x => x.value !== biasValue), {
-          value: biasValue,
-          timestamp: +new Date(),
-          feedback: v
-        }
-      ]: x)
-    )
+    dispatch(updateSlot({id: slot.id, payload: {
+        feedback: feedback.map((x, idx) => idx === row.index ? [
+          ...x.filter(x => x.value !== biasValue), {
+            value: biasValue,
+            timestamp: +new Date(),
+            feedback: v
+          }
+        ]: x),
+      }}));
 
     if (v === "optimal" && Number(localStorage.c) > 6 && Object.keys(preset).length) {
       axios.post(`/api/report`, {
@@ -250,7 +248,6 @@ export function Calculator({ target, preset }) {
         preset[track], [[], [], [], [], []]
       );
       setCarSetup(setup);
-      setBiasParam(setupToBias(setup));
     }
   }
 
@@ -305,7 +302,9 @@ export function Calculator({ target, preset }) {
                                 value={track}
                                 sx={{ width: "100%" }}
                                 onChange={(e) => {
-                                  setTrack(e.target.value);
+                                  dispatch(updateSlot({id: slot.id, payload: {
+                                      track: e.target.value,
+                                    }}));
                                   setOpenClearFeedback(true);
                                 }}
                                 label="Track"
@@ -329,6 +328,8 @@ export function Calculator({ target, preset }) {
                   <TableBody>
                     {
                       CarSetupParams.map(row => {
+                        console.log(carSetup);
+                        console.log(lastCarSetup);
                         let carSetupDiff = carSetup[row.index] - lastCarSetup[row.index];
                         if (Math.abs(carSetupDiff) < eps) {
                           carSetupDiff = 0;
@@ -354,12 +355,6 @@ export function Calculator({ target, preset }) {
                                     Math.round(value * 560) / 560
                                   ): x);
                                   setCarSetup(setup)
-                                  setBiasParam(setupToBias(setup))
-                                  setIsValidSetup(
-                                    isValidSetup.map((x, idx) => idx === row.index ? (
-                                      carSetup[row.index] >= 0 && carSetup[row.index] <= 1
-                                    ) : x)
-                                  )
                                 }}
                               />
                             </TableCell>
@@ -388,21 +383,18 @@ export function Calculator({ target, preset }) {
                           <Button variant="contained" color="secondary" onClick={
                             () => {
                               const setup = [1, 1, 1, 1, 1];
-                              setBiasParam(setupToBias(setup));
                               setCarSetup(setup);
                             }
                           }>Max</Button>
                           <Button variant="contained" color="secondary" onClick={
                             () => {
                               const setup = [0.5, 0.5, 0.5, 0.5, 0.5];
-                              setBiasParam(setupToBias(setup));
                               setCarSetup(setup);
                             }
                           }>Mid</Button>
                           <Button variant="contained" color="secondary" onClick={
                             () => {
                               const setup = [0, 0, 0, 0, 0];
-                              setBiasParam(setupToBias(setup));
                               setCarSetup(setup);
                             }
                           }>Min</Button>
@@ -410,7 +402,6 @@ export function Calculator({ target, preset }) {
                             () => {
                               const setup = randomSetup();
                               setCarSetup(setup);
-                              setBiasParam(setupToBias(setup));
                             }
                           }>Random</Button>
                           <div style={{ padding: 5 }}>
@@ -497,7 +488,6 @@ export function Calculator({ target, preset }) {
                                 value={biasParam[row.index]}
                                 onChange={(e, value) => {
                                   const bias = biasParam.map((x, idx) => idx === row.index ? value : x);
-                                  setBiasParam(bias)
                                   setCarSetup(biasToSetup(bias))
                                 }}
                               />
@@ -507,7 +497,7 @@ export function Calculator({ target, preset }) {
                                 <TextField
                                   label={row.name}
                                   type="number"
-                                  value={biasParamText[row.index]}
+                                  value={biasParam[row.index].toFixed(6)}
                                   variant="standard"
                                   InputLabelProps={{
                                     shrink: true,
@@ -519,12 +509,8 @@ export function Calculator({ target, preset }) {
                                       const nVal = Number(val);
                                       if (0 <= nVal && nVal <= 1) {
                                         const b = biasParam.map((x, idx) => idx === row.index ? nVal : x);
-                                        setBiasParam(b)
                                         setCarSetup(biasToSetup(b))
                                       }
-                                      setBiasParamText(
-                                        biasParamText.map((x, idx) => idx === row.index ? val : x)
-                                      )
                                     }
                                   }
                                 />
@@ -548,7 +534,6 @@ export function Calculator({ target, preset }) {
                                         color={feedbackColors[f.feedback]}
                                         onClick={() => {
                                           const bias = biasParam.map((x, idx) => idx === row.index ? f.value : x);
-                                          setBiasParam(bias)
                                           setCarSetup(biasToSetup(bias))
                                         }}
                                         onDelete={() => {
@@ -595,7 +580,6 @@ export function Calculator({ target, preset }) {
                         renderCell : ({ row, value }) =>
                           <Button variant="contained" color={value ? "info" : "secondary"} sx={{ pt: 0.2, pb: 0.2, minWidth: 80 }} onClick={
                             () => {
-                              setBiasParam(setupToBias(row.arr));
                               setCarSetup(row.arr);
                             }
                           }>{value ? "#" + value : "PRV"}</Button>
@@ -710,7 +694,6 @@ export function Calculator({ target, preset }) {
                               <Stack spacing={1} direction="row-reverse">
                                 <Button variant="contained" color="info" sx={{ minWidth: 32, p: 1 }}  onClick={
                                   () => {
-                                    setBiasParam(setupToBias(x.carSetup));
                                     setCarSetup(x.carSetup);
                                   }
                                 }>

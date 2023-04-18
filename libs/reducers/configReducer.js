@@ -4,6 +4,16 @@ const getDefaultSlotConfig = i => ({
   id: i,
   slotNaming: `car_${i}`,
   slotTitle: `Slot ${i}`,
+
+  isValidSetup: [true, true, true, true, true],
+  carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+  biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+  prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+  prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+  feedback: [[], [], [], [], []],
+  track: "XX",
+  previousRuns: [],
+
 });
 const totalSlots = 4;
 const initialSlots = Array.from(Array(totalSlots)).map((x, i) => getDefaultSlotConfig(i+1));
@@ -32,8 +42,12 @@ export const configSlice = createSlice({
           x.id === id ? {...x, slotTitle} : x
       )
     },
-    removeSlot: (state, { payload: { id } }) => {
-      state.slots = state.slots.filter((x) => x.id !== id )
+    updateSlot: (state, { payload: { id, payload } }) => {
+
+      console.log("updateSlot", id, payload);
+      state.slots = [...state.slots.map(
+        x => x.id === id ? {...x, ...payload} : x
+      )]
     },
   },
 })
@@ -43,6 +57,7 @@ export const {
   setSlots,
   renameSlot,
   addSlot,
+  updateSlot,
   removeSlot,
 } = configSlice.actions
 

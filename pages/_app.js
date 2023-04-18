@@ -12,9 +12,8 @@ import {configureStore} from "@reduxjs/toolkit";
 import {FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE} from "redux-persist";
 import configReducer from "../libs/reducers/configReducer";
 import storage from 'redux-persist/lib/storage'
-import createWebStorage from "../libs/storage/cloudStorage";
-import dynamic from "next/dynamic";
 import createCloudStorage from "../libs/storage/cloudStorage";
+import dynamic from "next/dynamic";
 
 ReactGA.initialize("G-XNCFQVHQMX");
 

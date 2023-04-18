@@ -7,33 +7,17 @@ import {PresetSnapshot} from "../../consts/presets";
 import {useDispatch, useSelector} from "react-redux";
 import {addSlot, removeSlot, renameSlot} from "../../libs/reducers/configReducer";
 
-/*
-
- */
-
 export function TabManager() {
-
   const config = useSelector(state => state.config)
   const { slots } = config;
-
   const dispatch = useDispatch()
-
-  const [activeSlot, setActiveSlot] = useState(slots[0]);
   const [tab, setTab] = useState(0);
-
   const [editText, setEditText] = useState("");
   const [openRenameSlot, setOpenRenameSlot] = useState(null);
 
   const saveSlotEdit = () => {
     dispatch(renameSlot({ id: openRenameSlot.id, slotTitle: editText }))
     setOpenRenameSlot(null);
-  }
-
-  if (typeof window !== "undefined" && !slots.length) {
-    if (config?.slots?.length > 0) {
-      setSlots(config.slots);
-      setActiveSlot(config.slots[0]);
-    }
   }
 
   return (
@@ -77,7 +61,6 @@ export function TabManager() {
         <Tabs
           value={tab}
           onChange={(_, f) => {
-            setActiveSlot(slots[f])
             setTab(f)
           }}
         >
@@ -97,10 +80,11 @@ export function TabManager() {
         </Tabs>
       </Box>
       {
-        activeSlot.id !== -1 && (
+        config.slots.length > 0 && (
           <Calculator
-            key={activeSlot.id}
-            target={activeSlot.slotNaming}
+            key={tab}
+            slot={config.slots[tab]}
+            target={config.slots[tab].slotNaming}
             preset={PresetSnapshot}
           />
         )
