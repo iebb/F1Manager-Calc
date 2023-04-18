@@ -57,7 +57,6 @@ export function Calculator({ slot, target, preset }) {
   const [possibleSetups, setPossibleSetups] = useState(1012095);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
 
-
   const update = (payload) => {
     dispatch(updateSlot({id: slot.id, payload}));
   }
@@ -88,17 +87,17 @@ export function Calculator({ slot, target, preset }) {
       )
     )
 
-      update({
+      dispatch(updateSlot({id: slot.id, payload: {
         isValidSetup: [true, true, true, true, true],
-        carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-        biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
-        prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-        prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
-        feedback: [[], [], [], [], []],
-        track: "XX",
-        previousRuns: [],
-      });
-  }, [slot, isValidSetup, carSetup, biasParam, prevCarSetup, prevBiasParam, feedback, track, previousRuns])
+          carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+          biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+          prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+          prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+          feedback: [[], [], [], [], []],
+          track: "XX",
+          previousRuns: [],
+      }}));
+    },[slot, isValidSetup, carSetup, biasParam, prevCarSetup, prevBiasParam, feedback, track, previousRuns])
 
   const setCarSetup = (e) => {
     const bias = setupToBias(e);
