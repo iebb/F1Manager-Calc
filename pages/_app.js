@@ -9,6 +9,8 @@ import Footer from "../components/Footer";
 import store, {cloudPersistor, cloudStore, persistor} from "../libs/store";
 import {Provider} from "react-redux";
 import {PersistGate} from "redux-persist/integration/react";
+import dynamic from "next/dynamic";
+import {Calculator} from "../components/Calculator/Calculator";
 
 ReactGA.initialize("G-XNCFQVHQMX");
 
@@ -25,7 +27,7 @@ const theme = createTheme({
       'Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
   },
 });
-export default function MyApp({
+export function MyApp({
   Component,
   pageProps: { session, ...pageProps },
 }) {
@@ -55,7 +57,7 @@ function SessionConsumer({ children }) {
   let providerStore = store;
   let providerPersistor = persistor;
   if (session.status === "loading" || session.status === "unauthenticated") {
-    return "not logged in"
+
   } else {
     providerStore = cloudStore;
     providerPersistor = cloudPersistor;
@@ -68,3 +70,7 @@ function SessionConsumer({ children }) {
     </Provider>
   )
 }
+
+export default dynamic(() => Promise.resolve(MyApp), {
+  ssr: false,
+});
