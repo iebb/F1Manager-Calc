@@ -5,7 +5,7 @@ export default function createWebStorage(type) {
     getItem: (key)  => {
       return new Promise((resolve, reject) => {
         axios.get(`/api/cloud/storage`).then(d => resolve(
-          d.data[key]
+          d.data ? d.data[key] : null
         ))
       })
     },
