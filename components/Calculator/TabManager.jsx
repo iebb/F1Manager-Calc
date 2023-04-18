@@ -15,7 +15,6 @@ import {driverNames} from "../../libs/driverNames";
 import {Edit} from "@mui/icons-material";
 import {useState} from "react";
 import dynamic from "next/dynamic";
-import {CalculatorPage} from "../../pages";
 
 const totalSlots = 4;
 
@@ -25,23 +24,26 @@ let defaultSlots = Array.from(Array(totalSlots)).map((x, i) => ({
   slotTitle: `Slot ${i+1}`,
 }));
 
-export function TabManager({ setSlot  }) {
-  const [tab, setTab] = useState(1);
-  const [slots, setSlots] = useState(defaultSlots);
+export function TabManager({ setSlot }) {
+  const [tab, setTab] = useState(0);
+  const [slots, _setSlots] = useState(defaultSlots);
   const [editText, setEditText] = useState("");
   const [openRenameId, setOpenRenameId] = useState(null);
+
+  const setSlots = (slots) => {
+    _setSlots(slots);
+    localStorage.setItem("config", JSON.stringify({
+      slots,
+    }));
+  }
 
   if (typeof window !== "undefined") {
     try {
       const config = JSON.parse(localStorage.config)
-      defaultSlots = config.slots;
+      setSlots(config.slots)
     } catch (e) {
       console.log(e);
     }
-    localStorage.setItem("config", JSON.stringify({
-      slots,
-    }));
-    console.log(slots);
   }
 
   return (
