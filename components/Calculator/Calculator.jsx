@@ -29,6 +29,7 @@ import {trackMap, tracks} from "../../consts/tracks";
 import Image from "next/image";
 import {DataGrid} from "@mui/x-data-grid";
 import {Delete, OpenInNew} from "@mui/icons-material";
+import dynamic from "next/dynamic";
 
 const feedbackColors = {
   optimal: "info",
@@ -95,7 +96,9 @@ export function Calculator({ target, preset }) {
       setPreviousRuns(previousRuns || []);
       setTrack(track);
       setIsValidSetup(isValidSetup);
-    } catch {
+      console.log("loaded", target);
+    } catch (e) {
+      console.log(e);
       setPreviousRuns([]);
       setTrack("XX");
     }
@@ -737,3 +740,7 @@ export function Calculator({ target, preset }) {
   }
 
 }
+
+export default dynamic(() => Promise.resolve(Calculator), {
+  ssr: false,
+});

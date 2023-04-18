@@ -24,7 +24,7 @@ let defaultSlots = Array.from(Array(totalSlots)).map((x, i) => ({
   slotTitle: `Slot ${i+1}`,
 }));
 
-export function TabManager({ setSlot }) {
+export function TabManager({ setActiveSlot }) {
   const [tab, setTab] = useState(0);
   const [slots, _setSlots] = useState([]);
   const [editText, setEditText] = useState("");
@@ -41,14 +41,18 @@ export function TabManager({ setSlot }) {
     try {
       if (typeof localStorage.config === "undefined") {
         setSlots(defaultSlots);
+        setActiveSlot(defaultSlots[0]);
       } else {
         const config = JSON.parse(localStorage.config)
         if (config?.slots?.length > 0) {
           setSlots(config.slots)
+          setActiveSlot(config.slots[0]);
         }
       }
     } catch (e) {
       console.log(e);
+      _setSlots(defaultSlots);
+      setActiveSlot(defaultSlots[0]);
     }
   }
 
@@ -82,7 +86,7 @@ export function TabManager({ setSlot }) {
       <Tabs
         value={tab}
         onChange={(_, f) => {
-          setSlot(slots[f])
+          setActiveSlot(slots[f])
           setTab(f)
         }}
       >
