@@ -39,7 +39,7 @@ export default function LogIn() {
           onClose={handleCloseUserMenu}
         >
           <MenuItem>
-            <Typography textAlign="center">Signed in as {session.user.email}</Typography>
+            <Typography textAlign="center">Signed in as {session.user.name}</Typography>
           </MenuItem>
           <MenuItem onClick={() => signOut()}>
             <Typography textAlign="center">Log Out</Typography>
