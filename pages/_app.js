@@ -56,9 +56,10 @@ export function MyApp({Component, pageProps: { session, ...pageProps }}) {
 function SessionConsumer({ children }) {
   const session = useSession()
   const [store, setStore] = useState(null);
+  const [persistor, setPersistor] = useState(null);
 
   useEffect(() => {
-    setStore(configureStore(
+    let s = configureStore(
       {
         reducer: {
           config: persistReducer({
@@ -76,10 +77,11 @@ function SessionConsumer({ children }) {
             },
           }),
       },
-    ));
+    )
+    setStore(s);
+    setPersistor(persistStore(s));
   }, [session.status])
 
-  const persistor = store && persistStore(store);
 
   if (session.status === "loading") {
     return (
