@@ -396,7 +396,7 @@ export function Calculator({ slot, target, preset }) {
                   <TableBody>
                     {
                       BiasParams.map(row => {
-                        const feedbacks = feedback[row.index];
+                        let feedbacks = JSON.parse(JSON.stringify(feedback[row.index]));
                         const biasValue = biasParam[row.index];
                         const k = row.name + ":" + target;
                         let currentFeedback = "";
