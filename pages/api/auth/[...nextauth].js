@@ -1,7 +1,7 @@
 import NextAuth from "next-auth"
 import DiscordProvider from "next-auth/providers/discord"
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter"
-import clientPromise from "../../../libs/mongodb"
+import clientPromise from "../../../libs/cloud/mongodb"
 export const authOptions = {
   adapter: MongoDBAdapter(clientPromise, {
     databaseName: process.env.AUTH_DATABASE_NAME,

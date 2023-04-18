@@ -2,11 +2,11 @@ import {Box, Button, Chip, Dialog, DialogContent, DialogTitle, Grid, IconButton,
 import {driverNames} from "../../libs/driverNames";
 import {Add, Edit} from "@mui/icons-material";
 import {useState} from "react";
-import dynamic from "next/dynamic";
 import {Calculator} from "./Calculator";
 import {PresetSnapshot} from "../../consts/presets";
-import {useSession} from "next-auth/react";
+import {getSession, useSession} from "next-auth/react";
 import axios from "axios";
+import {getConfig} from "../../libs/data/ConfigManager";
 
 const totalSlots = 4;
 
@@ -16,9 +16,25 @@ const getDefaultSlotConfig = i => ({
   slotTitle: `Slot ${i}`,
 });
 
-let defaultSlots = Array.from(Array(totalSlots)).map((x, i) => getDefaultSlotConfig(i+1));
 
-export function TabManager() {
+export async function getServerSideProps(context) {
+  const session = await getSession(context)
+  let defaultConfig = Array.from(Array(totalSlots)).map((x, i) => getDefaultSlotConfig(i+1));
+  if (session.user_id) {
+    defaultConfig = await getConfig(session.user_id)
+  }
+
+  return {
+    props: {
+      user: session.user,
+      s: session,
+      defaultConfig,
+    },
+  }
+}
+export function TabManager({user, s, defaultConfig}) {
+
+  console.log(user, s, defaultConfig);
 
   const {data: session, status: sessionStatus} = useSession();
 
@@ -50,7 +66,8 @@ export function TabManager() {
   const saveSlotEdit = () => {
     setSlots(
       slots.map(
-        (x, _idx) => x.id === openRenameSlot.id ? {...x, slotTitle: editText} : x
+        (x, _idx) =>
+          x.id === openRenameSlot.id ? {...x, slotTitle: editText} : x
       )
     )
     setOpenRenameSlot(null);
@@ -58,21 +75,27 @@ export function TabManager() {
 
 
   if (typeof window !== "undefined" && !slots.length) {
-    try {
-      if (typeof localStorage.config === "undefined") {
-        setSlots(defaultSlots);
-        setActiveSlot(defaultSlots[0]);
-      } else {
-        const config = JSON.parse(localStorage.config)
-        if (config?.slots?.length > 0) {
-          setSlots(config.slots);
-          setActiveSlot(config.slots[0]);
+    if (sessionStatus === "authenticated") {
+      axios.get(`/api/cloud/config`).then(d => {
+        console.log(d.data.config);
+      });
+    } else {
+      try {
+        if (typeof localStorage.config === "undefined") {
+          setSlots(defaultSlots);
+          setActiveSlot(defaultSlots[0]);
+        } else {
+          const config = JSON.parse(localStorage.config)
+          if (config?.slots?.length > 0) {
+            setSlots(config.slots);
+            setActiveSlot(config.slots[0]);
+          }
         }
+      } catch (e) {
+        console.log(e);
+        _setSlots(defaultSlots);
+        setActiveSlot(defaultSlots[0]);
       }
-    } catch (e) {
-      console.log(e);
-      _setSlots(defaultSlots);
-      setActiveSlot(defaultSlots[0]);
     }
   }
 
@@ -151,6 +174,3 @@ export function TabManager() {
     </div>
   );
 }
-export default dynamic(() => Promise.resolve(TabManager), {
-  ssr: false,
-});

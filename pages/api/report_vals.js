@@ -1,5 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import {databasePromise} from "../../libs/mongodb";
+import {databasePromise} from "../../libs/cloud/mongodb";
 
 export default async (req, res) => {
   let db = await databasePromise;

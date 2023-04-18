@@ -1,5 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import {databasePromise} from "../../../libs/mongodb";
+import {databasePromise} from "../../../libs/cloud/mongodb";
 import {getServerSession} from "next-auth"
 import {authOptions} from "../auth/[...nextauth]";
 
@@ -11,8 +11,8 @@ export default async (req, res) => {
 
   switch (method) {
     case 'GET':
-      await db.collection('cloud_configs').findOne({ userId: session.userId });
-      res.send(JSON.stringify(session, null, 2))
+      let cloudConfig = await db.collection('cloud_configs').findOne({ userId: session.userId });
+      res.send(JSON.stringify(cloudConfig, null, 2))
       break;
     case 'POST': // set
       let { config } = body;
