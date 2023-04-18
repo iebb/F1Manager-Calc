@@ -1,8 +1,14 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import {databasePromise} from "../../libs/mongodb";
+import {databasePromise} from "../../../libs/mongodb";
+import { getServerSession } from "next-auth"
 
 export default async (req, res) => {
- /* let db = await databasePromise;
+  let db = await databasePromise;
+
+  const session = await getServerSession(req, res)
+  res.send(JSON.stringify(session, null, 2))
+
+  /*
   let objectDate = new Date();
 
   let month = objectDate.getMonth();
@@ -33,5 +39,7 @@ export default async (req, res) => {
       { upsert: true },
     );
   }
-  res.status(200).json({status: "ok"});*/
+  res.status(200).json({status: "ok"});
+
+   */
 };

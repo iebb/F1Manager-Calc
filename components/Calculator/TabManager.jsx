@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import {driverNames} from "../../libs/driverNames";
 import {Edit} from "@mui/icons-material";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import dynamic from "next/dynamic";
 
 const totalSlots = 4;
@@ -26,7 +26,7 @@ let defaultSlots = Array.from(Array(totalSlots)).map((x, i) => ({
 
 export function TabManager({ setSlot }) {
   const [tab, setTab] = useState(0);
-  const [slots, _setSlots] = useState(defaultSlots);
+  const [slots, _setSlots] = useState([]);
   const [editText, setEditText] = useState("");
   const [openRenameId, setOpenRenameId] = useState(null);
 
@@ -37,10 +37,16 @@ export function TabManager({ setSlot }) {
     }));
   }
 
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && !slots.length) {
     try {
-      const config = JSON.parse(localStorage.config)
-      setSlots(config.slots)
+      if (typeof localStorage.config === "undefined") {
+        setSlots(defaultSlots);
+      } else {
+        const config = JSON.parse(localStorage.config)
+        if (config?.slots?.length > 0) {
+          setSlots(config.slots)
+        }
+      }
     } catch (e) {
       console.log(e);
     }
@@ -59,20 +65,18 @@ export function TabManager({ setSlot }) {
       >
         <DialogTitle id="alert-dialog-title">Rename This Slot</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            <div>
-              <Input value={editText} onChange={e => setEditText(e.target.value)} sx={{ width: "100%" }} />
-            </div>
-            <div style={{ marginTop: 20 }}>
-              <Grid container spacing={1}>
-                {
-                  driverNames.map(
-                    d => <Grid item key={d}><Chip label={d} onClick={() => setEditText(d)} /></Grid>
-                  )
-                }
-              </Grid>
-            </div>
-          </DialogContentText>
+          <div>
+            <Input value={editText} onChange={e => setEditText(e.target.value)} sx={{ width: "100%" }} />
+          </div>
+          <div style={{ marginTop: 20 }}>
+            <Grid container spacing={1}>
+              {
+                driverNames.map(
+                  d => <Grid item key={d}><Chip label={d} onClick={() => setEditText(d)} /></Grid>
+                )
+              }
+            </Grid>
+          </div>
         </DialogContent>
       </Dialog>
       <Tabs
@@ -85,15 +89,12 @@ export function TabManager({ setSlot }) {
         {
           slots.map(
             (s, _idx) => <Tab label={
-              <span>
-                    {s.slotTitle}
-                <IconButton size="small" sx={{ ml: 1 }} onClick={() => {
+              <div>{s.slotTitle}
+                <IconButton size="small" sx={{ ml: 1, padding: 0 }} onClick={() => {
                   setEditText(s.slotTitle);
                   setOpenRenameId(_idx);
-                }}>
-                      <Edit />
-                    </IconButton>
-                  </span>
+                }}><Edit /></IconButton>
+              </div>
             } value={_idx} key={_idx}/>
           )
         }
