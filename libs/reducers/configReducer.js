@@ -84,6 +84,11 @@ export const configSlice = createSlice({
           x.id === id ? {...x, slotTitle} : x
       )
     },
+    removeSlot: (state, { payload: { id, slotTitle } }) => {
+      state.slots = state.slots.filter(
+        (x, _idx) => x.id !== id
+      )
+    },
     updateSlot: (state, { payload: { id, payload } }) => {
       state.slots = [...state.slots.map(
         x => x.id === id ? {...x, ...payload} : x

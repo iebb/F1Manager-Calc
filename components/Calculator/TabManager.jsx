@@ -46,12 +46,17 @@ export function TabManager() {
                   </Grid>
                 </div>
                 <div style={{ marginTop: 20, textAlign: "right" }}>
-                  <Button sx={{m: 1}} variant="contained" color="error" onClick={
-                    () => {
-                      dispatch(removeSlot({ id: openRenameSlot.id }));
-                      setOpenRenameSlot(null);
-                    }
-                  }>Delete this Slot</Button>
+                  {
+                    slots.length > 1 && (
+                      <Button sx={{m: 1}} variant="contained" color="error" onClick={
+                        () => {
+                          setTab(tab > 0 ? tab - 1 : 0);
+                          dispatch(removeSlot({id: openRenameSlot.id}));
+                          setOpenRenameSlot(null);
+                        }
+                      }>Delete this Slot</Button>
+                    )
+                  }
                   <Button sx={{m: 1}} variant="contained" color="primary" onClick={saveSlotEdit}>Save Changes</Button>
                 </div>
               </DialogContent>
@@ -84,7 +89,6 @@ export function TabManager() {
           <Calculator
             key={tab}
             slot={config.slots[tab]}
-            target={config.slots[tab].slotNaming}
             preset={PresetSnapshot}
           />
         )

@@ -47,7 +47,7 @@ const feedbackColors = {
   "bad-": "error",
 }
 
-export function Calculator({ slot, target, preset }) {
+export function Calculator({ slot, preset }) {
 
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
@@ -57,10 +57,7 @@ export function Calculator({ slot, target, preset }) {
   const [possibleSetups, setPossibleSetups] = useState(1012095);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
 
-
-  const update = (payload) => {
-    dispatch(updateSlot({id: slot.id, payload}));
-  }
+  const update = (payload) => dispatch(updateSlot({id: slot.id, payload}));
 
   const {
     track,
@@ -74,31 +71,23 @@ export function Calculator({ slot, target, preset }) {
   } = slot;
 
 
-  useEffect(() => {
-    if (
-      slot.id && (
-        (!isValidSetup) ||
-        (!carSetup) ||
-        (!biasParam) ||
-        (!prevCarSetup) ||
-        (!prevBiasParam) ||
-        (!feedback) ||
-        (!track) ||
-        (!previousRuns)
-      )
+  if (
+    slot.id && (
+      (!isValidSetup) || (!carSetup) || (!biasParam) || (!prevCarSetup) || (!prevBiasParam) || (!feedback) || (!track) || (!previousRuns)
     )
+  ) {
+    update({
+      isValidSetup: [true, true, true, true, true],
+      carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+      biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+      prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+      prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
+      feedback: [[], [], [], [], []],
+      track: "XX",
+      previousRuns: [],
+    });
+  }
 
-      update({
-        isValidSetup: [true, true, true, true, true],
-        carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-        biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
-        prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-        prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
-        feedback: [[], [], [], [], []],
-        track: "XX",
-        previousRuns: [],
-      });
-  }, [slot, isValidSetup, carSetup, biasParam, prevCarSetup, prevBiasParam, feedback, track, previousRuns])
 
   const setCarSetup = (e) => {
     const bias = setupToBias(e);
@@ -220,7 +209,7 @@ export function Calculator({ slot, target, preset }) {
   try {
 
     return (
-      <Container disableGutters maxWidth="xl" key={target}>
+      <Container disableGutters maxWidth="xl" key={slot.slotNaming}>
         <Divider variant="fullWidth" />
         <Dialog
           open={openClearFeedback}
@@ -396,9 +385,9 @@ export function Calculator({ slot, target, preset }) {
                   <TableBody>
                     {
                       BiasParams.map(row => {
-                        const feedbacks = feedback[row.index];
+                        let feedbacks = JSON.parse(JSON.stringify(feedback[row.index]));
                         const biasValue = biasParam[row.index];
-                        const k = row.name + ":" + target;
+                        const k = row.name + ":" + slot.slotNaming;
                         let currentFeedback = "";
                         for(const fb of feedbacks) {
                           if (fb.value === biasValue) {
@@ -488,11 +477,11 @@ export function Calculator({ slot, target, preset }) {
                                           setCarSetup(biasToSetup(bias))
                                         }}
                                         onDelete={() => {
-                                          setFeedback(
-                                            feedback.map((x, idx) => idx === row.index ?
+                                          update({
+                                            feedback: feedback.map((x, idx) => idx === row.index ?
                                               x.filter(x => x.value !== f.value) : x
                                             )
-                                          )
+                                          })
                                         }}
                                       />
                                     </Grid>
@@ -652,7 +641,9 @@ export function Calculator({ slot, target, preset }) {
                                 </Button>
                                 <Button variant="contained" color="error" sx={{ minWidth: 32, p: 1 }} onClick={
                                   () => {
-                                    setPreviousRuns(previousRuns.filter(r => r.id !== x.id))
+                                    update({
+                                      previousRuns: previousRuns.filter(r => r.id !== x.id)
+                                    })
                                   }
                                 }>
                                   <Delete />
@@ -673,8 +664,6 @@ export function Calculator({ slot, target, preset }) {
     )
   } catch (e) {
     console.log(e);
-    // delete localStorage[target];
-    // document.location.reload();
   }
 }
 
