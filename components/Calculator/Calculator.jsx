@@ -86,10 +86,11 @@ export function Calculator({ slot }) {
   const biasParam = setupToBias(carSetup);
   const isValidSetup = CarSetupParams.map(p => {
     try {
-      if (carSetup[p.index] < -1e-6 || carSetup[p.index] >= 1+1e-6) {
+      const val = carSetup ? carSetup[p.index] : 0.5;
+      if (val < -1e-6 || val >= 1+1e-6) {
         return false;
       }
-      const roundValue = carSetup[p.index] * (p.max - p.min) / p.step;
+      const roundValue = val * (p.max - p.min) / p.step;
       return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
     } catch {
       Sentry.captureMessage("invalid car setup found: " + JSON.stringify(carSetup));
