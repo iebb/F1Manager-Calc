@@ -72,8 +72,8 @@ export function Calculator({ slot, preset }) {
 
 
   if (
-    slot.id && (
-      (!isValidSetup) || (!carSetup) || (!biasParam) || (!prevCarSetup) || (!prevBiasParam) || (!feedback) || (!track) || (!previousRuns)
+    slot.id && !(
+      isValidSetup && carSetup && biasParam && prevCarSetup && prevBiasParam && feedback && track && previousRuns
     )
   ) {
     update({
