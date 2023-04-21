@@ -1,6 +1,6 @@
 import {Container, Divider, Typography} from "@mui/material";
-import KofiButton from "kofi-button";
 import LogIn from "./LogIn";
+import KofiButton from "./Kofi/Kofi";
 
 export default function Header() {
   return (
@@ -26,7 +26,7 @@ export default function Header() {
           </Typography>
         </div>
         <div style={{ flex: "0 1 200px", textAlign: "right" }} >
-          <KofiButton kofiID='A0A8ERCTF' title="Support Me on Ko-fi" color='#29abe0' style={{ display: "none"}} />
+          <KofiButton kofiID='A0A8ERCTF' title="Support on Ko-fi" color='#29abe0' />
         </div>
       </div>
       <Divider variant="fullWidth" sx={{ mt: 2 }} />
