@@ -80,7 +80,7 @@ function SessionConsumer({ children }) {
     )
     setStore(s);
     setPersistor(persistStore(s));
-  }, [session.status])
+  }, [session])
 
 
   if (session.status === "loading") {

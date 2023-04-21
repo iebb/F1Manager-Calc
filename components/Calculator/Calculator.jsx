@@ -37,6 +37,7 @@ import {Delete, OpenInNew} from "@mui/icons-material";
 import dynamic from "next/dynamic";
 import {useDispatch} from "react-redux";
 import {updateSlot} from "../../libs/reducers/configReducer";
+import {PresetSnapshot} from "../../consts/presets";
 
 const feedbackColors = {
   optimal: "info",
@@ -47,7 +48,9 @@ const feedbackColors = {
   "bad-": "error",
 }
 
-export function Calculator({ slot, preset }) {
+const preset = PresetSnapshot;
+
+export function Calculator({ slot }) {
 
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
@@ -57,7 +60,9 @@ export function Calculator({ slot, preset }) {
   const [possibleSetups, setPossibleSetups] = useState(1012095);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
 
-  const update = (payload) => dispatch(updateSlot({id: slot.id, payload}));
+  const update = (payload) => dispatch(updateSlot({
+    id: slot.id, payload
+  }));
 
   const {
     track,
@@ -73,7 +78,8 @@ export function Calculator({ slot, preset }) {
 
   if (
     slot.id && !(
-      isValidSetup && carSetup && biasParam && prevCarSetup && prevBiasParam && feedback && track && previousRuns
+      isValidSetup && carSetup && biasParam &&
+      prevCarSetup && prevBiasParam && feedback && track && previousRuns
     )
   ) {
     update({
@@ -89,17 +95,17 @@ export function Calculator({ slot, preset }) {
   }
 
 
-  const setCarSetup = (e) => {
-    const bias = setupToBias(e);
+  const setCarSetup = (carSetup) => {
+    const bias = setupToBias(carSetup);
 
     update({
-      carSetup: e,
+      carSetup,
       biasParam: bias,
       isValidSetup: CarSetupParams.map(p => {
-        if (e[p.index] < -1e-6 || e[p.index] >= 1+1e-6) {
+        if (carSetup[p.index] < -1e-6 || carSetup[p.index] >= 1+1e-6) {
           return false;
         }
-        const roundValue = e[p.index] * (p.max - p.min) / p.step;
+        const roundValue = carSetup[p.index] * (p.max - p.min) / p.step;
         return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
       }),
     });
@@ -142,12 +148,8 @@ export function Calculator({ slot, preset }) {
   }
 
   const clearFeedbacks = () => {
-
-    update({
-      feedback: [[], [], [], [], []],
-    });
+    update({ feedback: [[], [], [], [], []] });
     setLastCarSetup(carSetup);
-    // setPreviousRuns([]);
   }
 
   const createFeedback = (row, biasValue, v) => {
@@ -252,15 +254,16 @@ export function Calculator({ slot, preset }) {
                           <Typography sx={{ color: "#777", display: "inline-block", verticalAlign: "middle" }}>Track Select:</Typography>
                           <FormControl variant="standard" sx={{ ml: 3, display: "inline-block", verticalAlign: "middle", mr: 3 }}>
                             <Select
+                              label="Track"
                               value={track}
                               sx={{ width: "100%" }}
                               onChange={(e) => {
-                                dispatch(updateSlot({id: slot.id, payload: {
-                                    track: e.target.value,
-                                  }}));
-                                setOpenClearFeedback(true);
+                                const selectedTrack = e.target.value;
+                                if (preset.hasOwnProperty(selectedTrack)) {
+                                  update({track: e.target.value});
+                                  setOpenClearFeedback(true);
+                                }
                               }}
-                              label="Track"
                             >
                               {tracks.map(t => <MenuItem key={t.id} value={t.id}>
                                 <Image src={require(`../../assets/flags/${t.id}.svg`)} width={24} height={20} alt={t.country} style={{ display: 'inline-block' }} />

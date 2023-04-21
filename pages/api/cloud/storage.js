@@ -3,7 +3,7 @@ import {databasePromise} from "../../../libs/cloud/mongodb";
 import {getServerSession} from "next-auth"
 import {authOptions} from "../auth/[...nextauth]";
 
-export default async (req, res) => {
+export const handler = async (req, res) => {
   const session = await getServerSession(req, res, authOptions)
   let db = await databasePromise;
 
@@ -28,3 +28,4 @@ export default async (req, res) => {
 
 
 };
+export default handler;

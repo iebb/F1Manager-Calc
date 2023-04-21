@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import {databasePromise} from "../../libs/cloud/mongodb";
 
-export default async (req, res) => {
+export const handler = async (req, res) => {
   let db = await databasePromise;
   let objectDate = new Date();
 
@@ -35,3 +35,4 @@ export default async (req, res) => {
   }
   res.status(200).json({status: "ok"});
 };
+export default handler;
