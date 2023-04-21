@@ -1,5 +1,5 @@
 import {useSnackbar} from "notistack";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {BiasParams, CarSetupParams} from "../../consts/params";
 import {arrayFloatEqual, biasToSetup, eps, nearestSetup, setupToBias} from "../../libs/setup";
 import axios from "axios";
@@ -281,10 +281,12 @@ export function Calculator({ slot, preset }) {
                 <TableBody>
                   {
                     CarSetupParams.map(row => {
+
                       let carSetupDiff = carSetup[row.index] - lastCarSetup[row.index];
                       if (Math.abs(carSetupDiff) < eps) {
                         carSetupDiff = 0;
                       }
+
                       return (
                         <TableRow key={row.name}>
                           <TableCell sx={{ fontSize: 16 }}><b>{row.name}</b></TableCell>
