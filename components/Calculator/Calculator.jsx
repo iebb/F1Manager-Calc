@@ -235,12 +235,10 @@ export function Calculator({ slot }) {
                 <TableBody>
                   {
                     CarSetupParams.map(row => {
-
                       let carSetupDiff = carSetup[row.index] - lastCarSetup[row.index];
                       if (Math.abs(carSetupDiff) < eps) {
                         carSetupDiff = 0;
                       }
-
                       return (
                         <TableRow key={row.name}>
                           <TableCell sx={{ fontSize: 16 }}><b>{row.name}</b></TableCell>
@@ -283,11 +281,9 @@ export function Calculator({ slot }) {
                     <TableCell colSpan={3} sx={{ textAlign: 'right' }}>
                       <Stack direction="row-reverse" spacing={1}>
                         <Button variant="contained" onClick={findNearest}>Find Setup</Button>
+                        <Button variant="contained" color="secondary" onClick={loadPreset}>Preset</Button>
                         <Button variant="contained" color="secondary" onClick={
-                          () => {
-                            const setup = [0.5, 0.5, 0.5, 0.5, 0.5];
-                            setCarSetup(setup);
-                          }
+                          () => setCarSetup([0.5, 0.5, 0.5, 0.5, 0.5])
                         }>Reset</Button>
                         <div style={{ padding: 5 }}>
                           <Typography sx={{ color: "#777" }}>{possibleSetups} Setups Possible</Typography>

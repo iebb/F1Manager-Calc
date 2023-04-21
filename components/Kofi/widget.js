@@ -13,8 +13,9 @@ const kofiWidget2 = () => {
       style = "<style>" + style + "</style>";
       html =
         `${style}
-<div class=btn-container><a title="Support me on ko-fi.com" class="kofi-button" style="background-color:${color};" href="https://ko-fi.com/${id}" target="_blank"> 
-<span class="kofitext"><img src="https://storage.ko-fi.com/cdn/cup-border.png" alt="Ko-fi donations" class="kofiimg"/>${text}</span></a></div>`;
+
+<div class="btn-container"><a title="Support me on ko-fi.com" class="kofi-button" style="background-color:${color};" href="https://ko-fi.com/${id}" target="_blank"> 
+<span class="kofitext"><img class="kofiimg"/>${text}</span></a></div>`;
     },
     getHTML: function () {
       return html
