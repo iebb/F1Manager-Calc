@@ -1,5 +1,5 @@
 import {Box, Button, Chip, Dialog, DialogContent, DialogTitle, Grid, IconButton, Input, Tab, Tabs} from "@mui/material";
-import {driverNames} from "../../libs/driverNames";
+import {driverNames} from "../../consts/driverNames";
 import {Add, Edit} from "@mui/icons-material";
 import {useState} from "react";
 import {Calculator} from "./Calculator";
@@ -25,7 +25,7 @@ export function TabManager() {
         {
           openRenameSlot !== null && (
             <Dialog
-              open
+              open={Boolean(openRenameSlot)}
               onClose={saveSlotEdit}
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"

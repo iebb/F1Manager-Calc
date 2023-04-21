@@ -1,4 +1,15 @@
-export const tracks = [
+
+export interface Track {
+  name:     string;
+  location: string;
+  country:  string;
+  code:     string;
+  preset:   number[];
+  suffix:   string;
+  id:       string;
+}
+
+export const tracks: Track[] = [
   {
     "name": "Unspecified",
     "location": "",
@@ -344,4 +355,4 @@ export const tracks = [
     "suffix": "",
     "id": "AE"
   }
-];
+] ;

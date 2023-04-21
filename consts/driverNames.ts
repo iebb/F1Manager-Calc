@@ -1,4 +1,4 @@
-export const driverNames = [
+export const driverNames: string[] = [
   "Max Verstappen",
   "Charles Leclerc",
   "Sergio Perez",

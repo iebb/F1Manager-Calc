@@ -1,6 +1,8 @@
 import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
 
-export function ClearFeedbackDialog({ isOpen, setIsOpen, clear }) {
+export function ClearFeedbackDialog(
+  { isOpen, setIsOpen, clear } : { isOpen: boolean, setIsOpen: Function, clear: Function }
+) {
   return (
     <Dialog
       open={isOpen}
