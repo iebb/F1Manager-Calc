@@ -63,7 +63,7 @@ export function Calculator({ slot }) {
 
   const {
     track, carSetup, feedback,
-    prevCarSetup, prevBiasParam, previousRuns,
+    prevCarSetup, previousRuns,
   } = slot;
 
   if (
@@ -84,6 +84,7 @@ export function Calculator({ slot }) {
 
 
   const biasParam = setupToBias(carSetup);
+  const prevBiasParam = setupToBias(prevCarSetup);
   const isValidSetup = CarSetupParams.map(p => {
     try {
       const val = carSetup ? carSetup[p.index] : 0.5;

@@ -4,12 +4,8 @@ const getDefaultSlotConfig = i => ({
   id: i,
   slotNaming: `car_${i}`,
   slotTitle: `Slot ${i}`,
-
-  isValidSetup: [true, true, true, true, true],
   carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-  biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
   prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-  prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
   feedback: [[], [], [], [], []],
   track: "XX",
   previousRuns: [],
@@ -34,6 +30,11 @@ const legacyConfigReader = () => {
           id: x.id,
           slotNaming: x.slotNaming,
           slotTitle: x.slotTitle,
+          carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+          prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+          feedback: [[], [], [], [], []],
+          track: "XX",
+          previousRuns: [],
           ...data
         };
       })
