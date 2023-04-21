@@ -2,7 +2,6 @@ import {useSnackbar} from "notistack";
 import {useState} from "react";
 import {BiasParams, CarSetupParams} from "../../consts/params";
 import {arrayFloatEqual, biasToSetup, eps, nearestSetup, setupToBias} from "../../libs/setup";
-import axios from "axios";
 import {
   Button,
   Chip,
@@ -30,14 +29,14 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import {trackMap, tracks} from "../../consts/tracks";
+import {tracks} from "../../consts/tracks";
 import Image from "next/image";
 import {DataGrid} from "@mui/x-data-grid";
 import {Delete, OpenInNew} from "@mui/icons-material";
 import dynamic from "next/dynamic";
 import {useDispatch} from "react-redux";
 import {updateSlot} from "../../libs/reducers/configReducer";
-import {PresetSnapshot} from "../../consts/presets";
+import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
 
 const feedbackColors = {
   optimal: "info",
@@ -48,7 +47,8 @@ const feedbackColors = {
   "bad-": "error",
 }
 
-const preset = PresetSnapshot;
+const trackMap = {};
+tracks.map(x => trackMap[x.id] = x);
 
 export function Calculator({ slot }) {
 
@@ -60,34 +60,36 @@ export function Calculator({ slot }) {
   const [possibleSetups, setPossibleSetups] = useState(1012095);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
 
+  const {
+    track, carSetup, feedback,
+    prevCarSetup, prevBiasParam, previousRuns,
+  } = slot;
+
   const update = (payload) => dispatch(updateSlot({
     id: slot.id, payload
   }));
 
-  const {
-    track,
-    isValidSetup,
-    carSetup,
-    biasParam,
-    prevCarSetup,
-    prevBiasParam,
-    feedback,
-    previousRuns,
-  } = slot;
+  const biasParam = setupToBias(carSetup);
+  const isValidSetup = CarSetupParams.map(p => {
+    if (carSetup[p.index] < -1e-6 || carSetup[p.index] >= 1+1e-6) {
+      return false;
+    }
+    const roundValue = carSetup[p.index] * (p.max - p.min) / p.step;
+    return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
+  });
 
+  const currentTrack = trackMap[track];
 
   if (
     slot.id && !(
-      isValidSetup && carSetup && biasParam &&
-      prevCarSetup && prevBiasParam && feedback && track && previousRuns
+      carSetup &&
+      prevCarSetup &&
+      feedback && track && previousRuns
     )
   ) {
     update({
-      isValidSetup: [true, true, true, true, true],
       carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-      biasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
       prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
-      prevBiasParam: [0.5, 0.5, 0.5, 0.5, 0.5],
       feedback: [[], [], [], [], []],
       track: "XX",
       previousRuns: [],
@@ -96,27 +98,12 @@ export function Calculator({ slot }) {
 
 
   const setCarSetup = (carSetup) => {
-    const bias = setupToBias(carSetup);
-
-    update({
-      carSetup,
-      biasParam: bias,
-      isValidSetup: CarSetupParams.map(p => {
-        if (carSetup[p.index] < -1e-6 || carSetup[p.index] >= 1+1e-6) {
-          return false;
-        }
-        const roundValue = carSetup[p.index] * (p.max - p.min) / p.step;
-        return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
-      }),
-    });
-
+    update({ carSetup });
   }
 
   const findNearest = () => {
-
     update({
       prevCarSetup: carSetup,
-      prevBiasParam: biasParam,
     });
     const {setup, possibleSetups, lowestRuleBreak, possibleSetupList} = nearestSetup(biasParam, feedback);
     if (setup) {
@@ -158,7 +145,6 @@ export function Calculator({ slot }) {
       arrayFloatEqual(x.carSetup, carSetup)
     ))
 
-
     setLastCarSetup(carSetup)
     update({
       previousRuns: matchedRuns.length ? (
@@ -189,55 +175,28 @@ export function Calculator({ slot }) {
       ]: x),
     });
 
-    if (v === "optimal" && Object.keys(preset).length) {
-      axios.post(`/api/report`, {
-        track,
-        value: biasValue,
-        feedback: v,
-        index: row.index,
-      });
-    }
+    // if (v === "optimal" && Object.keys(preset).length) {
+    //   axios.post(`/api/report`, {
+    //     track,
+    //     value: biasValue,
+    //     feedback: v,
+    //     index: row.index,
+    //   });
+    // }
   }
 
   const loadPreset = () => {
-    if (preset[track]) {
-      const {setup} = nearestSetup(
-        preset[track], [[], [], [], [], []]
-      );
-      setCarSetup(setup);
-    }
+    const {setup} = nearestSetup(currentTrack.preset, [[], [], [], [], []]);
+    setCarSetup(setup);
   }
 
   return (
     <Container disableGutters maxWidth="xl" key={slot.slotNaming}>
       <Divider variant="fullWidth" />
-      <Dialog
-        open={openClearFeedback}
-        onClose={() => {
-          setOpenClearFeedback(false);
-        }}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Clear Feedbacks?</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Since you moved to a new track, do you need to load the preset value and clear all previous feedbacks?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="contained" color="error" onClick={() => {
-            setOpenClearFeedback(false);
-            clearFeedbacks();
-            loadPreset();
-          }}>Clear</Button>
-          <Button variant="contained" onClick={() => {
-            setOpenClearFeedback(false);
-          }} autoFocus>
-            Preserve
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ClearFeedbackDialog clear={() => {
+        clearFeedbacks();
+        loadPreset();
+      }} isOpen={openClearFeedback} setIsOpen={setOpenClearFeedback} />
       <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 6 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} lg={6}>
@@ -259,7 +218,7 @@ export function Calculator({ slot }) {
                               sx={{ width: "100%" }}
                               onChange={(e) => {
                                 const selectedTrack = e.target.value;
-                                if (preset.hasOwnProperty(selectedTrack)) {
+                                if (trackMap.hasOwnProperty(selectedTrack)) {
                                   update({track: e.target.value});
                                   setOpenClearFeedback(true);
                                 }
@@ -318,13 +277,9 @@ export function Calculator({ slot }) {
                             <Typography sx={{ color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}>{carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {
                               row.render(carSetup[row.index] * (row.max - row.min) + row.min)
                             }</Typography>
-                            {
-                              Math.abs(carSetupDiff) > eps && (
-                                <Typography sx={{ color: "#777" }}>Prev: {
-                                  row.render(lastCarSetup[row.index] * (row.max - row.min) + row.min)
-                                }</Typography>
-                              )
-                            }
+                            <Typography sx={{ color: "#777" }}>Prev: {
+                              row.render(lastCarSetup[row.index] * (row.max - row.min) + row.min)
+                            }</Typography>
                           </TableCell>
                         </TableRow>
                       )
@@ -338,7 +293,7 @@ export function Calculator({ slot }) {
                         <Button variant="contained" onClick={findNearest}>Find Setup</Button>
                         <Button variant="contained" color="secondary" onClick={
                           () => {
-                            setCarSetup(preset[track]);
+                            setCarSetup(currentTrack.preset);
                           }
                         }>Preset</Button>
                         <Button variant="contained" color="secondary" onClick={
@@ -508,7 +463,7 @@ export function Calculator({ slot }) {
                   rows={[
                     {
                       arr: prevCarSetup,
-                      biasParams: prevBiasParam,
+                      biasParams: setupToBias(prevCarSetup),
                       diff: 0,
                       id: 0,
                     },

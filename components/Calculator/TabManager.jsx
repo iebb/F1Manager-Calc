@@ -3,7 +3,6 @@ import {driverNames} from "../../libs/driverNames";
 import {Add, Edit} from "@mui/icons-material";
 import {useState} from "react";
 import {Calculator} from "./Calculator";
-import {PresetSnapshot} from "../../consts/presets";
 import {useDispatch, useSelector} from "react-redux";
 import {addSlot, removeSlot, renameSlot} from "../../libs/reducers/configReducer";
 

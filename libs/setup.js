@@ -20,20 +20,28 @@ export const arrayFloatEqual = (a, b) => {
 }
 
 export const setupToBias = (carSetup) => {
-  return BiasParams.map(biasRow =>
-    carSetup.map(
-      (x, idx) => x * biasRow.effect[idx]
-    ).reduce((a,b) => a+b) + biasRow.offset
-  )
+  try {
+    return BiasParams.map(biasRow =>
+      carSetup.map(
+        (x, idx) => x * biasRow.effect[idx]
+      ).reduce((a,b) => a+b) + biasRow.offset
+    )
+  } catch {
+    return [0.5, 0.5, 0.5, 0.5, 0.5];
+  }
 }
 
 
 export const biasToSetup = (biasParam) => {
-  return CarSetupParams.map(carRow =>
-    biasParam.map(
-      (x, idx) => (x - BiasParams[idx].offset) * carRow.effect[idx]
-    ).reduce((a,b) => a+b)
-  )
+  try {
+    return CarSetupParams.map(carRow =>
+      biasParam.map(
+        (x, idx) => (x - BiasParams[idx].offset) * carRow.effect[idx]
+      ).reduce((a,b) => a+b)
+    )
+  } catch {
+    return [0.5, 0.5, 0.5, 0.5, 0.5];
+  }
 }
 
 
