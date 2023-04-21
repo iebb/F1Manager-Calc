@@ -17,8 +17,14 @@ export default function createCloudStorage() {
     },
     setItem: (key, item) => {
       return new Promise((resolve, reject) => {
-        // fallbackStorage.setItem(key, item)
-        axios.post(`/api/cloud/storage`, {[key]: item}).then(resolve).catch(reject)
+        if (typeof window === "undefined") {
+          resolve();
+        } else if (new Date() - window.lastUpload < 30 * 1000){
+          resolve();
+        } else {
+          window.lastUpload = new Date();
+          axios.post(`/api/cloud/storage`, {[key]: item}).then(resolve).catch(reject)
+        }
       })
     },
     removeItem: (key) => {
