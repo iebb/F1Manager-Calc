@@ -2,6 +2,7 @@ import {useSnackbar} from "notistack";
 import {useState} from "react";
 import {BiasParams, CarSetupParams} from "../../consts/params";
 import {arrayFloatEqual, biasToSetup, eps, nearestSetup, setupToBias} from "../../libs/setup";
+import * as Sentry from "@sentry/nextjs";
 import {
   Button,
   Chip,
@@ -45,6 +46,7 @@ const feedbackColors = {
 const trackMap = {};
 tracks.map(x => trackMap[x.id] = x);
 
+
 export function Calculator({ slot }) {
 
   const { enqueueSnackbar } = useSnackbar();
@@ -66,11 +68,22 @@ export function Calculator({ slot }) {
 
   const biasParam = setupToBias(carSetup);
   const isValidSetup = CarSetupParams.map(p => {
-    if (carSetup[p.index] < -1e-6 || carSetup[p.index] >= 1+1e-6) {
-      return false;
+    try {
+      if (carSetup[p.index] < -1e-6 || carSetup[p.index] >= 1+1e-6) {
+        return false;
+      }
+      const roundValue = carSetup[p.index] * (p.max - p.min) / p.step;
+      return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
+    } catch {
+      Sentry.captureMessage("invalid car setup found: " + JSON.stringify(carSetup));
+      update({
+        carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+        prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
+        feedback: [[], [], [], [], []],
+        track: "XX",
+        previousRuns: [],
+      });
     }
-    const roundValue = carSetup[p.index] * (p.max - p.min) / p.step;
-    return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
   });
 
   const currentTrack = trackMap[track];
