@@ -1,7 +1,7 @@
 import axios from "axios";
 import storage from 'redux-persist/lib/storage'
 
-export default function createCloudStorage(session) {
+export default function createCloudStorage() {
   const fallbackStorage = storage;
   return {
     getItem: (key)  => {

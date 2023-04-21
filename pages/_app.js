@@ -67,7 +67,7 @@ function SessionConsumer({ children }) {
             version: 1,
             storage: (
               session.status === "authenticated"
-            ) ? createCloudStorage(session) : storage,
+            ) ? createCloudStorage() : storage,
           }, configReducer),
         },
         middleware: (getDefaultMiddleware) =>
@@ -80,7 +80,7 @@ function SessionConsumer({ children }) {
     )
     setStore(s);
     setPersistor(persistStore(s));
-  }, [session])
+  }, [session.status])
 
 
   if (session.status === "loading") {
