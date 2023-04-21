@@ -6,11 +6,6 @@ import {
   Button,
   Chip,
   Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Divider,
   FormControl,
   Grid,
@@ -185,10 +180,7 @@ export function Calculator({ slot }) {
     // }
   }
 
-  const loadPreset = () => {
-    const {setup} = nearestSetup(currentTrack.preset, [[], [], [], [], []]);
-    setCarSetup(setup);
-  }
+  const loadPreset = () => setCarSetup(currentTrack.setup);
 
   return (
     <Container disableGutters maxWidth="xl" key={slot.slotNaming}>
@@ -291,11 +283,6 @@ export function Calculator({ slot }) {
                     <TableCell colSpan={3} sx={{ textAlign: 'right' }}>
                       <Stack direction="row-reverse" spacing={1}>
                         <Button variant="contained" onClick={findNearest}>Find Setup</Button>
-                        <Button variant="contained" color="secondary" onClick={
-                          () => {
-                            setCarSetup(currentTrack.preset);
-                          }
-                        }>Preset</Button>
                         <Button variant="contained" color="secondary" onClick={
                           () => {
                             const setup = [0.5, 0.5, 0.5, 0.5, 0.5];

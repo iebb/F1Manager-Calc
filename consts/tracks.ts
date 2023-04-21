@@ -1,12 +1,13 @@
 
 export interface Track {
-  name:     string;
+  name: string;
   location: string;
-  country:  string;
-  code:     string;
-  preset:   number[];
-  suffix:   string;
-  id:       string;
+  country: string;
+  code: string;
+  preset: number[];
+  setup: number[];
+  suffix: string;
+  id: string;
 }
 
 export const tracks: Track[] = [
@@ -23,7 +24,14 @@ export const tracks: Track[] = [
       0.5
     ],
     "suffix": "",
-    "id": "XX"
+    "id": "XX",
+    "setup": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ]
   },
   {
     "name": "Sakhir",
@@ -38,7 +46,14 @@ export const tracks: Track[] = [
       0.692857
     ],
     "suffix": "",
-    "id": "BH"
+    "id": "BH",
+    "setup": [
+      0.4,
+      0.2857142857142857,
+      0.375,
+      0.875,
+      0.5
+    ]
   },
   {
     "name": "Jeddah",
@@ -53,7 +68,14 @@ export const tracks: Track[] = [
       0.667857
     ],
     "suffix": "",
-    "id": "SA"
+    "id": "SA",
+    "setup": [
+      0.75,
+      0.2857142857142857,
+      0,
+      0.9375,
+      0.05
+    ]
   },
   {
     "name": "Melbourne",
@@ -68,7 +90,14 @@ export const tracks: Track[] = [
       0.405714
     ],
     "suffix": "",
-    "id": "AU"
+    "id": "AU",
+    "setup": [
+      0.8,
+      0.5714285714285714,
+      0.25,
+      0.5,
+      0.55
+    ]
   },
   {
     "name": "Imola",
@@ -83,7 +112,14 @@ export const tracks: Track[] = [
       0.48125,
       0.475
     ],
-    "id": "IT-EMI"
+    "id": "IT-EMI",
+    "setup": [
+      0.65,
+      0.5,
+      0.625,
+      1,
+      0.05
+    ]
   },
   {
     "name": "Miami",
@@ -98,7 +134,14 @@ export const tracks: Track[] = [
       0.584464,
       0.356429
     ],
-    "id": "US-MIAMI"
+    "id": "US-MIAMI",
+    "setup": [
+      0.8,
+      0.6428571428571429,
+      0.75,
+      0.8125,
+      0.25
+    ]
   },
   {
     "name": "Catalunya",
@@ -113,7 +156,14 @@ export const tracks: Track[] = [
       0.262143
     ],
     "suffix": "",
-    "id": "ES"
+    "id": "ES",
+    "setup": [
+      0.85,
+      0.7142857142857143,
+      0.25,
+      0.75,
+      0.8
+    ]
   },
   {
     "name": "Monte Carlo",
@@ -128,7 +178,14 @@ export const tracks: Track[] = [
       0
     ],
     "suffix": "",
-    "id": "MC"
+    "id": "MC",
+    "setup": [
+      1,
+      1,
+      0.125,
+      0.8125,
+      0.85
+    ]
   },
   {
     "name": "Baku",
@@ -143,7 +200,14 @@ export const tracks: Track[] = [
       0.792143
     ],
     "suffix": "",
-    "id": "AZ"
+    "id": "AZ",
+    "setup": [
+      0.25,
+      0.21428571428571427,
+      0.75,
+      0.125,
+      0.7
+    ]
   },
   {
     "name": "Montréal",
@@ -158,7 +222,14 @@ export const tracks: Track[] = [
       0.589286
     ],
     "suffix": "",
-    "id": "CA"
+    "id": "CA",
+    "setup": [
+      0.4,
+      0.42857142857142855,
+      0.875,
+      0.5,
+      0.65
+    ]
   },
   {
     "name": "Silverstone",
@@ -173,7 +244,14 @@ export const tracks: Track[] = [
       0.618571
     ],
     "suffix": "",
-    "id": "GB"
+    "id": "GB",
+    "setup": [
+      0.6,
+      0.35714285714285715,
+      0,
+      0.625,
+      0.35
+    ]
   },
   {
     "name": "Spielberg",
@@ -188,7 +266,14 @@ export const tracks: Track[] = [
       0.376429
     ],
     "suffix": "",
-    "id": "AT"
+    "id": "AT",
+    "setup": [
+      0.55,
+      0.6428571428571429,
+      0.875,
+      0.3125,
+      0.45
+    ]
   },
   {
     "name": "Paul Ricard",
@@ -203,7 +288,14 @@ export const tracks: Track[] = [
       0.623571
     ],
     "suffix": "",
-    "id": "FR"
+    "id": "FR",
+    "setup": [
+      0.6,
+      0.35714285714285715,
+      0.625,
+      0.6875,
+      0.35
+    ]
   },
   {
     "name": "Hungaroring",
@@ -218,7 +310,14 @@ export const tracks: Track[] = [
       0.133571
     ],
     "suffix": "",
-    "id": "HU"
+    "id": "HU",
+    "setup": [
+      1,
+      0.8571428571428571,
+      0.875,
+      0.3125,
+      0.45
+    ]
   },
   {
     "name": "Spa-Francorchamps",
@@ -233,7 +332,14 @@ export const tracks: Track[] = [
       0.905714
     ],
     "suffix": "",
-    "id": "BE"
+    "id": "BE",
+    "setup": [
+      0.3,
+      0.07142857142857142,
+      0.625,
+      0.8125,
+      0.65
+    ]
   },
   {
     "name": "Zandvoort",
@@ -248,7 +354,14 @@ export const tracks: Track[] = [
       0.326429
     ],
     "suffix": "",
-    "id": "NL"
+    "id": "NL",
+    "setup": [
+      0.95,
+      0.6428571428571429,
+      0.375,
+      0.625,
+      0.75
+    ]
   },
   {
     "name": "Monza",
@@ -263,7 +376,14 @@ export const tracks: Track[] = [
       0.99
     ],
     "suffix": "",
-    "id": "IT"
+    "id": "IT",
+    "setup": [
+      0.1,
+      0,
+      0.875,
+      0.375,
+      0.85
+    ]
   },
   {
     "name": "Marina Bay",
@@ -278,7 +398,14 @@ export const tracks: Track[] = [
       0.089286
     ],
     "suffix": "",
-    "id": "SG"
+    "id": "SG",
+    "setup": [
+      0.75,
+      0.9285714285714286,
+      0.125,
+      0.0625,
+      0.9
+    ]
   },
   {
     "name": "Suzuka",
@@ -293,7 +420,14 @@ export const tracks: Track[] = [
       0.415714
     ],
     "suffix": "",
-    "id": "JP"
+    "id": "JP",
+    "setup": [
+      0.7,
+      0.5714285714285714,
+      0.5,
+      0.9375,
+      0
+    ]
   },
   {
     "name": "Austin",
@@ -308,7 +442,14 @@ export const tracks: Track[] = [
       0.400714
     ],
     "suffix": "",
-    "id": "US"
+    "id": "US",
+    "setup": [
+      0.85,
+      0.5714285714285714,
+      0.875,
+      0.875,
+      0.35
+    ]
   },
   {
     "name": "Mexico City",
@@ -323,7 +464,14 @@ export const tracks: Track[] = [
       0.420714
     ],
     "suffix": "",
-    "id": "MX"
+    "id": "MX",
+    "setup": [
+      0.65,
+      0.5714285714285714,
+      0.875,
+      1,
+      0.5
+    ]
   },
   {
     "name": "Interlagos",
@@ -338,7 +486,14 @@ export const tracks: Track[] = [
       0.420714
     ],
     "suffix": "",
-    "id": "BR"
+    "id": "BR",
+    "setup": [
+      0.7,
+      0.5714285714285714,
+      0.875,
+      0.75,
+      0.4
+    ]
   },
   {
     "name": "Yas Marina",
@@ -353,6 +508,13 @@ export const tracks: Track[] = [
       0.5
     ],
     "suffix": "",
-    "id": "AE"
+    "id": "AE",
+    "setup": [
+      0.5,
+      0.5,
+      0.625,
+      0.625,
+      0.7
+    ]
   }
-] ;
+];
