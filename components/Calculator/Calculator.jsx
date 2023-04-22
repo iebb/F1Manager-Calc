@@ -33,15 +33,10 @@ import dynamic from "next/dynamic";
 import {useDispatch} from "react-redux";
 import {updateSlot} from "../../libs/reducers/configReducer";
 import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
+import {AllPossibleSetups, FeedbackColorForMUI} from "../../consts/setup";
 
-const feedbackColors = {
-  optimal: "info",
-  great: "primary",
-  good: "white",
-  bad: "error",
-  "bad+": "error",
-  "bad-": "error",
-}
+
+
 
 const trackMap = {};
 tracks.map(x => trackMap[x.id] = x);
@@ -52,24 +47,23 @@ export function Calculator({ slot }) {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
 
-  const [lastCarSetup, setLastCarSetup] = useState([0.5, 0.5, 0.5, 0.5, 0.5]);
   const [carSetupList, setCarSetupList] = useState([]);
-  const [possibleSetups, setPossibleSetups] = useState(1012095);
+  const [possibleSetups, setPossibleSetups] = useState(AllPossibleSetups);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
 
   const update = (payload) => dispatch(updateSlot({
     id: slot.id, payload
   }));
 
-  const {
-    track, carSetup, feedback,
-    prevCarSetup, previousRuns,
+  let {
+    track, carSetup,
+    prevCarSetup, feedback, previousRuns,
   } = slot;
 
   if (
     slot.id && !(
-      carSetup &&
-      prevCarSetup &&
+      validateSetupArray(carSetup) &&
+      validateSetupArray(prevCarSetup) &&
       feedback && track && previousRuns
     )
   ) {
@@ -80,6 +74,7 @@ export function Calculator({ slot }) {
       track: "XX",
       previousRuns: [],
     });
+    return null;
   }
 
 
@@ -147,7 +142,7 @@ export function Calculator({ slot }) {
 
   const clearFeedbacks = () => {
     update({ feedback: [[], [], [], [], []] });
-    setLastCarSetup(carSetup);
+    setPossibleSetups(AllPossibleSetups);
   }
 
   const createFeedback = (row, biasValue, v) => {
@@ -156,7 +151,7 @@ export function Calculator({ slot }) {
       arrayFloatEqual(x.carSetup, carSetup)
     ))
 
-    setLastCarSetup(carSetup)
+    // setLastCarSetup(carSetup)
     update({
       previousRuns: matchedRuns.length ? (
         previousRuns.map(x => x.id === matchedRuns[0].id ? {
@@ -251,7 +246,7 @@ export function Calculator({ slot }) {
                 <TableBody>
                   {
                     CarSetupParams.map(row => {
-                      let carSetupDiff = carSetup[row.index] - lastCarSetup[row.index];
+                      let carSetupDiff = carSetup[row.index] - prevCarSetup[row.index];
                       if (Math.abs(carSetupDiff) < eps) {
                         carSetupDiff = 0;
                       }
@@ -284,7 +279,7 @@ export function Calculator({ slot }) {
                               row.render(carSetup[row.index] * (row.max - row.min) + row.min)
                             }</Typography>
                             <Typography sx={{ color: "#777" }}>Prev: {
-                              row.render(lastCarSetup[row.index] * (row.max - row.min) + row.min)
+                              row.render(prevCarSetup[row.index] * (row.max - row.min) + row.min)
                             }</Typography>
                           </TableCell>
                         </TableRow>
@@ -428,7 +423,7 @@ export function Calculator({ slot }) {
                                   >
                                     <Chip
                                       label={`${f.value.toFixed(4)}: ${f.feedback}`}
-                                      color={feedbackColors[f.feedback]}
+                                      color={FeedbackColorForMUI[f.feedback]}
                                       onClick={() => {
                                         const bias = biasParam.map((x, idx) => idx === row.index ? f.value : x);
                                         setCarSetup(biasToSetup(bias))
@@ -580,7 +575,7 @@ export function Calculator({ slot }) {
                                   x["feedback_" + idx] && (
                                     <Chip
                                       label={`${x["feedback_" + idx].value.toFixed(4)}: ${x["feedback_" + idx].feedback}`}
-                                      color={feedbackColors[x["feedback_" + idx].feedback]}
+                                      color={FeedbackColorForMUI[x["feedback_" + idx].feedback]}
                                     />
                                   )
                                 }
