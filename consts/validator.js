@@ -1,4 +1,4 @@
-function validateSetupArray(value) {
+export function validateSetupArray(value) {
   if (!Array.isArray(value) || value.length !== 5) {
     return false;
   }
