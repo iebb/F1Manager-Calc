@@ -4,8 +4,6 @@ export function validateSetupArray(value) {
   }
 
   return value.every(element => {
-    return typeof element === 'number' &&
-      element >= 0 &&
-      element <= 1;
+    return typeof element === 'number';
   });
 }
