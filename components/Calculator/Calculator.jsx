@@ -34,6 +34,7 @@ import {useDispatch} from "react-redux";
 import {updateSlot} from "../../libs/reducers/configReducer";
 import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
 import {AllPossibleSetups, FeedbackColorForMUI} from "../../consts/setup";
+import {validateSetupArray} from "../../consts/validator";
 
 
 
