@@ -1,10 +1,10 @@
-import {Box, Button, Chip, Dialog, DialogContent, DialogTitle, Grid, IconButton, Input, Tab, Tabs} from "@mui/material";
-import {driverNames} from "../../consts/driverNames";
 import {Add, Edit} from "@mui/icons-material";
+import {Box, Button, Chip, Dialog, DialogContent, DialogTitle, Grid, IconButton, Input, Tab, Tabs} from "@mui/material";
 import {useState} from "react";
-import {Calculator} from "./Calculator";
 import {useDispatch, useSelector} from "react-redux";
+import {driverNames} from "../../consts/driverNames";
 import {addSlot, removeSlot, renameSlot} from "../../libs/reducers/configReducer";
+import {Calculator} from "./Calculator";
 
 export function TabManager() {
   const config = useSelector(state => state.config)
