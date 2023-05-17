@@ -10,6 +10,9 @@ class MyDocument extends Document {
             href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap"
             rel="stylesheet"
           />
+          <script async
+                  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3253159471656308"
+                  crossOrigin="anonymous"></script>
         </Head>
         <body>
         <div dangerouslySetInnerHTML={{ __html: `<script defer data-domain="f1setup.it" src="https://analytics.nekoko.it/js/script.js"></script>` }} />
