@@ -1,4 +1,5 @@
-import React, {Component, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
+
 const timeout = 200;
 function GoogleAd({ classNames = "", slot, googleAdId, style, format = "autorelaxed" }) {
 
@@ -8,7 +9,7 @@ function GoogleAd({ classNames = "", slot, googleAdId, style, format = "autorela
     if (!googleInit) {
       setGoogleInit(setTimeout(() => {
         if (typeof window !== 'undefined')
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
       }, timeout));
     }
 
