@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <Container  maxWidth="xl" component="main" sx={{ pt: 2, pb: 3 }}>
       <Divider variant="fullWidth" />
-      <div style={{ paddingTop: 20, paddingBottom: 20 }}>
+      <div style={{ padding: 20 }}>
         <GoogleAd
           style={{ display: 'block' }}
           googleAdId="ca-pub-3253159471656308"
