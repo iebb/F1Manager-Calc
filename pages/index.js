@@ -984,6 +984,9 @@ export default function CalculatorPage() {
           GitHub: <a href="https://github.com/iebb/F1Manager-Calc">iebb/F1Manager-Calc</a> &middot; {' '}
           Contact: <a href="https://twitter.com/CyberHono">@CyberHono</a>
         </Typography>
+        <Typography>
+          This is the legacy version, which is created from the snapshot of 2022/09/02. New version is at <a href="https://f1setup.it/">https://f1setup.it/</a>
+        </Typography>
       </Container>
     </SnackbarProvider>
   );
