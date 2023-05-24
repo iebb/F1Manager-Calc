@@ -13,7 +13,7 @@ Sentry.init({
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
 
-  enabled: process.env.NODE_ENV !== 'development',
+  enabled: false, // process.env.NODE_ENV !== 'development',
 
   replaysOnErrorSampleRate: 1.0,
 

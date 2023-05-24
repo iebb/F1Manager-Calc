@@ -128,3 +128,9 @@ export const nearestSetup = (biasParam, feedbacks) => {
   return {setup: nearestResult, possibleSetups, lowestRuleBreak, possibleSetupList};
 }
 
+export const randomSetup = () => CarSetupParams.map(params => {
+  const s = (params.max - params.min) / params.step;
+  return Math.floor(Math.random() * (s + 1)) / s;
+})
+
+

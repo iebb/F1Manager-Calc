@@ -1,8 +1,4 @@
-import {useSnackbar} from "notistack";
-import {useState} from "react";
-import {BiasParams, CarSetupParams} from "../../consts/params";
-import {arrayFloatEqual, biasToSetup, eps, nearestSetup, setupToBias} from "../../libs/setup";
-import * as Sentry from "@sentry/nextjs";
+import {Delete, OpenInNew} from "@mui/icons-material";
 import {
   Button,
   Chip,
@@ -25,18 +21,20 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import {tracks} from "../../consts/tracks";
-import Image from "next/image";
 import {DataGrid} from "@mui/x-data-grid";
-import {Delete, OpenInNew} from "@mui/icons-material";
+import * as Sentry from "@sentry/nextjs";
 import dynamic from "next/dynamic";
+import Image from "next/image";
+import {useSnackbar} from "notistack";
+import {useState} from "react";
 import {useDispatch} from "react-redux";
-import {updateSlot} from "../../libs/reducers/configReducer";
-import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
+import {BiasParams, CarSetupParams} from "../../consts/params";
 import {AllPossibleSetups, FeedbackColorForMUI} from "../../consts/setup";
+import {tracks} from "../../consts/tracks";
 import {validateSetupArray} from "../../consts/validator";
-
-
+import {updateSlot} from "../../libs/reducers/configReducer";
+import {arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBias} from "../../libs/setup";
+import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
 
 
 const trackMap = {};
@@ -297,8 +295,11 @@ export function Calculator({ slot }) {
                         <Button variant="contained" color="secondary" onClick={
                           () => setCarSetup([0.5, 0.5, 0.5, 0.5, 0.5])
                         }>Reset</Button>
+                        <Button variant="contained" color="error" onClick={
+                          () => setCarSetup(randomSetup())
+                        }>Random</Button>
                         <div style={{ padding: 5 }}>
-                          <Typography sx={{ color: "#777" }}>{possibleSetups} Setups Possible</Typography>
+                          <Typography sx={{ color: "#777" }}>{possibleSetups} Possibilities</Typography>
                         </div>
                       </Stack>
                     </TableCell>
