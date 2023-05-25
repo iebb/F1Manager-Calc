@@ -45,6 +45,39 @@ export const biasToSetup = (biasParam) => {
 }
 
 
+export const validateFeedbackBreaks = (_result, feedbacks, maxBreaks, validates = [0, 1, 2, 3, 4]) => {
+  let ruleBreaks = 0;
+  for (const idx of validates) {
+    const x = _result[idx];
+    for(const fs of feedbacks[idx]) {
+      const dx = Math.abs(x - fs.value);
+      const f = fs.feedback;
+      // const scale = {bad: 1, good: 2, great: 3, optimal: 4}
+      if (f !== "unknown") {
+        if (
+          (f === 'bad' && (dx < goodBreakpoint))
+          ||
+          (f === 'bad+' && (fs.value - x < goodBreakpoint))
+          ||
+          (f === 'bad-' && (fs.value - x > - goodBreakpoint))
+          ||
+          (f === 'good' && ((dx > goodBreakpoint) || (dx < greatBreakpoint)))
+          ||
+          (f === 'great' && ((dx > greatBreakpoint) || (dx < optimalBreakpoint)))
+          ||
+          (f === 'optimal' && (dx >= optimalBreakpoint))
+        ) {
+          ruleBreaks += 1;
+          if (ruleBreaks > maxBreaks) {
+            return ruleBreaks;
+          }
+        }
+      }
+    }
+  }
+  return ruleBreaks;
+}
+
 export const nearestSetup = (biasParam, feedbacks) => {
   let nearestResult = null;
   let nearestDiff = errorConst;
@@ -66,94 +99,83 @@ export const nearestSetup = (biasParam, feedbacks) => {
     for(si[1] = 0; si[1] <= steps[1]; si[1]++) {
       v[1] = si[1] / steps[1];
       for(let i= 0; i < 5; i++) bias[i] += BiasParams[i].effect[1] * v[1];
-      for(si[2] = 0; si[2] <= steps[2]; si[2]++) {
-        v[2] = si[2] / steps[2];
-        for(let i= 0; i < 5; i++) bias[i] += BiasParams[i].effect[2] * v[2];
-        for(si[3] = 0; si[3] <= steps[3]; si[3]++) {
-          v[3] = si[3] / steps[3];
-          for(let i= 0; i < 5; i++) bias[i] += BiasParams[i].effect[3] * v[3];
-          for(si[4] = 0; si[4] <= steps[4]; si[4]++) {
-            v[4] = si[4] / steps[4];
-            for(let i= 0; i < 5; i++) {
-              bias[i] += BiasParams[i].effect[4] * v[4];
-              bias[i] = Math.round(bias[i] * 56000) / 56000;
-            }
 
-            {
-              let _result = bias; // setupToBias(v);
-              let ruleBreaks = 0;
-              for (let idx = 0; idx < 5; idx++) {
-                const x = _result[idx];
-                for(const fs of feedbacks[idx]) {
-                  const dx = Math.abs(x - fs.value);
-                  const f = fs.feedback;
-                  // const scale = {bad: 1, good: 2, great: 3, optimal: 4}
-                  if (f !== "unknown") {
-                    if (
-                      (f === 'bad' && (dx < goodBreakpoint))
-                      ||
-                      (f === 'bad+' && (fs.value - x < goodBreakpoint))
-                      ||
-                      (f === 'bad-' && (fs.value - x > - goodBreakpoint))
-                      ||
-                      (f === 'good' && ((dx > goodBreakpoint) || (dx < greatBreakpoint)))
-                      ||
-                      (f === 'great' && ((dx > greatBreakpoint) || (dx < optimalBreakpoint)))
-                      ||
-                      (f === 'optimal' && (dx >= optimalBreakpoint))
-                    ) {
-                      ruleBreaks += 1;
-                      if (lowestRuleBreak === 0) {
-                        break;
+      // maybe we can do something here
+      // straights are already determined here. validate 4 only
+
+      const ruleBreaks = validateFeedbackBreaks(bias, feedbacks, lowestRuleBreak, [4]);
+      if (ruleBreaks <= lowestRuleBreak) { // added guards
+
+        for(si[2] = 0; si[2] <= steps[2]; si[2]++) {
+          v[2] = si[2] / steps[2];
+          for(let i= 0; i < 5; i++) bias[i] += BiasParams[i].effect[2] * v[2];
+          for(si[3] = 0; si[3] <= steps[3]; si[3]++) {
+            v[3] = si[3] / steps[3];
+            for(let i= 0; i < 5; i++) bias[i] += BiasParams[i].effect[3] * v[3];
+
+            // maybe we can do something here
+            // toe-out only affects breaking and cornering, so let's validate [0, 3, 4]
+
+            const ruleBreaks = validateFeedbackBreaks(bias, feedbacks, lowestRuleBreak, [0, 3]); // 4 doesn't need to revalidate
+            if (ruleBreaks <= lowestRuleBreak) { // added guards
+
+              for(si[4] = 0; si[4] <= steps[4]; si[4]++) {
+                v[4] = si[4] / steps[4];
+                for(let i= 0; i < 5; i++) {
+                  bias[i] += BiasParams[i].effect[4] * v[4];
+                  bias[i] = Math.round(bias[i] * 56000) / 56000;
+                }
+
+                {
+
+                  const ruleBreaks = validateFeedbackBreaks(bias, feedbacks, lowestRuleBreak);
+                  if (ruleBreaks <= lowestRuleBreak) {
+                    if (ruleBreaks < lowestRuleBreak) {
+                      lowestRuleBreak = ruleBreaks;
+                      possibleSetups = 0;
+                      nearestDiff = errorConst;
+                      nearestResult = null;
+                      possibleSetupList = [];
+                    }
+
+
+                    const arr = [...v];
+                    let diff = bias.map((x, idx) =>  {
+                      return (Math.min(Math.abs(x - biasParam[idx]), 0.2) * 100)
+                    }).reduce((x, y) => x+y)
+
+                    if (diff < errorConst) {
+                      if (diff < nearestDiff) {
+                        nearestDiff = diff;
+                        nearestResult = arr;
                       }
+                      possibleSetups++;
+
+                      if (
+                        possibleSetupList.length < MAX_SETUP_CANDIDATES ||
+                        diff < possibleSetupList[MAX_SETUP_CANDIDATES - 1].diff) {
+                        possibleSetupList.push({arr, diff});
+                        possibleSetupList = possibleSetupList.sort(
+                          (x, y) => x.diff - y.diff
+                        ).slice(0, MAX_SETUP_CANDIDATES)
+                      }
+
                     }
                   }
-                }
-              }
-
-              if (ruleBreaks < lowestRuleBreak) {
-                lowestRuleBreak = ruleBreaks;
-                // console.log("lowestRuleBreak", lowestRuleBreak);
-                possibleSetups = 0;
-                nearestDiff = errorConst;
-                nearestResult = null;
-                possibleSetupList = [];
-              }
-
-              if (lowestRuleBreak === ruleBreaks) {
-
-                const arr = [...v];
-
-                let diff = _result.map((x, idx) =>  {
-                  return (Math.min(Math.abs(x - biasParam[idx]), 0.2) * 100)
-                }).reduce((x, y) => x+y)
-
-                if (diff < errorConst) {
-                  if (diff < nearestDiff) {
-                    nearestDiff = diff;
-                    nearestResult = arr;
-                  }
-                  possibleSetups++;
-
-                  if (
-                    possibleSetupList.length < MAX_SETUP_CANDIDATES ||
-                    diff < possibleSetupList[MAX_SETUP_CANDIDATES - 1].diff) {
-                    possibleSetupList.push({arr, diff});
-                    possibleSetupList = possibleSetupList.sort(
-                      (x, y) => x.diff - y.diff
-                    ).slice(0, MAX_SETUP_CANDIDATES)
-                  }
 
                 }
+
+                for(let i= 0; i < 5; i++) bias[i] -= BiasParams[i].effect[4] * v[4];
               }
+
             }
-
-            for(let i= 0; i < 5; i++) bias[i] -= BiasParams[i].effect[4] * v[4];
+            for(let i= 0; i < 5; i++) bias[i] -= BiasParams[i].effect[3] * v[3];
           }
-          for(let i= 0; i < 5; i++) bias[i] -= BiasParams[i].effect[3] * v[3];
+          for(let i= 0; i < 5; i++) bias[i] -= BiasParams[i].effect[2] * v[2];
         }
-        for(let i= 0; i < 5; i++) bias[i] -= BiasParams[i].effect[2] * v[2];
+
       }
+
       for(let i= 0; i < 5; i++) bias[i] -= BiasParams[i].effect[1] * v[1];
     }
     for(let i= 0; i < 5; i++) bias[i] -= BiasParams[i].effect[0] * v[0];
