@@ -119,14 +119,6 @@ export function Calculator({ slot }) {
         );
         setPossibleSetups(0);
       } else {
-        /* what */
-        // if (possibleSetups === 1) {
-        //   axios.post(`/api/report_vals`, {
-        //     uid: getIdentifier(),
-        //     track,
-        //     values: setup,
-        //   });
-        // }
         setPossibleSetups(possibleSetups);
       }
       setCarSetup(setup);
