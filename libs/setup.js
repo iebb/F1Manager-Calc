@@ -1,6 +1,6 @@
 import {BiasParams, CarSetupParams} from "../consts/params";
 
-export const MAX_SETUP_CANDIDATES = 999;
+export const MAX_SETUP_CANDIDATES = 99;
 export const eps = 1e-6;
 export const optimalBreakpoint = 0.007; // technically 39/5600 = 0.0069642857142857146 but fine
 export const greatBreakpoint = 0.04 + eps;
