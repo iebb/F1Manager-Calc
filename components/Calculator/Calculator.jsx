@@ -183,7 +183,7 @@ export function Calculator({ slot }) {
   const setShortFeedbacks = (_val) => {
     const val = _val.toLowerCase();
     [0, 1, 2, 3, 4].map(i => {
-      if (currentShortFeedbacks[i] !== val[i]) {
+      if (val[i] && (currentShortFeedbacks[i] !== val[i])) {
         createFeedback(i, biasParam[i], feedbackShortUnmapping[val[i]])
       }
     })
