@@ -21,10 +21,12 @@ export const arrayFloatEqual = (a, b) => {
 
 export const setupToBias = (carSetup) => {
   try {
-    return BiasParams.map(biasRow =>
-      carSetup.map(
-        (x, idx) => x * biasRow.effect[idx]
-      ).reduce((a,b) => a+b) + biasRow.offset
+    return BiasParams.map(biasRow => {
+        const r = carSetup.map(
+          (x, idx) => x * biasRow.effect[idx]
+        ).reduce((a,b) => a+b) + biasRow.offset;
+        return Math.round(r * 56000) / 56000;
+      }
     )
   } catch {
     return [0.5, 0.5, 0.5, 0.5, 0.5];

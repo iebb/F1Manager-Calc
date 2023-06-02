@@ -26,7 +26,7 @@ import * as Sentry from "@sentry/nextjs";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import {useSnackbar} from "notistack";
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useDispatch} from "react-redux";
 import {BiasParams, CarSetupParams} from "../../consts/params";
 import {AllPossibleSetups, FeedbackColorForMUI} from "../../consts/setup";
@@ -35,10 +35,32 @@ import {validateSetupArray} from "../../consts/validator";
 import {updateSlot} from "../../libs/reducers/configReducer";
 import {arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBias} from "../../libs/setup";
 import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
+import {MuiOtpInput} from "mui-one-time-password-input";
 
 
 const trackMap = {};
 tracks.map(x => trackMap[x.id] = x);
+
+const feedbackShortMapping = {
+  "optimal": "o",
+  "great": "g",
+  "good": "d",
+  "bad": "b",
+  "bad+": "+",
+  "bad-": "-",
+  "unknown": "u",
+}
+
+
+const feedbackShortUnmapping = {
+  "o": "optimal",
+  "g": "great",
+  "d": "good",
+  "b": "bad",
+  "+": "bad+",
+  "-": "bad-",
+  "u": "unknown",
+}
 
 
 export function Calculator({ slot }) {
@@ -73,7 +95,6 @@ export function Calculator({ slot }) {
       track: "XX",
       previousRuns: [],
     });
-    return null;
   }
 
 
@@ -99,8 +120,74 @@ export function Calculator({ slot }) {
     }
   });
 
+  const createFeedback = (idx, biasValue, v) => {
+
+    const matchedRuns = previousRuns.filter(x => (
+      x.track === track &&
+      arrayFloatEqual(x.carSetup, carSetup)
+    ))
+
+    // setLastCarSetup(carSetup)
+    update({
+      previousRuns: matchedRuns.length ? (
+        previousRuns.map(x => x.id === matchedRuns[0].id ? {
+          ...x,
+          ["feedback_" + idx]: {
+            value: biasValue,
+            timestamp: +new Date(),
+            feedback: v
+          },
+        } : x)
+      ) : ([{
+        track,
+        carSetup: JSON.parse(JSON.stringify(carSetup)),
+        ["feedback_" + idx]: {
+          value: biasValue,
+          timestamp: +new Date(),
+          feedback: v
+        },
+        id: +new Date(),
+      }, ...previousRuns]),
+      feedback: feedback.map((x, i) => idx === i ? [
+        ...x.filter(x => x.value !== biasValue), {
+          value: biasValue,
+          timestamp: +new Date(),
+          feedback: v
+        }
+      ]: x),
+    });
+
+    // if (v === "optimal" && Object.keys(preset).length) {
+    //   axios.post(`/api/report`, {
+    //     track,
+    //     value: biasValue,
+    //     feedback: v,
+    //     index: row.index,
+    //   });
+    // }
+  }
+
   const currentTrack = trackMap[track];
 
+  const currentFeedbacks = [0, 1, 2, 3, 4].map(i => {
+    for(const fb of feedback[i]) {
+      if (fb.value === biasParam[i]) {
+        return fb.feedback;
+      }
+    }
+    return "unknown";
+  })
+
+  const currentShortFeedbacks = currentFeedbacks.map(x => feedbackShortMapping[x])
+
+  const setShortFeedbacks = (_val) => {
+    const val = _val.toLowerCase();
+    [0, 1, 2, 3, 4].map(i => {
+      if (currentShortFeedbacks[i] !== val[i]) {
+        createFeedback(i, biasParam[i], feedbackShortUnmapping[val[i]])
+      }
+    })
+  }
 
   const setCarSetup = (carSetup) => {
     update({ carSetup });
@@ -136,51 +223,6 @@ export function Calculator({ slot }) {
     setPossibleSetups(AllPossibleSetups);
   }
 
-  const createFeedback = (row, biasValue, v) => {
-    const matchedRuns = previousRuns.filter(x => (
-      x.track === track &&
-      arrayFloatEqual(x.carSetup, carSetup)
-    ))
-
-    // setLastCarSetup(carSetup)
-    update({
-      previousRuns: matchedRuns.length ? (
-        previousRuns.map(x => x.id === matchedRuns[0].id ? {
-          ...x,
-          ["feedback_" + row.index]: {
-            value: biasValue,
-            timestamp: +new Date(),
-            feedback: v
-          },
-        } : x)
-      ) : ([{
-        track,
-        carSetup: JSON.parse(JSON.stringify(carSetup)),
-        ["feedback_" + row.index]: {
-          value: biasValue,
-          timestamp: +new Date(),
-          feedback: v
-        },
-        id: +new Date(),
-      }, ...previousRuns]),
-      feedback: feedback.map((x, idx) => idx === row.index ? [
-        ...x.filter(x => x.value !== biasValue), {
-          value: biasValue,
-          timestamp: +new Date(),
-          feedback: v
-        }
-      ]: x),
-    });
-
-    // if (v === "optimal" && Object.keys(preset).length) {
-    //   axios.post(`/api/report`, {
-    //     track,
-    //     value: biasValue,
-    //     feedback: v,
-    //     index: row.index,
-    //   });
-    // }
-  }
 
   const loadPreset = () => setCarSetup(currentTrack.setup);
 
@@ -314,11 +356,24 @@ export function Calculator({ slot }) {
                             }
                           }>Clear History</Button>
                           */}
-                        <Button variant="contained" color="warning" onClick={
+                        <Button
+                          variant="contained" color="warning" onClick={
                           () => {
                             clearFeedbacks()
                           }
                         }>Clear Feedbacks</Button>
+                        <div style={{ flex: 1 }}>
+                          <MuiOtpInput
+                            TextFieldsProps={{ size: 'small', placeholder: '-', sx: {p: 0} }}
+                            style={{ maxWidth: 300 }}
+                            length={5}
+                            value={currentShortFeedbacks}
+                            onChange={v => setShortFeedbacks(v)}
+                            validateChar={(ch, idx) => {
+                              return "ogdb+-u".indexOf(ch.toLowerCase()) !== -1;
+                            }}
+                          />
+                        </div>
                       </Stack>
                     </TableCell>
                   </TableRow>
@@ -334,12 +389,6 @@ export function Calculator({ slot }) {
                       let feedbacks = JSON.parse(JSON.stringify(feedback[row.index]));
                       const biasValue = biasParam[row.index];
                       const k = row.name + ":" + slot.slotNaming;
-                      let currentFeedback = "";
-                      for(const fb of feedbacks) {
-                        if (fb.value === biasValue) {
-                          currentFeedback = fb.feedback;
-                        }
-                      }
                       return [(
                         <TableRow key={k}>
                           <TableCell sx={{ pt: 0, pb: 0, pl: 1, pr: 1, borderBottom: '1px dashed rgba(81, 81, 81, .6)' }}>
@@ -349,10 +398,10 @@ export function Calculator({ slot }) {
                                 labelId="demo-simple-select-standard-label"
                                 component="label"
                                 label={row.name}
-                                value={currentFeedback}
+                                value={currentFeedbacks[row.index]}
                                 disabled={!isValidSetup.every(x => x)}
                                 onChange={(e) => {
-                                  createFeedback(row, biasValue, e.target.value)
+                                  createFeedback(row.index, biasValue, e.target.value)
                                 }}
                               >
                                 <MenuItem value='optimal'>Optimal</MenuItem>
