@@ -405,8 +405,8 @@ export function Calculator({ slot }) {
                         </TableRow>
                       ),(
                         <TableRow key={`${k}_2`}>
-                          <TableCell colSpan={3} sx={{ padding: 0.5 }}>
-                            <Grid container spacing={1}>
+                          <TableCell colSpan={3} sx={{ padding: "0 2px" }}>
+                            <Grid container spacing={1} style={{ minHeight: 40 }}>
                               {
                                 feedbacks.sort(
                                   (x, y) => x.value - y.value
