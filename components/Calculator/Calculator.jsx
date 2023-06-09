@@ -238,13 +238,13 @@ export function Calculator({ slot }) {
   const loadPreset = () => setCarSetup(currentTrack.setup);
 
   return (
-    <Container disableGutters maxWidth="xl" key={slot.slotNaming}>
+    <Container disableGutters maxWidth={false} key={slot.slotNaming}>
       <Divider variant="fullWidth" />
       <ClearFeedbackDialog clear={() => {
         clearFeedbacks();
         loadPreset();
       }} isOpen={openClearFeedback} setIsOpen={setOpenClearFeedback} />
-      <Container maxWidth="xl" component="main" sx={{ pt: 2, pb: 6 }}>
+      <Container maxWidth={false} component="main" sx={{ p: 0, pt: 2 }} style={{ paddingLeft: 0, paddingRight: 0 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} lg={6}>
             <TableContainer component={Paper}>
