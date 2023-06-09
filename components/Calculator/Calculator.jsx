@@ -42,7 +42,7 @@ import {HtmlTooltip} from "../Tooltip";
 const trackMap = {};
 tracks.map(x => trackMap[x.id] = x);
 
-const shortAlphabet = "ogdb+-u01234";
+const shortAlphabet = "ogdb+-u12345 ";
 
 const feedbackShortMapping = {
   "optimal": "o",
@@ -63,11 +63,14 @@ const feedbackShortUnmapping = {
   "+": "bad+",
   "-": "bad-",
   "u": "unknown",
+
   "1": "optimal",
   "2": "great",
   "3": "good",
   "4": "bad",
   "5": "unknown",
+
+  " ": "unknown",
 }
 
 
