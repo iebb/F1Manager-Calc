@@ -26,7 +26,7 @@ import * as Sentry from "@sentry/nextjs";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import {useSnackbar} from "notistack";
-import {useEffect, useRef, useState} from "react";
+import {useState} from "react";
 import {useDispatch} from "react-redux";
 import {BiasParams, CarSetupParams} from "../../consts/params";
 import {AllPossibleSetups, FeedbackColorForMUI} from "../../consts/setup";
