@@ -36,10 +36,13 @@ import {updateSlot} from "../../libs/reducers/configReducer";
 import {arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBias} from "../../libs/setup";
 import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
 import {MuiOtpInput} from "mui-one-time-password-input";
+import {HtmlTooltip} from "../Tooltip";
 
 
 const trackMap = {};
 tracks.map(x => trackMap[x.id] = x);
+
+const shortAlphabet = "ogdb+-u01234";
 
 const feedbackShortMapping = {
   "optimal": "o",
@@ -60,6 +63,11 @@ const feedbackShortUnmapping = {
   "+": "bad+",
   "-": "bad-",
   "u": "unknown",
+  "1": "optimal",
+  "2": "great",
+  "3": "good",
+  "4": "bad",
+  "5": "unknown",
 }
 
 
@@ -363,16 +371,38 @@ export function Calculator({ slot }) {
                           }
                         }>Clear Feedbacks</Button>
                         <div style={{ flex: 1 }}>
-                          <MuiOtpInput
-                            TextFieldsProps={{ size: 'small', placeholder: '-', sx: {p: 0} }}
-                            style={{ maxWidth: 300 }}
-                            length={5}
-                            value={currentShortFeedbacks}
-                            onChange={v => setShortFeedbacks(v)}
-                            validateChar={(ch, idx) => {
-                              return "ogdb+-u".indexOf(ch.toLowerCase()) !== -1;
-                            }}
-                          />
+                          <HtmlTooltip
+                            title={
+                              <div>
+                                <Typography color="inherit">Quick Input</Typography>
+                                <em>Use <b>these shortcuts</b> to input the feedbacks quicker.</em>
+                                <table>
+                                  <thead>
+                                    <tr><th>short</th><th>meaning</th><th>number</th></tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr><th>o</th><td><u>o</u>ptimal</td><th>1</th></tr>
+                                    <tr><th>g</th><td><u>g</u>reat</td><th>2</th></tr>
+                                    <tr><th>d</th><td>goo<u>d</u></td><th>3</th></tr>
+                                    <tr><th>b</th><td><u>b</u>ad</td><th>4</th></tr>
+                                    <tr><th>u</th><td><u>u</u>nknown</td><th>5</th></tr>
+                                  </tbody>
+                                </table>
+                                <span>Additionally, +/- for bad(+)/(-).</span>
+                              </div>
+                            }
+                          >
+                            <MuiOtpInput
+                              TextFieldsProps={{ size: 'small', placeholder: '-', sx: {p: 0} }}
+                              style={{ maxWidth: 300 }}
+                              length={5}
+                              value={currentShortFeedbacks}
+                              onChange={v => setShortFeedbacks(v)}
+                              validateChar={(ch, idx) => {
+                                return shortAlphabet.indexOf(ch.toLowerCase()) !== -1;
+                              }}
+                            />
+                          </HtmlTooltip>
                         </div>
                       </Stack>
                     </TableCell>
