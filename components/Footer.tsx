@@ -18,6 +18,9 @@ export default function Footer() {
         GitHub: <a href="https://github.com/iebb/F1Manager-Calc">iebb/F1Manager-Calc</a> &middot; {' '}
         Contact: <a href="https://twitter.com/CyberHono">@CyberHono</a>
       </Typography>
+      <Typography sx={{ color: "#777", fontSize: 12, pt: 3 }}>
+        This website is unofficial and is not associated in any way with the Formula 1 companies. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX and related marks are trade marks of Formula One Licensing B.V.
+      </Typography>
     </Container>
   )
 }
