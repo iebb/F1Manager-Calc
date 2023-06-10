@@ -138,35 +138,54 @@ export function Calculator({ slot }) {
       arrayFloatEqual(x.carSetup, carSetup)
     ))
 
-    // setLastCarSetup(carSetup)
-    update({
-      previousRuns: matchedRuns.length ? (
-        previousRuns.map(x => x.id === matchedRuns[0].id ? {
-          ...x,
+    if (v === "unknown") {
+      // setLastCarSetup(carSetup)
+      update({
+        previousRuns: matchedRuns.length ? (
+          previousRuns.map(x => x.id === matchedRuns[0].id ? {
+            ...x,
+            ["feedback_" + idx]: null,
+          } : x)
+        ) : ([{
+          track,
+          carSetup: JSON.parse(JSON.stringify(carSetup)),
+          ["feedback_" + idx]: null,
+          id: +new Date(),
+        }, ...previousRuns]),
+        feedback: feedback.map((x, i) => idx === i ? x.filter(x => x.value !== biasValue): x),
+      });
+    } else {
+      // setLastCarSetup(carSetup)
+      update({
+        previousRuns: matchedRuns.length ? (
+          previousRuns.map(x => x.id === matchedRuns[0].id ? {
+            ...x,
+            ["feedback_" + idx]: {
+              value: biasValue,
+              timestamp: +new Date(),
+              feedback: v
+            },
+          } : x)
+        ) : ([{
+          track,
+          carSetup: JSON.parse(JSON.stringify(carSetup)),
           ["feedback_" + idx]: {
             value: biasValue,
             timestamp: +new Date(),
             feedback: v
           },
-        } : x)
-      ) : ([{
-        track,
-        carSetup: JSON.parse(JSON.stringify(carSetup)),
-        ["feedback_" + idx]: {
-          value: biasValue,
-          timestamp: +new Date(),
-          feedback: v
-        },
-        id: +new Date(),
-      }, ...previousRuns]),
-      feedback: feedback.map((x, i) => idx === i ? [
-        ...x.filter(x => x.value !== biasValue), {
-          value: biasValue,
-          timestamp: +new Date(),
-          feedback: v
-        }
-      ]: x),
-    });
+          id: +new Date(),
+        }, ...previousRuns]),
+        feedback: feedback.map((x, i) => idx === i ? [
+          ...x.filter(x => x.value !== biasValue), {
+            value: biasValue,
+            timestamp: +new Date(),
+            feedback: v
+          }
+        ]: x),
+      });
+    }
+
 
     // if (v === "optimal" && Object.keys(preset).length) {
     //   axios.post(`/api/report`, {
