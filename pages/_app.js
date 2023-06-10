@@ -41,11 +41,9 @@ export function MyApp({Component, pageProps: { session, ...pageProps }}) {
       <ThemeProvider theme={theme}>
         <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right'}}>
           <CssBaseline />
-          <Header />
           <SessionConsumer>
             <Component {...pageProps} />
           </SessionConsumer>
-          <Footer />
         </SnackbarProvider>
       </ThemeProvider>
     </SessionProvider>
