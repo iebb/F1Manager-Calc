@@ -498,7 +498,7 @@ export const tracks: Track[] = [
   {
     "name": "Yas Marina",
     "location": "Yas Island",
-    "country": "UAE",
+    "country": "Abu Dhabi, UAE",
     "code": "AE",
     "preset": [
       0.5,
