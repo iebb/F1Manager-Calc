@@ -420,7 +420,7 @@ export function Calculator({ slot }) {
                               length={5}
                               value={currentShortFeedbacks}
                               onChange={v => setShortFeedbacks(v)}
-                              validateChar={(ch, idx) => {
+                              validateChar={(ch) => {
                                 return shortAlphabet.indexOf(ch.toLowerCase()) !== -1;
                               }}
                             />
@@ -545,7 +545,7 @@ export function Calculator({ slot }) {
             </TableContainer>
           </Grid>
           <Grid item xs={12} lg={12} sx={{ mt: 3 }}>
-            <div style={{ display: 'flex', height: '100%' }}>
+            <div style={{ display: 'flex', height: '100%', maxWidth: '100%', overflowX: 'scroll' }}>
               <div style={{ flexGrow: 1 }}>
                 <DataGrid
                   autoHeight
