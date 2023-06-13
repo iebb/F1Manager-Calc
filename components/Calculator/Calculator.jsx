@@ -619,7 +619,10 @@ export function Calculator({ slot }) {
                     })
                   ]}
                   density="compact"
-                  rowsPerPageOptions={[10, 20, 40, 100, 200]}
+                  initialState={{
+                    pagination: { paginationModel: { pageSize: 20 } },
+                  }}
+                  pageSizeOptions={[20, 50, 100]}
                 />
               </div>
             </div>
