@@ -17,6 +17,7 @@
 
 .headerUser {
     flex: 0 1 360px;
+    gap: 10px;
     text-align: right;
     display: flex;
     flex-direction: row-reverse;
@@ -36,7 +37,7 @@
     }
 }
 
-@media (max-width: 768px) and (min-width: 481px)  {
+@media (max-width: 768px)  {
     .headerContainer {
         /* flex-direction: column; */
     }
@@ -46,31 +47,12 @@
     }
 
     .headerTitle h3 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 
     .headerUser {
         flex-basis: 200px;
         flex-direction: column;
+        gap: 2px;
     }
-}
-
-@media (max-width: 480px) {
-    .headerContainer {
-        /* flex-direction: column; */
-    }
-
-    .headerTitle {
-        flex: 1 1 0;
-    }
-
-    .headerTitle h3 {
-        font-size: 1.5rem;
-    }
-
-    .headerUser {
-        flex-basis: 200px;
-        flex-direction: column;
-    }
-
 }
