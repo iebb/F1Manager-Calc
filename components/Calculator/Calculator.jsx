@@ -545,7 +545,7 @@ export function Calculator({ slot }) {
             </TableContainer>
           </Grid>
           <Grid item xs={12} lg={12} sx={{ mt: 3 }}>
-            <div style={{ display: 'flex', height: '100%', maxWidth: '100%', overflowX: 'scroll' }}>
+            <div style={{ display: 'flex', height: '100%', maxWidth: '100%', overflowX: 'auto' }}>
               <div style={{ flexGrow: 1 }}>
                 <DataGrid
                   autoHeight
