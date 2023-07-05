@@ -32,11 +32,19 @@ export default function Header() {
             Bug & Feedbacks: <a href="https://discord.gg/u46QWWaNfV">Discord</a>
           </Typography>
         </div>
-        <div style={{ flex: "0 1 160px", textAlign: "right" }} >
-          <a href="https://apps.apple.com/jp/app/f1m-setup-calculator/id6449542649?l=en">
-            <Image alt="App Store" src={require(`../assets/AppStore.svg`)} style={{ display: 'inline-block' }} height={48} />
-          </a>
-          <p style={{ color: "#777", fontSize: 13, lineHeight: 1, margin: 0 }}>we have an iOS app now :)</p>
+        <div className={styles.appStore} >
+          <div>
+            <a href="https://apps.apple.com/jp/app/f1m-setup-calculator/id6449542649?l=en">
+              <Image alt="App Store" src={require(`../assets/AppStore.svg`)} style={{ display: 'inline-block' }} height={48} />
+            </a>
+            <a
+              href='https://play.google.com/store/apps/details?id=ee.nekoko.F1MCalc&utm_source=f1mc&utm_campaign=f1mc&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
+              <Image alt='Get it on Google Play'
+                     style={{ display: 'inline-block' }} height={48}
+                     src={require(`../assets/en_badge_web_generic.png`)}/>
+            </a>
+          </div>
+          <p style={{ color: "#777", fontSize: 13, lineHeight: 1, margin: 0 }}>we have an app now :)</p>
         </div>
       </div>
       <Divider variant="fullWidth" sx={{ mt: 1 }} />

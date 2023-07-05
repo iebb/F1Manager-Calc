@@ -11,6 +11,19 @@
     display: flex;
 }
 
+.appStore {
+    flex: 0 1 360px;
+    text-align: right;
+}
+
+@media (max-width: 600px){
+
+    .appStore {
+        flex: 0 1 180px;
+    }
+}
+
+
 .headerTitle {
     flex: 1 1 0;
 }
