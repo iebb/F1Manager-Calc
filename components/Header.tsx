@@ -34,11 +34,11 @@ export default function Header() {
         </div>
         <div className={styles.appStore} >
           <div>
-            <a href="https://apps.apple.com/jp/app/f1m-setup-calculator/id6449542649?l=en">
+            <a href="https://redirect.badasstemple.eu/f1mcios">
               <Image alt="App Store" src={require(`../assets/AppStore.svg`)} style={{ display: 'inline-block' }} height={48} />
             </a>
             <a
-              href='https://play.google.com/store/apps/details?id=ee.nekoko.F1MCalc&utm_source=f1mc&utm_campaign=f1mc&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
+              href='https://redirect.badasstemple.eu/f1mcandroid'>
               <Image alt='Get it on Google Play'
                      style={{ display: 'inline-block' }} height={48}
                      src={require(`../assets/en_badge_web_generic.png`)}/>
