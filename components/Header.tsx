@@ -14,7 +14,7 @@ export default function Header() {
             <span
               className={styles.wideScreenOnly}
               style={{ color: "#777", fontSize: 15, marginInline: 15, textTransform: "uppercase" }}
-            >{' '}for F1® Manager 2022
+            >{' '}for F1® Manager 2022/2023
           </span>
           </Typography>
         </div>
