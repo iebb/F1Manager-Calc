@@ -1,11 +1,14 @@
+import {TracksGame22} from "./tracks_game22";
 
 export interface Track {
   name: string;
   location: string;
   country: string;
+  trackcode: string;
   code: string;
-  preset: number[];
   setup: number[];
+  perfectEffects: number[][];
+  perfectSetups: number[][];
   suffix: string;
   id: string;
 }
@@ -15,14 +18,8 @@ export const tracks: Track[] = [
     "name": "Unspecified",
     "location": "",
     "country": "-",
+    "trackcode": "",
     "code": "XX",
-    "preset": [
-      0.5,
-      0.5,
-      0.5,
-      0.5,
-      0.5
-    ],
     "suffix": "",
     "id": "XX",
     "setup": [
@@ -37,14 +34,8 @@ export const tracks: Track[] = [
     "name": "Sakhir",
     "location": "Sakhir",
     "country": "Bahrain",
+    "trackcode": "Bahrain",
     "code": "BH",
-    "preset": [
-      0.594643,
-      0.364643,
-      0.529554,
-      0.381786,
-      0.692857
-    ],
     "suffix": "",
     "id": "BH",
     "setup": [
@@ -59,14 +50,8 @@ export const tracks: Track[] = [
     "name": "Jeddah",
     "location": "Jeddah",
     "country": "Saudi Arabia",
+    "trackcode": "Jeddah",
     "code": "SA",
-    "preset": [
-      0.778393,
-      0.132768,
-      0.728304,
-      0.140536,
-      0.667857
-    ],
     "suffix": "",
     "id": "SA",
     "setup": [
@@ -81,14 +66,8 @@ export const tracks: Track[] = [
     "name": "Melbourne",
     "location": "Melbourne",
     "country": "Australia",
+    "trackcode": "AlbertPark",
     "code": "AU",
-    "preset": [
-      0.616429,
-      0.426786,
-      0.643482,
-      0.347857,
-      0.405714
-    ],
     "suffix": "",
     "id": "AU",
     "setup": [
@@ -103,15 +82,9 @@ export const tracks: Track[] = [
     "name": "Imola",
     "location": "Imola",
     "country": "Italy (Emilia-Romagna)",
+    "trackcode": "Imola",
     "code": "IT",
     "suffix": "EMI",
-    "preset": [
-      0.5975,
-      0.279375,
-      0.675625,
-      0.48125,
-      0.475
-    ],
     "id": "IT-EMI",
     "setup": [
       0.65,
@@ -125,15 +98,9 @@ export const tracks: Track[] = [
     "name": "Miami",
     "location": "Miami",
     "country": "United States",
+    "trackcode": "Miami",
     "code": "US",
     "suffix": "MIAMI",
-    "preset": [
-      0.569107,
-      0.378036,
-      0.677321,
-      0.584464,
-      0.356429
-    ],
     "id": "US-MIAMI",
     "setup": [
       0.8,
@@ -147,14 +114,8 @@ export const tracks: Track[] = [
     "name": "Catalunya",
     "location": "Barcelona",
     "country": "Spain",
+    "trackcode": "Barcelona",
     "code": "ES",
-    "preset": [
-      0.598036,
-      0.432857,
-      0.743214,
-      0.346071,
-      0.262143
-    ],
     "suffix": "",
     "id": "ES",
     "setup": [
@@ -169,14 +130,8 @@ export const tracks: Track[] = [
     "name": "Monte Carlo",
     "location": "Monte Carlo",
     "country": "Monaco",
+    "trackcode": "Monaco",
     "code": "MC",
-    "preset": [
-      0.56875,
-      0.434018,
-      0.891875,
-      0.31875,
-      0
-    ],
     "suffix": "",
     "id": "MC",
     "setup": [
@@ -191,14 +146,8 @@ export const tracks: Track[] = [
     "name": "Baku",
     "location": "Baku",
     "country": "Azerbaijan",
+    "trackcode": "Baku",
     "code": "AZ",
-    "preset": [
-      0.451786,
-      0.664107,
-      0.212321,
-      0.628571,
-      0.792143
-    ],
     "suffix": "",
     "id": "AZ",
     "setup": [
@@ -213,14 +162,8 @@ export const tracks: Track[] = [
     "name": "Montréal",
     "location": "Montréal",
     "country": "Canada",
+    "trackcode": "Montreal",
     "code": "CA",
-    "preset": [
-      0.457321,
-      0.591964,
-      0.384286,
-      0.677143,
-      0.589286
-    ],
     "suffix": "",
     "id": "CA",
     "setup": [
@@ -235,14 +178,8 @@ export const tracks: Track[] = [
     "name": "Silverstone",
     "location": "Silverstone",
     "country": "Great Britain",
+    "trackcode": "Silverstone",
     "code": "GB",
-    "preset": [
-      0.659643,
-      0.319554,
-      0.608036,
-      0.196786,
-      0.618571
-    ],
     "suffix": "",
     "id": "GB",
     "setup": [
@@ -257,14 +194,8 @@ export const tracks: Track[] = [
     "name": "Spielberg",
     "location": "Spielberg",
     "country": "Austria",
+    "trackcode": "RedBullRing",
     "code": "AT",
-    "preset": [
-      0.406607,
-      0.612857,
-      0.450089,
-      0.755357,
-      0.376429
-    ],
     "suffix": "",
     "id": "AT",
     "setup": [
@@ -279,14 +210,8 @@ export const tracks: Track[] = [
     "name": "Paul Ricard",
     "location": "Le Castellet",
     "country": "France",
+    "trackcode": "PaulRicard",
     "code": "FR",
-    "preset": [
-      0.603393,
-      0.394554,
-      0.529911,
-      0.488036,
-      0.623571
-    ],
     "suffix": "",
     "id": "FR",
     "setup": [
@@ -301,14 +226,8 @@ export const tracks: Track[] = [
     "name": "Hungaroring",
     "location": "Budapest",
     "country": "Hungary",
+    "trackcode": "Hungaroring",
     "code": "HU",
-    "preset": [
-      0.500893,
-      0.564554,
-      0.640179,
-      0.715536,
-      0.133571
-    ],
     "suffix": "",
     "id": "HU",
     "setup": [
@@ -323,14 +242,8 @@ export const tracks: Track[] = [
     "name": "Spa-Francorchamps",
     "location": "Spa-Francorchamps",
     "country": "Belgium",
+    "trackcode": "SpaFrancorchamps",
     "code": "BE",
-    "preset": [
-      0.610179,
-      0.424911,
-      0.385714,
-      0.454107,
-      0.905714
-    ],
     "suffix": "",
     "id": "BE",
     "setup": [
@@ -345,14 +258,8 @@ export const tracks: Track[] = [
     "name": "Zandvoort",
     "location": "Zandvoort",
     "country": "Netherlands",
+    "trackcode": "Zandvoort",
     "code": "NL",
-    "preset": [
-      0.647857,
-      0.438571,
-      0.705089,
-      0.393214,
-      0.326429
-    ],
     "suffix": "",
     "id": "NL",
     "setup": [
@@ -367,14 +274,8 @@ export const tracks: Track[] = [
     "name": "Monza",
     "location": "Monza",
     "country": "Italy",
+    "trackcode": "Monza",
     "code": "IT",
-    "preset": [
-      0.4925,
-      0.6375,
-      0.15,
-      0.655,
-      0.99
-    ],
     "suffix": "",
     "id": "IT",
     "setup": [
@@ -389,14 +290,8 @@ export const tracks: Track[] = [
     "name": "Marina Bay",
     "location": "Marina Bay",
     "country": "Singapore",
+    "trackcode": "MarinaBay",
     "code": "SG",
-    "preset": [
-      0.422321,
-      0.668839,
-      0.609018,
-      0.427143,
-      0.089286
-    ],
     "suffix": "",
     "id": "SG",
     "setup": [
@@ -411,14 +306,8 @@ export const tracks: Track[] = [
     "name": "Suzuka",
     "location": "Suzuka",
     "country": "Japan",
+    "trackcode": "Suzuka",
     "code": "JP",
-    "preset": [
-      0.595179,
-      0.258125,
-      0.703125,
-      0.444107,
-      0.415714
-    ],
     "suffix": "",
     "id": "JP",
     "setup": [
@@ -433,14 +322,8 @@ export const tracks: Track[] = [
     "name": "Austin",
     "location": "Austin",
     "country": "United States",
+    "trackcode": "CircuitOfTheAmericas",
     "code": "US",
-    "preset": [
-      0.610179,
-      0.376786,
-      0.667857,
-      0.615357,
-      0.400714
-    ],
     "suffix": "",
     "id": "US",
     "setup": [
@@ -455,14 +338,8 @@ export const tracks: Track[] = [
     "name": "Mexico City",
     "location": "Mexico City",
     "country": "Mexico",
+    "trackcode": "HermanosRodriguez",
     "code": "MX",
-    "preset": [
-      0.543929,
-      0.4125,
-      0.629107,
-      0.639107,
-      0.420714
-    ],
     "suffix": "",
     "id": "MX",
     "setup": [
@@ -477,14 +354,8 @@ export const tracks: Track[] = [
     "name": "Interlagos",
     "location": "São Paulo",
     "country": "Brazil",
+    "trackcode": "Interlagos",
     "code": "BR",
-    "preset": [
-      0.545179,
-      0.448036,
-      0.589107,
-      0.637857,
-      0.420714
-    ],
     "suffix": "",
     "id": "BR",
     "setup": [
@@ -499,14 +370,8 @@ export const tracks: Track[] = [
     "name": "Yas Marina",
     "location": "Yas Island",
     "country": "Abu Dhabi, UAE",
+    "trackcode": "YasMarina",
     "code": "AE",
-    "preset": [
-      0.5,
-      0.5275,
-      0.504018,
-      0.5575,
-      0.5
-    ],
     "suffix": "",
     "id": "AE",
     "setup": [
@@ -517,4 +382,18 @@ export const tracks: Track[] = [
       0.7
     ]
   }
-];
+].map(x => {
+  const sx = TracksGame22[x.trackcode] || {
+    perfectEffects: [
+      [0,1],[0,1],[0,1],[0,1],[0,1]
+    ],
+    perfectSetups: [
+      [0,1],[0,1],[0,1],[0,1],[0,1]
+    ]
+  };
+  return {
+    ...x,
+    perfectEffects: sx.perfectEffects,
+    perfectSetups: sx.perfectSetups,
+  }
+});

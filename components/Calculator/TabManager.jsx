@@ -22,46 +22,42 @@ export function TabManager() {
   return (
     <div>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        {
-          openRenameSlot !== null && (
-            <Dialog
-              open={Boolean(openRenameSlot)}
-              onClose={saveSlotEdit}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">Renaming Slot {openRenameSlot.id}: <b>{openRenameSlot.slotTitle}</b></DialogTitle>
-              <DialogContent>
-                <div>
-                  <Input value={editText} onChange={e => setEditText(e.target.value)} sx={{ width: "100%" }} />
-                </div>
-                <div style={{ marginTop: 20 }}>
-                  <Grid container spacing={1}>
-                    {
-                      driverNames.map(
-                        d => <Grid item key={d}><Chip label={d} onClick={() => setEditText(d)} /></Grid>
-                      )
+        <Dialog
+          open={Boolean(openRenameSlot)}
+          onClose={saveSlotEdit}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Renaming Slot {openRenameSlot.id}: <b>{openRenameSlot.slotTitle}</b></DialogTitle>
+          <DialogContent>
+            <div>
+              <Input value={editText} onChange={e => setEditText(e.target.value)} sx={{ width: "100%" }} />
+            </div>
+            <div style={{ marginTop: 20 }}>
+              <Grid container spacing={1}>
+                {
+                  driverNames.map(
+                    d => <Grid item key={d}><Chip label={d} onClick={() => setEditText(d)} /></Grid>
+                  )
+                }
+              </Grid>
+            </div>
+            <div style={{ marginTop: 20, textAlign: "right" }}>
+              {
+                slots.length > 1 && (
+                  <Button sx={{m: 1}} variant="contained" color="error" onClick={
+                    () => {
+                      setTab(tab > 0 ? tab - 1 : 0);
+                      dispatch(removeSlot({id: openRenameSlot.id}));
+                      setOpenRenameSlot(null);
                     }
-                  </Grid>
-                </div>
-                <div style={{ marginTop: 20, textAlign: "right" }}>
-                  {
-                    slots.length > 1 && (
-                      <Button sx={{m: 1}} variant="contained" color="error" onClick={
-                        () => {
-                          setTab(tab > 0 ? tab - 1 : 0);
-                          dispatch(removeSlot({id: openRenameSlot.id}));
-                          setOpenRenameSlot(null);
-                        }
-                      }>Delete this Slot</Button>
-                    )
-                  }
-                  <Button sx={{m: 1}} variant="contained" color="primary" onClick={saveSlotEdit}>Save Changes</Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )
-        }
+                  }>Delete this Slot</Button>
+                )
+              }
+              <Button sx={{m: 1}} variant="contained" color="primary" onClick={saveSlotEdit}>Save Changes</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
         <Tabs
           value={tab}
           onChange={(_, f) => {
