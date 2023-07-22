@@ -37,7 +37,7 @@ import {arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBia
 import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
 import {MuiOtpInput} from "mui-one-time-password-input";
 import {HtmlTooltip} from "../Tooltip";
-
+import styles from "./Calculator.module.css"
 
 const trackMap = {};
 tracks.map(x => trackMap[x.id] = x);
@@ -227,7 +227,14 @@ export function Calculator({ slot }) {
     update({
       prevCarSetup: carSetup,
     });
-    const {setup, possibleSetups, lowestRuleBreak, possibleSetupList} = nearestSetup(biasParam, feedback);
+
+    const {setup, possibleSetups, lowestRuleBreak, possibleSetupList} = nearestSetup(
+      biasParam,
+      feedback,
+      [[0,1],[0,1],[0,1],[0,1],[0,1]], // currentTrack.perfectSetups, // , //
+      [[0,1],[0,1],[0,1],[0,1],[0,1]], // currentTrack.perfectEffects, // , //
+    )
+
     if (setup) {
       if (lowestRuleBreak > 0) {
         enqueueSnackbar(
@@ -291,7 +298,12 @@ export function Calculator({ slot }) {
                               }}
                             >
                               {tracks.map(t => <MenuItem key={t.id} value={t.id}>
-                                <Image src={require(`../../assets/flags/${t.id}.svg`)} width={24} height={20} alt={t.country} style={{ display: 'inline-block' }} />
+                                <Image
+                                  src={require(`../../assets/flags/${t.id}.svg`)}
+                                  width={24} height={20}
+                                  alt={t.country}
+                                  style={{ display: 'inline-block' }}
+                                />
                                 <Typography sx={{ m: 0, ml: 1,  display: 'inline-block' }}> {t.name}, {t.country}</Typography>
                               </MenuItem>)}
                             </Select>
@@ -313,9 +325,37 @@ export function Calculator({ slot }) {
                       if (Math.abs(carSetupDiff) < eps) {
                         carSetupDiff = 0;
                       }
+                      const perfectRange = currentTrack.perfectSetups[row.index];
                       return (
                         <TableRow key={row.name}>
-                          <TableCell sx={{ fontSize: 16 }}><b>{row.name}</b></TableCell>
+                          <TableCell sx={{ fontSize: 16 }}>
+                            <Typography>
+                              <b>{row.name}</b>
+                            </Typography>
+                            {
+                              currentTrack.perfectSetups[row.index][1] <= 1 && (
+                                <Typography sx={{ color:
+                                    carSetup[row.index] - eps > perfectRange[1] || carSetup[row.index] + eps < perfectRange[0] ? "#ffaa00": "#77ff77", fontSize: 14 }}>
+                                  <Image
+                                    src={require(`../../assets/flags/${currentTrack.id}.svg`)}
+                                    width={22} height={15} alt={currentTrack.country}
+                                    className={styles.hintFlag}
+                                  />
+                                  <span style={{ lineHeight: "15px", verticalAlign: "middle" }}>
+                                {
+                                  row.render(
+                                    perfectRange[0] * (row.max - row.min) + row.min
+                                  )
+                                }~{
+                                    row.render(
+                                      perfectRange[1] * (row.max - row.min) + row.min
+                                    )
+                                  }
+                              </span>
+                                </Typography>
+                              )
+                            }
+                          </TableCell>
                           <TableCell>
                             <Slider
                               marks

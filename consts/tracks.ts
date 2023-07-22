@@ -381,7 +381,7 @@ export const tracks: Track[] = [
       0.625,
       0.7
     ]
-  }
+  },
 ].map(x => {
   const sx = TracksGame22[x.trackcode] || {
     perfectEffects: [
@@ -394,6 +394,11 @@ export const tracks: Track[] = [
   return {
     ...x,
     perfectEffects: sx.perfectEffects,
-    perfectSetups: sx.perfectSetups,
+    perfectSetups: [
+      sx.perfectSetups[0],
+      sx.perfectSetups[1],
+      [0,2],[0,2],
+      sx.perfectSetups[4],
+    ],
   }
 });

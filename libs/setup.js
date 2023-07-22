@@ -80,7 +80,12 @@ export const validateFeedbackBreaks = (_result, feedbacks, maxBreaks, validates 
   return ruleBreaks;
 }
 
-export const nearestSetup = (biasParam, feedbacks) => {
+export const nearestSetup = (
+  biasParam,
+  feedbacks,
+  vConstraint= [[0,1],[0,1],[0,1],[0,1],[0,1]],
+  fConstraint= [[0,1],[0,1],[0,1],[0,1],[0,1]]
+) => {
   let nearestResult = null;
   let nearestDiff = errorConst;
   let lowestRuleBreak = 15;
@@ -97,9 +102,16 @@ export const nearestSetup = (biasParam, feedbacks) => {
 
   for(si[0] = 0; si[0] <= steps[0]; si[0]++) {
     v[0] = si[0] / steps[0];
+    if (v[0] + eps < vConstraint[0][0] || v[0] - eps > vConstraint[0][1]) {
+      continue;
+    }
+
     for(let i= 0; i < 5; i++) bias[i] += BiasParams[i].effect[0] * v[0];
     for(si[1] = 0; si[1] <= steps[1]; si[1]++) {
       v[1] = si[1] / steps[1];
+      if (v[1] + eps < vConstraint[1][0] || v[1] - eps > vConstraint[1][1]) {
+        continue;
+      }
       for(let i= 0; i < 5; i++) bias[i] += BiasParams[i].effect[1] * v[1];
 
       // maybe we can do something here
@@ -110,9 +122,17 @@ export const nearestSetup = (biasParam, feedbacks) => {
 
         for(si[2] = 0; si[2] <= steps[2]; si[2]++) {
           v[2] = si[2] / steps[2];
+          if (v[2] + eps < vConstraint[2][0] || v[2] - eps > vConstraint[2][1]) {
+            continue;
+          }
+
           for(let i= 0; i < 5; i++) bias[i] += BiasParams[i].effect[2] * v[2];
           for(si[3] = 0; si[3] <= steps[3]; si[3]++) {
             v[3] = si[3] / steps[3];
+            if (v[3] + eps < vConstraint[3][0] || v[3] - eps > vConstraint[3][1]) {
+              continue;
+            }
+
             for(let i= 0; i < 5; i++) bias[i] += BiasParams[i].effect[3] * v[3];
 
             // maybe we can do something here
@@ -123,12 +143,23 @@ export const nearestSetup = (biasParam, feedbacks) => {
 
               for(si[4] = 0; si[4] <= steps[4]; si[4]++) {
                 v[4] = si[4] / steps[4];
+                if (v[4] + eps < vConstraint[4][0] || v[4] - eps > vConstraint[4][1]) {
+                  continue;
+                }
+
                 for(let i= 0; i < 5; i++) {
                   bias[i] += BiasParams[i].effect[4] * v[4];
                   bias[i] = Math.round(bias[i] * 56000) / 56000;
                 }
 
-                {
+                let constraint = false;
+                for(let i= 0; i < 5; i++) {
+                  if (bias[i] + eps < fConstraint[i][0] || bias[i] - eps > fConstraint[i][1]) {
+                    constraint = true;
+                  }
+                }
+
+                if (!constraint) {
 
                   const ruleBreaks = validateFeedbackBreaks(bias, feedbacks, lowestRuleBreak);
                   if (ruleBreaks <= lowestRuleBreak) {
