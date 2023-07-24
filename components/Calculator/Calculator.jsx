@@ -30,7 +30,7 @@ import {useState} from "react";
 import {useDispatch} from "react-redux";
 import {BiasParams, CarSetupParams} from "../../consts/params";
 import {AllPossibleSetups, FeedbackColorForMUI} from "../../consts/setup";
-import {tracks} from "../../consts/tracks";
+import {GameVersions, trackMap, TrackOrders, tracks} from "../../consts/tracks";
 import {validateSetupArray} from "../../consts/validator";
 import {updateSlot} from "../../libs/reducers/configReducer";
 import {arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBias} from "../../libs/setup";
@@ -38,9 +38,6 @@ import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
 import {MuiOtpInput} from "mui-one-time-password-input";
 import {HtmlTooltip} from "../Tooltip";
 import styles from "./Calculator.module.css"
-
-const trackMap = {};
-tracks.map(x => trackMap[x.id] = x);
 
 const shortAlphabet = "ogdb+-u12345 ";
 
@@ -83,14 +80,20 @@ export function Calculator({ slot }) {
   const [possibleSetups, setPossibleSetups] = useState(AllPossibleSetups);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
 
+
   const update = (payload) => dispatch(updateSlot({
     id: slot.id, payload
   }));
 
   let {
-    track, carSetup,
+    gameVersion, track, carSetup,
     prevCarSetup, feedback, previousRuns,
   } = slot;
+
+  if (!gameVersion) gameVersion = "2022";
+
+  const seasonTrackOrders = TrackOrders[gameVersion];
+
 
   if (
     slot.id && !(
@@ -260,6 +263,44 @@ export function Calculator({ slot }) {
     setPossibleSetups(AllPossibleSetups);
   }
 
+  const nextTrack = () => {
+    let t = seasonTrackOrders.indexOf(track) + 1;
+    // t = 0: not found
+    if (t >= seasonTrackOrders.length) {
+      t = 0; // 0 if unspecified is included
+    }
+    setPossibleSetups(AllPossibleSetups);
+    const trackId = seasonTrackOrders[t];
+    update({track: trackId});
+    setCarSetup(trackMap[trackId].setup);
+  }
+
+  const optimalAndNext = () => {
+    const pr = {
+      track,
+      carSetup: JSON.parse(JSON.stringify(carSetup)),
+      feedback_0: "optimal",
+      feedback_1: "optimal",
+      feedback_2: "optimal",
+      feedback_3: "optimal",
+      feedback_4: "optimal",
+      id: +new Date(),
+    };
+
+    for(let i=0; i<5; i++) {
+      pr["feedback_" + i] = {
+        value: biasParam[i],
+        timestamp: +new Date(),
+        feedback: "optimal"
+      }
+    }
+
+    update({
+      previousRuns: [pr, ...previousRuns],
+    });
+    nextTrack();
+  }
+
 
   const loadPreset = () => setCarSetup(currentTrack.setup);
 
@@ -280,10 +321,7 @@ export function Calculator({ slot }) {
                     <TableCell colSpan={3} sx={{ textAlign: 'right' }}>
                       <Grid direction="row-reverse" container spacing={1}>
                         <Grid item>
-                          <Button variant="contained" color="secondary" onClick={loadPreset}>Load Preset</Button>
-                        </Grid>
-                        <Grid item>
-                          <Typography sx={{ color: "#777", display: "inline-block", verticalAlign: "middle" }}>Track Select:</Typography>
+                          <Typography sx={{ color: "#777", display: "inline-block", verticalAlign: "middle" }}>Track:</Typography>
                           <FormControl variant="standard" sx={{ ml: 3, display: "inline-block", verticalAlign: "middle", mr: 3 }}>
                             <Select
                               label="Track"
@@ -297,7 +335,7 @@ export function Calculator({ slot }) {
                                 }
                               }}
                             >
-                              {tracks.map(t => <MenuItem key={t.id} value={t.id}>
+                              {seasonTrackOrders.map(tid => trackMap[tid]).map(t => <MenuItem key={t.id} value={t.id}>
                                 <Image
                                   src={require(`../../assets/flags/${t.id}.svg`)}
                                   width={24} height={20}
@@ -309,7 +347,33 @@ export function Calculator({ slot }) {
                             </Select>
                           </FormControl>
                         </Grid>
+                        <Grid item>
+                          <Typography sx={{ color: "#777", display: "inline-block", verticalAlign: "middle" }}>Game:</Typography>
+                          <FormControl variant="standard" sx={{ ml: 3, display: "inline-block", verticalAlign: "middle", mr: 3 }}>
+                            <Select
+                              label="Game"
+                              value={gameVersion}
+                              sx={{ width: "100%" }}
+                              onChange={(e) => {
+                                update({gameVersion: e.target.value});
+                              }}
+                            >
+                              {GameVersions.map(t => <MenuItem key={t} value={t}>
+                                <Typography sx={{ m: 0, ml: 1,  display: 'inline-block' }}>{t}</Typography>
+                              </MenuItem>)}
+                            </Select>
+                          </FormControl>
+                        </Grid>
                       </Grid>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={3} sx={{ textAlign: 'left' }}>
+                      <Stack spacing={1} direction="row-reverse">
+                        <Button variant="contained" color="primary" onClick={optimalAndNext}>Optimal & Next</Button>
+                        <Button variant="contained" color="success" onClick={nextTrack}>Next Track</Button>
+                        <Button variant="contained" color="secondary" onClick={loadPreset}>Load Preset</Button>
+                      </Stack>
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -419,13 +483,6 @@ export function Calculator({ slot }) {
                   <TableRow>
                     <TableCell colSpan={3} sx={{ textAlign: 'left' }}>
                       <Stack spacing={1} direction="row-reverse">
-                        {/*
-                          <Button variant="contained" color="error" onClick={
-                            () => {
-                              clearAll()
-                            }
-                          }>Clear History</Button>
-                          */}
                         <Button
                           variant="contained" color="warning" onClick={
                           () => {

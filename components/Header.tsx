@@ -11,11 +11,6 @@ export default function Header() {
         <div className={styles.headerTitle} >
           <Typography variant="h3" component="h3">
             F1 Manager Setup Calculator
-            <span
-              className={styles.wideScreenOnly}
-              style={{ color: "#777", fontSize: 15, marginInline: 15, textTransform: "uppercase" }}
-            >{' '}for F1® Manager 2022/2023
-          </span>
           </Typography>
         </div>
         <div className={styles.headerUser}>
@@ -30,6 +25,8 @@ export default function Header() {
             Tutorial: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
             <br />
             Bug & Feedbacks: <a href="https://discord.gg/u46QWWaNfV">Discord</a>
+            <br />
+            <sub>2023 Qatar and Las Vegas are currently placeholders with default values.</sub>
           </Typography>
         </div>
         <div className={styles.appStore} >

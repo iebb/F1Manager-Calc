@@ -382,6 +382,41 @@ export const tracks: Track[] = [
       0.7
     ]
   },
+  // 2023 addition
+  {
+    "name": "Losail",
+    "location": "Losail",
+    "country": "Qatar",
+    "trackcode": "",
+    "code": "QA",
+    "suffix": "",
+    "id": "QA",
+    "setup": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ]
+  },
+  {
+    "name": "Las Vegas",
+    "location": "Las Vegas",
+    "country": "United States",
+    "trackcode": "",
+    "code": "US",
+    "suffix": "VEGAS",
+    "id": "US-VEGAS",
+    "setup": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ]
+  },
+
+
 ].map(x => {
   const sx = TracksGame22[x.trackcode] || {
     perfectEffects: [
@@ -393,12 +428,80 @@ export const tracks: Track[] = [
   };
   return {
     ...x,
-    perfectEffects: sx.perfectEffects,
+    perfectEffects: sx.perfectEffects.map(x => [x[0] - 0.01, x[1] + 0.01]),
     perfectSetups: [
+      [0,2],[0,2],[0,2],[0,2],[0,2]
+    ], /*[
       sx.perfectSetups[0],
       sx.perfectSetups[1],
-      [0,2],[0,2],
+      sx.perfectSetups[2],
+      sx.perfectSetups[3],
+      // [0,2], // [1 - sx.perfectSetups[2][1], 1 - sx.perfectSetups[2][0]],
+      // [0,2], // sx.perfectSetups[3],
       sx.perfectSetups[4],
-    ],
+    ], */
   }
 });
+
+export const trackMap = {};
+
+for(const t of tracks) {
+  trackMap[t.id] = t;
+}
+
+
+export const GameVersions = [
+  "2022", "2023",
+]
+
+export const TrackOrders = {
+  "2022": [
+    "BH",
+    "SA",
+    "AU",
+    "IT-EMI",
+    "US-MIAMI",
+    "ES",
+    "MC",
+    "AZ",
+    "CA",
+    "GB",
+    "AT",
+    "FR",
+    "HU",
+    "BE",
+    "NL",
+    "IT",
+    "SG",
+    "JP",
+    "US",
+    "MX",
+    "BR",
+    "AE"
+  ],
+  "2023": [
+    "BH",
+    "SA",
+    "AU",
+    "AZ",
+    "US-MIAMI",
+    "IT-EMI", // cancelled
+    "MC",
+    "ES", // 2023 layout
+    "CA",
+    "AT",
+    "GB",
+    "HU",
+    "BE",
+    "NL",
+    "IT",
+    "SG", // 2023 layout
+    "JP",
+    "QA",
+    "US",
+    "MX",
+    "BR",
+    "US-VEGAS",
+    "AE"
+  ]
+}

@@ -1,6 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit'
 
 const getDefaultSlotConfig = i => ({
+  gameVersion: "2022",
   id: i,
   slotNaming: `car_${i}`,
   slotTitle: `Slot ${i}`,

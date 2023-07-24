@@ -1,4 +1,3 @@
-parse js:
 
 JSOND={
     parse:function(str,options) {
@@ -5696,8 +5695,6 @@ for(const t of tdm) {
         // perfectSetups: [4,3,2,0,1].map(x=> [v.PerfectCarSetupOptionMin[x], v.PerfectCarSetupOptionMax[x]]),
         perfectEffects: [4,0,1,2,3].map(x=> [v.PerfectCarSetupEffects[x].X, v.PerfectCarSetupEffects[x].Y].sort()), // 1,2,3,4,0
         // ,0,1,2,3
-        perfectSetups: [3,4,2,1,0].map(x=> [v.PerfectCarSetupOptionMin[x], v.PerfectCarSetupOptionMax[x]].sort()), // 4,3,2,0,1
+        perfectSetups: [3,4,2,1,0].map(x=> [v.PerfectCarSetupOptionMin[x], v.PerfectCarSetupOptionMax[x]]), // 4,3,2,0,1
     }
-    console.log(kk, v.PerfectCarSetupEffects, v.PerfectCarSetupOptionMin, v.PerfectCarSetupOptionMax);
-
 }
