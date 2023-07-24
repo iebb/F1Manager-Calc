@@ -338,7 +338,7 @@ export function Calculator({ slot }) {
                               {seasonTrackOrders.map(tid => trackMap[tid]).map(t => <MenuItem key={t.id} value={t.id}>
                                 <Image
                                   src={require(`../../assets/flags/${t.id}.svg`)}
-                                  width={24} height={20}
+                                  width={24} height={18}
                                   alt={t.country}
                                   style={{ display: 'inline-block' }}
                                 />
