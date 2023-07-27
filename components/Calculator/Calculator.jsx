@@ -38,6 +38,7 @@ import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
 import {MuiOtpInput} from "mui-one-time-password-input";
 import {HtmlTooltip} from "../Tooltip";
 import styles from "./Calculator.module.css"
+import axios from "axios";
 
 const shortAlphabet = "ogdb+-u12345 ";
 
@@ -190,14 +191,15 @@ export function Calculator({ slot }) {
     }
 
 
-    // if (v === "optimal" && Object.keys(preset).length) {
-    //   axios.post(`/api/report`, {
-    //     track,
-    //     value: biasValue,
-    //     feedback: v,
-    //     index: row.index,
-    //   });
-    // }
+    if (v === "optimal") {
+      axios.post(`/api/report`, {
+        track,
+        gameVersion,
+        value: biasValue,
+        feedback: v,
+        index: idx,
+      });
+    }
   }
 
   const currentTrack = trackMap[track];
@@ -286,6 +288,14 @@ export function Calculator({ slot }) {
       feedback_4: "optimal",
       id: +new Date(),
     };
+
+
+    axios.post(`/api/report_full`, {
+      track,
+      gameVersion,
+      optimalSetup: carSetup,
+      optimalParam: biasParam,
+    });
 
     for(let i=0; i<5; i++) {
       pr["feedback_" + i] = {

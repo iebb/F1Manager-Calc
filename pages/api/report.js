@@ -11,24 +11,13 @@ export const handler = async (req, res) => {
     month = `0${month}`;
   }
 
-  const { uid, track, value, feedback, index } = req.body;
+  const { uid, gameVersion, track, value, feedback, index } = req.body;
   if (feedback === "optimal" && value >= 0.00 && value <= 1.00) {
-    await db.collection('reports').updateOne(
+    await db.collection('reports_game_' + gameVersion).updateOne(
       { track },
       {
         $inc: { [`feedback_cnt_${index}`]: 1 },
         $push: { [`params_${index}`]: value },
-      },
-      { upsert: true },
-    );
-    await db.collection(`reports_${year}${month}`).updateOne(
-      { track },
-      {
-        $inc: { [`feedback_cnt_${index}`]: 1 },
-        $push: {
-          [`params_${index}`]: value,
-          [`feedbacks_${index}`]: { uid, track, value, feedback, index }
-        }
       },
       { upsert: true },
     );
