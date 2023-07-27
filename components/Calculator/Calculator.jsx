@@ -308,6 +308,7 @@ export function Calculator({ slot }) {
     update({
       previousRuns: [pr, ...previousRuns],
     });
+    clearFeedbacks();
     nextTrack();
   }
 
