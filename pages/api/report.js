@@ -21,6 +21,13 @@ export const handler = async (req, res) => {
       },
       { upsert: true },
     );
+    await db.collection('reports_val_' + gameVersion).updateOne(
+      { track },
+      {
+        $inc: { [`feedback_cnt_${index}`]: 1 },
+      },
+      { upsert: true },
+    );
   }
   res.status(200).json({status: "ok"});
 };
