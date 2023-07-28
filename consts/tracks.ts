@@ -430,6 +430,8 @@ export const tracks: Track[] = [
     ...x,
     perfectEffects: sx.perfectEffects.map(x => [x[0] - 0.01, x[1] + 0.01]),
     perfectSetups: [
+      [0,2],[0,2],[0,2],[0,2],[0,2]
+    ], /*[
       sx.perfectSetups[0],
       sx.perfectSetups[1],
       sx.perfectSetups[2],
@@ -437,7 +439,7 @@ export const tracks: Track[] = [
       // [0,2], // [1 - sx.perfectSetups[2][1], 1 - sx.perfectSetups[2][0]],
       // [0,2], // sx.perfectSetups[3],
       sx.perfectSetups[4],
-    ],
+    ], */
   }
 });
 
