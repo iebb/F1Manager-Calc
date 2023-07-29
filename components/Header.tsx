@@ -25,6 +25,8 @@ export default function Header() {
             Tutorial: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
             <br />
             Bug & Feedbacks: <a href="https://discord.gg/u46QWWaNfV">Discord</a>
+            <br />
+            New: <a href="https://save.f1setup.it/">Save Viewer</a> - directly get optimal setups from your savefiles, which might ruin your gaming experiences.
           </Typography>
         </div>
         <div className={styles.appStore} >
