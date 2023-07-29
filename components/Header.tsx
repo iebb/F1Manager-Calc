@@ -25,8 +25,6 @@ export default function Header() {
             Tutorial: <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2855732906">Steam Guide</a>
             <br />
             Bug & Feedbacks: <a href="https://discord.gg/u46QWWaNfV">Discord</a>
-            <br />
-            <sub>2023 Qatar and Las Vegas are currently placeholders with default values.</sub>
           </Typography>
         </div>
         <div className={styles.appStore} >
