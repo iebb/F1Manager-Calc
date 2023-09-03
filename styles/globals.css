@@ -2,3 +2,92 @@ a {
   color: #aaccff;
   text-decoration: none;
 }
+
+@media (max-width: 768px){
+  .sidebar-show {
+    display: block;
+  }
+  .sidebar-hide {
+    display: none;
+  }
+}
+
+.header-container {
+  display: flex;
+}
+
+.header-flex-description {
+  flex: 1 1 0;
+}
+
+.header-flex-app-store {
+  flex: 0 1 360px;
+  text-align: right;
+}
+
+@media (max-width: 600px){
+
+  .header-flex-app-store {
+    flex: 0 1 180px;
+  }
+}
+
+
+.header-title {
+  flex: 1 1 0;
+}
+
+.header-user {
+  flex: 0 1 360px;
+  gap: 10px;
+  text-align: right;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.header-title h3 {
+  font-size: 2.5rem;
+}
+
+.header-description {
+  margin-top: 8px;
+}
+
+@media screen and (max-width: 768px) {
+  .wide-screen-only {
+    display: none;
+  }
+}
+
+@media (max-width: 768px)  {
+  .header-container {
+    /* flex-direction: column; */
+  }
+
+  .header-title {
+    flex: 1 1 0;
+  }
+
+  .header-title h3 {
+    font-size: 1.8rem;
+  }
+
+  .header-user {
+    flex-basis: 200px;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+.calc-hint-flag {
+  color: transparent;
+  display: inline-block;
+  margin-right: 4px;
+  border-radius: 3px;
+  margin-top: 2px;
+  vertical-align: middle;
+}
