@@ -30,14 +30,13 @@ import {useState} from "react";
 import {useDispatch} from "react-redux";
 import {BiasParams, CarSetupParams} from "../../consts/params";
 import {AllPossibleSetups, FeedbackColorForMUI} from "../../consts/setup";
-import {GameVersions, trackMap, TrackOrders, tracks} from "../../consts/tracks";
+import {GameVersions, trackMap, TrackOrders} from "../../consts/tracks";
 import {validateSetupArray} from "../../consts/validator";
 import {updateSlot} from "../../libs/reducers/configReducer";
 import {arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBias} from "../../libs/setup";
 import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
 import {MuiOtpInput} from "mui-one-time-password-input";
 import {HtmlTooltip} from "../Tooltip";
-import styles from "./Calculator.module.css"
 import axios from "axios";
 
 const shortAlphabet = "ogdb+-u12345 ";
@@ -191,15 +190,15 @@ export function Calculator({ slot }) {
     }
 
 
-    if (v === "optimal") {
-      axios.post(`/api/report`, {
-        track,
-        gameVersion,
-        value: biasValue,
-        feedback: v,
-        index: idx,
-      });
-    }
+    // if (v === "optimal") {
+    //   axios.post(`/api/report`, {
+    //     track,
+    //     gameVersion,
+    //     value: biasValue,
+    //     feedback: v,
+    //     index: idx,
+    //   });
+    // }
   }
 
   const currentTrack = trackMap[track];
@@ -289,13 +288,13 @@ export function Calculator({ slot }) {
       id: +new Date(),
     };
 
-
-    axios.post(`/api/report_full`, {
-      track,
-      gameVersion,
-      optimalSetup: carSetup,
-      optimalParam: biasParam,
-    });
+    //
+    // axios.post(`/api/report_full`, {
+    //   track,
+    //   gameVersion,
+    //   optimalSetup: carSetup,
+    //   optimalParam: biasParam,
+    // });
 
     for(let i=0; i<5; i++) {
       pr["feedback_" + i] = {
@@ -415,7 +414,7 @@ export function Calculator({ slot }) {
                                   <Image
                                     src={require(`../../assets/flags/${currentTrack.id}.svg`)}
                                     width={22} height={15} alt={currentTrack.country}
-                                    className={styles.hintFlag}
+                                    className="calc-hint-flag"
                                   />
                                   <span style={{ lineHeight: "15px", verticalAlign: "middle" }}>
                                 {

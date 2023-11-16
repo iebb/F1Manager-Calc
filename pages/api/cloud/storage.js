@@ -11,8 +11,12 @@ export const handler = async (req, res) => {
 
   switch (method) {
     case 'GET':
-      let cloudConfig = await db.collection('cloud_configs').findOne({ userId: session.userId });
-      res.send(JSON.stringify(cloudConfig, null, 2))
+      if (session) {
+        let cloudConfig = await db.collection('cloud_configs').findOne({ userId: session.userId });
+        res.send(JSON.stringify(cloudConfig, null, 2))
+      } else {
+        res.send(JSON.stringify({}, null, 2))
+      }
       break;
     case 'POST': // set
       await db.collection('cloud_configs').updateOne(
