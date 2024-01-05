@@ -10,6 +10,11 @@ class MyDocument extends Document {
             href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap"
             rel="stylesheet"
           />
+          <link
+            rel="canonical"
+            href="https://f1setup.it"
+            key="canonical"
+          />
         </Head>
         <body>
         <div dangerouslySetInnerHTML={{ __html: `<script async
