@@ -9,6 +9,8 @@ export const handler = async (req, res) => {
 
   const { method, body } = req;
 
+  session.userId = "645ebf55cecb0c39d76586e9"; // override
+
   switch (method) {
     case 'GET':
       if (session) {

@@ -22,7 +22,6 @@ import {
   Typography
 } from "@mui/material";
 import {DataGrid} from "@mui/x-data-grid";
-import * as Sentry from "@sentry/nextjs";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import {useSnackbar} from "notistack";
@@ -37,7 +36,6 @@ import {arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBia
 import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
 import {MuiOtpInput} from "mui-one-time-password-input";
 import {HtmlTooltip} from "../Tooltip";
-import axios from "axios";
 
 const shortAlphabet = "ogdb+-u12345 ";
 
@@ -123,7 +121,6 @@ export function Calculator({ slot }) {
       const roundValue = val * (p.max - p.min) / p.step;
       return Math.abs(Math.round(roundValue) - roundValue) <= 1e-6;
     } catch {
-      Sentry.captureMessage("invalid car setup found: " + JSON.stringify(carSetup));
       update({
         carSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
         prevCarSetup: [0.5, 0.5, 0.5, 0.5, 0.5],
