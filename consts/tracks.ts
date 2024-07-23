@@ -415,6 +415,22 @@ export const tracks: Track[] = [
       0.55
     ]
   },
+  {
+    "name": "Shanghai",
+    "location": "Shanghai",
+    "country": "China",
+    "trackcode": "",
+    "code": "CN",
+    "suffix": "",
+    "id": "CN",
+    "setup": [
+      0.3,
+      0.357142857142857142,
+      0.875,
+      0.125,
+      0.80
+    ]
+  },
 
 
 ].map(x => {
@@ -451,7 +467,7 @@ for(const t of tracks) {
 
 
 export const GameVersions = [
-  "2022", "2023",
+  "2022", "2023", "2024",
 ]
 
 export const TrackOrders = {
@@ -502,6 +518,32 @@ export const TrackOrders = {
     "MX",
     "BR",
     "US-VEGAS",
+    "AE"
+  ],
+  "2024": [
+    "BH",
+    "SA",
+    "AU",
+    "JP",
+    "CN",
+    "US-MIAMI",
+    "IT-EMI", // cancelled
+    "MC",
+    "CA",
+    "ES", // 2023 layout
+    "AT",
+    "GB",
+    "HU",
+    "BE",
+    "NL",
+    "IT",
+    "AZ",
+    "SG", // 2023 layout
+    "US",
+    "MX",
+    "BR",
+    "US-VEGAS",
+    "QA",
     "AE"
   ]
 }
