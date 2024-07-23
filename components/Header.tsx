@@ -25,7 +25,10 @@ export default function Header() {
             <br />
             Bug & Feedbacks: <a href="https://discord.gg/u46QWWaNfV">Discord</a>
             <br />
-            New: <a href="https://save.f1setup.it/">Save Viewer</a> - directly get optimal setups from your savefiles, which might ruin your gaming experiences.
+            <a href="https://save.f1setup.it/">Save Viewer</a> -
+            <span style={{ color: "#77ff77" }}>
+              a complete savefile modkit for Steam/Xbox.
+            </span>
           </Typography>
         </div>
         <div className="header-flex-app-store" >
