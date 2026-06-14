@@ -114,11 +114,11 @@ export const nearestSetup = (
       }
       for(let i= 0; i < 5; i++) bias[i] += BiasParams[i].effect[1] * v[1];
 
-      // maybe we can do something here
-      // straights are already determined here. validate 4 only
-
-      const ruleBreaks = validateFeedbackBreaks(bias, feedbacks, lowestRuleBreak, [4]);
-      if (ruleBreaks <= lowestRuleBreak) { // added guards
+      // Straights (bias 4) depends only on Front+Rear, so it is fully determined
+      // here. Count its breaks once and carry the total down — any branch whose
+      // partial break count already exceeds the best is impossible, so we prune it.
+      const breaks4 = validateFeedbackBreaks(bias, feedbacks, lowestRuleBreak, [4]);
+      if (breaks4 <= lowestRuleBreak) {
 
         for(si[2] = 0; si[2] <= steps[2]; si[2]++) {
           v[2] = si[2] / steps[2];
@@ -135,11 +135,13 @@ export const nearestSetup = (
 
             for(let i= 0; i < 5; i++) bias[i] += BiasParams[i].effect[3] * v[3];
 
-            // maybe we can do something here
-            // toe-out only affects breaking and cornering, so let's validate [0, 3, 4]
-
-            const ruleBreaks = validateFeedbackBreaks(bias, feedbacks, lowestRuleBreak, [0, 3]); // 4 doesn't need to revalidate
-            if (ruleBreaks <= lowestRuleBreak) { // added guards
+            // Oversteer (0) and Traction (3) don't depend on Toe-Out, so they are
+            // determined here too. Accumulate with the Straights breaks counted above;
+            // if the running total already exceeds the best, the whole Toe-Out loop
+            // below is impossible and is skipped.
+            const breaks03 = validateFeedbackBreaks(bias, feedbacks, lowestRuleBreak - breaks4, [0, 3]);
+            const partialBreaks = breaks4 + breaks03;
+            if (partialBreaks <= lowestRuleBreak) {
 
               for(si[4] = 0; si[4] <= steps[4]; si[4]++) {
                 v[4] = si[4] / steps[4];
@@ -161,7 +163,10 @@ export const nearestSetup = (
 
                 if (!constraint) {
 
-                  const ruleBreaks = validateFeedbackBreaks(bias, feedbacks, lowestRuleBreak);
+                  // Only Braking (1) and Cornering (2) change with Toe-Out — the
+                  // other three were already counted in partialBreaks above.
+                  const breaks12 = validateFeedbackBreaks(bias, feedbacks, lowestRuleBreak - partialBreaks, [1, 2]);
+                  const ruleBreaks = partialBreaks + breaks12;
                   if (ruleBreaks <= lowestRuleBreak) {
                     if (ruleBreaks < lowestRuleBreak) {
                       lowestRuleBreak = ruleBreaks;

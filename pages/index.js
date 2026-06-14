@@ -1,4 +1,4 @@
-import {Container} from '@mui/material';
+import {Container} from "../components/ui/Container";
 import {TabManager} from "../components/Calculator/TabManager";
 import dynamic from "next/dynamic";
 import Header from "../components/Header";
@@ -8,7 +8,7 @@ export function CalculatorPage() {
   return (
     <>
       <Header />
-      <Container maxWidth="xl" component="main">
+      <Container>
         <TabManager />
       </Container>
       <Footer />
