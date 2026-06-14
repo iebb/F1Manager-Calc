@@ -62,14 +62,22 @@ const legacyConfigReader = () => {
 }
 
 
+export const defaultSettings = {
+  allowBiasEdit: false,
+};
+
 export const configSlice = createSlice({
   name: 'config',
   initialState: {
     slots: legacyConfigReader() || initialSlots,
+    settings: { ...defaultSettings },
   },
   reducers: {
     setSlots: (state,  { payload }) => {
       state.slots = payload
+    },
+    updateSettings: (state, { payload }) => {
+      state.settings = { ...defaultSettings, ...state.settings, ...payload }
     },
     addSlot: (state) => {
       let nextAvailableSlotId = 1;
@@ -106,6 +114,7 @@ export const {
   addSlot,
   updateSlot,
   removeSlot,
+  updateSettings,
 } = configSlice.actions
 
 export default configSlice.reducer

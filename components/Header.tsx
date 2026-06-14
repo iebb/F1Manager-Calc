@@ -1,6 +1,7 @@
 import LogIn from "./LogIn";
 import Image from "next/image";
-import { Coffee } from "lucide-react";
+import Link from "next/link";
+import { Coffee, Settings } from "lucide-react";
 import { Container } from "./ui/Container";
 import { buttonVariants } from "./ui/Button";
 import { cn } from "../libs/cn";
@@ -34,6 +35,14 @@ export default function Header() {
             <Coffee size={16} />
             Support on Ko-fi
           </a>
+          <Link
+            href="/app/settings"
+            aria-label="Settings"
+            title="Settings"
+            className={cn(buttonVariants({ variant: "outline", size: "icon" }))}
+          >
+            <Settings size={18} />
+          </Link>
         </div>
       </div>
 

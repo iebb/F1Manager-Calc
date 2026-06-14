@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useSnackbar } from "notistack";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { BiasParams, CarSetupParams } from "../../consts/params";
 import { AllPossibleSetups } from "../../consts/setup";
 import { GameVersions, trackMap, TrackOrders } from "../../consts/tracks";
@@ -61,6 +61,8 @@ export function Calculator({ slot }) {
   const [carSetupList, setCarSetupList] = useState([]);
   const [possibleSetups, setPossibleSetups] = useState(AllPossibleSetups);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
+
+  const allowBiasEdit = useSelector(s => s.config.settings?.allowBiasEdit) || false;
 
 
   const update = (payload) => dispatch(updateSlot({
@@ -276,6 +278,16 @@ export function Calculator({ slot }) {
 
   const loadPreset = () => setCarSetup(currentTrack.setup);
 
+  // Snap an off-grid setup (e.g. produced by editing bias directly) to the
+  // nearest valid in-game value for every parameter.
+  const snapToGrid = () => {
+    setCarSetup(CarSetupParams.map(p => {
+      const steps = Math.round((p.max - p.min) / p.step);
+      const v = carSetup[p.index];
+      return Math.min(1, Math.max(0, Math.round(v * steps) / steps));
+    }));
+  };
+
   return (
     <div key={slot.slotNaming} className="pt-3">
       <ClearFeedbackDialog clear={() => {
@@ -393,6 +405,16 @@ export function Calculator({ slot }) {
               </div>
             );
           })}
+
+          {/* Off-grid warning + snap-to-grid (only when bias editing is enabled) */}
+          {allowBiasEdit && !isValidSetup.every(x => x) && (
+            <div className="flex flex-wrap items-center gap-3 border-t border-line bg-warning/5 px-3 py-2.5">
+              <span className="text-sm text-warning">Setup isn&apos;t on the in-game grid.</span>
+              <Button variant="warning" size="sm" className="ml-auto" onClick={snapToGrid}>
+                Find Nearest
+              </Button>
+            </div>
+          )}
         </Panel>
 
         {/* ===================== FEEDBACK PANEL ===================== */}
@@ -456,6 +478,7 @@ export function Calculator({ slot }) {
                     step={0.000001}
                     min={0}
                     color="primary"
+                    disabled={!allowBiasEdit}
                     format={v => v.toFixed(6)}
                     value={biasParam[row.index]}
                     valueMarks={feedbacks.map((f, _idx) => ({
@@ -464,10 +487,10 @@ export function Calculator({ slot }) {
                       content: (
                         <FeedbackMark
                           fb={f}
-                          onClick={() => {
+                          onClick={allowBiasEdit ? () => {
                             const bias = biasParam.map((x, idx) => idx === row.index ? f.value : x);
                             setCarSetup(biasToSetup(bias));
-                          }}
+                          } : undefined}
                         />
                       ),
                     }))}

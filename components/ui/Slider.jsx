@@ -22,6 +22,7 @@ export function Slider({
   color = "primary",
   marks = false,
   valueMarks = [],
+  disabled = false,
   className,
 }) {
   const c = colorMap[color] || colorMap.primary;
@@ -44,6 +45,7 @@ export function Slider({
       min={min}
       max={max}
       step={step}
+      disabled={disabled}
       onValueChange={(vals) => onValueChange(vals[0])}
     >
       <RSlider.Track className="relative h-1.5 w-full grow rounded-full bg-line">
@@ -75,7 +77,8 @@ export function Slider({
         className={cn(
           "relative block h-4 w-4 rounded-full border-2 bg-zinc-100 shadow-md outline-none " +
             "transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-offset-2 " +
-            "focus-visible:ring-offset-canvas focus-visible:ring-white/60",
+            "focus-visible:ring-offset-canvas focus-visible:ring-white/60 " +
+            "data-[disabled]:cursor-default data-[disabled]:opacity-60 data-[disabled]:hover:scale-100",
           c.thumb
         )}
         aria-label="value"
