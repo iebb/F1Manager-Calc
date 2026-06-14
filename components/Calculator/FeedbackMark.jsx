@@ -23,6 +23,20 @@ const TEXT = {
   unknown: "text-zinc-400",
 };
 
+// Tinted badge per feedback state (used in tables, where the value is shown).
+const BADGE = {
+  optimal: "bg-cyan-400/15 text-cyan-300",
+  great: "bg-blue-500/15 text-blue-300",
+  good: "bg-zinc-200/15 text-zinc-100",
+  bad: "bg-red-400/15 text-red-300",
+  "bad+": "bg-red-400/15 text-red-300",
+  "bad-": "bg-red-400/15 text-red-300",
+  unknown: "bg-surface-raised text-zinc-400",
+};
+
+// "0.539" -> ".539"
+const shortValue = (v) => v.toFixed(3).replace(/^0\./, ".");
+
 const TRIANGLE_UP = "polygon(50% 0%, 100% 100%, 0% 100%)";
 
 function MarkShape({ feedback }) {
@@ -45,9 +59,11 @@ function MarkShape({ feedback }) {
  * (slider marks), clicking jumps to that mark's value. Wrap the table/slider area
  * in <RT.Provider> (FeedbackMarkProvider).
  */
-export function FeedbackMark({ fb, onClick }) {
+export function FeedbackMark({ fb, onClick, badge = false }) {
   if (!fb) {
-    return (
+    return badge ? (
+      <span className="text-zinc-700">–</span>
+    ) : (
       <span className="inline-flex flex-col items-center opacity-40">
         <span style={{ width: "1.5px", height: "6px", background: "#52525b" }} />
         <span style={{ width: "9px", height: "6px", background: "#52525b", clipPath: TRIANGLE_UP }} />
@@ -57,14 +73,25 @@ export function FeedbackMark({ fb, onClick }) {
   return (
     <RT.Root delayDuration={60}>
       <RT.Trigger asChild>
-        <span
-          role={onClick ? "button" : undefined}
-          onPointerDown={onClick ? (e) => e.stopPropagation() : undefined}
-          onClick={onClick}
-          className={cn("group inline-block align-middle", onClick && "cursor-pointer")}
-        >
-          <MarkShape feedback={fb.feedback} />
-        </span>
+        {badge ? (
+          <span
+            className={cn(
+              "inline-block cursor-default rounded px-1.5 py-0.5 text-xs font-semibold tabular-nums",
+              BADGE[fb.feedback] || "bg-surface-raised text-zinc-300"
+            )}
+          >
+            {shortValue(fb.value)}
+          </span>
+        ) : (
+          <span
+            role={onClick ? "button" : undefined}
+            onPointerDown={onClick ? (e) => e.stopPropagation() : undefined}
+            onClick={onClick}
+            className={cn("group inline-block align-middle", onClick && "cursor-pointer")}
+          >
+            <MarkShape feedback={fb.feedback} />
+          </span>
+        )}
       </RT.Trigger>
       <RT.Portal>
         <RT.Content

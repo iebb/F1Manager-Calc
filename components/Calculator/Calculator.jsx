@@ -613,7 +613,7 @@ export function Calculator({ slot }) {
                       ))}
                       {[0, 1, 2, 3, 4].map(idx => (
                         <td key={idx} className="px-1.5 py-1.5 text-center">
-                          <FeedbackMark fb={x["feedback_" + idx]} />
+                          <FeedbackMark fb={x["feedback_" + idx]} badge />
                         </td>
                       ))}
                       <td className="px-2 py-1.5">
