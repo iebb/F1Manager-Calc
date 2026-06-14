@@ -1,41 +1,25 @@
-import {Delete, OpenInNew} from "@mui/icons-material";
-import {
-  Button,
-  Chip,
-  Container,
-  Divider,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Slider,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography
-} from "@mui/material";
-import {DataGrid} from "@mui/x-data-grid";
+import { Trash2, ExternalLink } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import {useSnackbar} from "notistack";
-import {useState} from "react";
-import {useDispatch} from "react-redux";
-import {BiasParams, CarSetupParams} from "../../consts/params";
-import {AllPossibleSetups, FeedbackColorForMUI} from "../../consts/setup";
-import {GameVersions, trackMap, TrackOrders} from "../../consts/tracks";
-import {validateSetupArray} from "../../consts/validator";
-import {updateSlot} from "../../libs/reducers/configReducer";
-import {arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBias} from "../../libs/setup";
-import {ClearFeedbackDialog} from "./ClearFeedbackDialog";
-import {MuiOtpInput} from "mui-one-time-password-input";
-import {HtmlTooltip} from "../Tooltip";
+import { useSnackbar } from "notistack";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { BiasParams, CarSetupParams } from "../../consts/params";
+import { AllPossibleSetups } from "../../consts/setup";
+import { GameVersions, trackMap, TrackOrders } from "../../consts/tracks";
+import { validateSetupArray } from "../../consts/validator";
+import { updateSlot } from "../../libs/reducers/configReducer";
+import { arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBias } from "../../libs/setup";
+import { ClearFeedbackDialog } from "./ClearFeedbackDialog";
+import { FeedbackCycle } from "./FeedbackCycle";
+import { FeedbackMark, FeedbackMarkProvider } from "./FeedbackMark";
+import { HtmlTooltip } from "../Tooltip";
+import { Button } from "../ui/Button";
+import { Select, SelectItem } from "../ui/Select";
+import { Slider } from "../ui/Slider";
+import { Panel, ScrollArea } from "../ui/Table";
+import { DataTable } from "../ui/DataTable";
+import { OtpInput } from "../ui/OtpInput";
 
 const shortAlphabet = "ogdb+-u12345 ";
 
@@ -185,17 +169,6 @@ export function Calculator({ slot }) {
         ]: x),
       });
     }
-
-
-    // if (v === "optimal") {
-    //   axios.post(`/api/report`, {
-    //     track,
-    //     gameVersion,
-    //     value: biasValue,
-    //     feedback: v,
-    //     index: idx,
-    //   });
-    // }
   }
 
   const currentTrack = trackMap[track];
@@ -285,14 +258,6 @@ export function Calculator({ slot }) {
       id: +new Date(),
     };
 
-    //
-    // axios.post(`/api/report_full`, {
-    //   track,
-    //   gameVersion,
-    //   optimalSetup: carSetup,
-    //   optimalParam: biasParam,
-    // });
-
     for(let i=0; i<5; i++) {
       pr["feedback_" + i] = {
         value: biasParam[i],
@@ -312,510 +277,344 @@ export function Calculator({ slot }) {
   const loadPreset = () => setCarSetup(currentTrack.setup);
 
   return (
-    <Container disableGutters maxWidth={false} key={slot.slotNaming}>
-      <Divider variant="fullWidth" />
+    <div key={slot.slotNaming} className="pt-3">
       <ClearFeedbackDialog clear={() => {
         clearFeedbacks();
         loadPreset();
       }} isOpen={openClearFeedback} setIsOpen={setOpenClearFeedback} />
-      <Container maxWidth={false} component="main" sx={{ p: 0, pt: 2 }} style={{ paddingLeft: 0, paddingRight: 0 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} lg={6}>
-            <TableContainer component={Paper}>
-              <Table aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell colSpan={3} sx={{ textAlign: 'right' }}>
-                      <Grid direction="row-reverse" container spacing={1}>
-                        <Grid item>
-                          <Typography sx={{ color: "#777", display: "inline-block", verticalAlign: "middle" }}>Track:</Typography>
-                          <FormControl variant="standard" sx={{ ml: 3, display: "inline-block", verticalAlign: "middle", mr: 3 }}>
-                            <Select
-                              label="Track"
-                              value={track}
-                              sx={{ width: "100%" }}
-                              onChange={(e) => {
-                                const selectedTrack = e.target.value;
-                                if (trackMap.hasOwnProperty(selectedTrack)) {
-                                  update({track: e.target.value});
-                                  setOpenClearFeedback(true);
-                                }
-                              }}
-                            >
-                              {seasonTrackOrders.map(tid => trackMap[tid]).map(t => <MenuItem key={t.id} value={t.id}>
-                                <Image
-                                  src={require(`../../assets/flags/${t.id}.svg`)}
-                                  key={t.id}
-                                  width={24} height={18}
-                                  alt={t.country}
-                                  style={{ display: 'inline-block' }}
-                                />
-                                <Typography sx={{ m: 0, ml: 1,  display: 'inline-block' }}> {t.name}, {t.country}</Typography>
-                              </MenuItem>)}
-                            </Select>
-                          </FormControl>
-                        </Grid>
-                        <Grid item>
-                          <Typography sx={{ color: "#777", display: "inline-block", verticalAlign: "middle" }}>Game:</Typography>
-                          <FormControl variant="standard" sx={{ ml: 3, display: "inline-block", verticalAlign: "middle", mr: 3 }}>
-                            <Select
-                              label="Game"
-                              value={gameVersion}
-                              sx={{ width: "100%" }}
-                              onChange={(e) => {
-                                update({gameVersion: e.target.value});
-                              }}
-                            >
-                              {GameVersions.map(t => <MenuItem key={t} value={t}>
-                                <Typography sx={{ m: 0, ml: 1,  display: 'inline-block' }}>{t}</Typography>
-                              </MenuItem>)}
-                            </Select>
-                          </FormControl>
-                        </Grid>
-                      </Grid>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={3} sx={{ textAlign: 'left' }}>
-                      <Stack spacing={1} direction="row-reverse">
-                        <Button variant="contained" color="primary" onClick={optimalAndNext}>Optimal & Next</Button>
-                        <Button variant="contained" color="success" onClick={nextTrack}>Next Track</Button>
-                        <Button variant="contained" color="secondary" onClick={loadPreset}>Load Preset</Button>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell sx={{ width: 160, fontSize: 18 }}><b>Setup</b></TableCell>
-                    <TableCell sx={{ minWidth: 360, fontSize: 18 }}><b>Values</b></TableCell>
-                    <TableCell sx={{ fontSize: 18, textAlign: 'right' }}><b>Compare</b></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {
-                    CarSetupParams.map(row => {
-                      let carSetupDiff = carSetup[row.index] - prevCarSetup[row.index];
-                      if (Math.abs(carSetupDiff) < eps) {
-                        carSetupDiff = 0;
-                      }
-                      const perfectRange = currentTrack.perfectSetups[row.index];
-                      return (
-                        <TableRow key={row.name}>
-                          <TableCell sx={{ fontSize: 16 }}>
-                            <Typography>
-                              <b>{row.name}</b>
-                            </Typography>
-                            {
-                              currentTrack.perfectSetups[row.index][1] <= 1 && (
-                                <Typography sx={{ color:
-                                    carSetup[row.index] - eps > perfectRange[1] || carSetup[row.index] + eps < perfectRange[0] ? "#ffaa00": "#77ff77", fontSize: 14 }}>
-                                  <Image
-                                    src={require(`../../assets/flags/${currentTrack.id}.svg`)}
-                                    width={22} height={15} alt={currentTrack.country}
-                                    className="calc-hint-flag"
-                                  />
-                                  <span style={{ lineHeight: "15px", verticalAlign: "middle" }}>
-                                {
-                                  row.render(
-                                    perfectRange[0] * (row.max - row.min) + row.min
-                                  )
-                                }~{
-                                    row.render(
-                                      perfectRange[1] * (row.max - row.min) + row.min
-                                    )
-                                  }
-                              </span>
-                                </Typography>
-                              )
-                            }
-                          </TableCell>
-                          <TableCell>
-                            <Slider
-                              marks
-                              color={
-                                (carSetup[row.index] > 1 || carSetup[row.index] < 0) ?
-                                  "error" : (isValidSetup[row.index] ? "primary" : "warning")
-                              }
-                              step={row.step / (row.max - row.min)}
-                              max={Math.max(1, carSetup[row.index])}
-                              min={Math.min(0, carSetup[row.index])}
-                              valueLabelFormat={v => row.render(v * (row.max - row.min) + row.min)}
-                              valueLabelDisplay="on"
-                              value={carSetup[row.index]}
-                              onChange={(e, value) => {
-                                const setup = carSetup.map((x, idx) => idx === row.index ? (
-                                  Math.round(value * 560) / 560
-                                ): x);
-                                setCarSetup(setup)
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ fontSize: 16, textAlign: 'right' }}>
-                            <Typography sx={{ color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}>{carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {
-                              row.render(carSetup[row.index] * (row.max - row.min) + row.min)
-                            }</Typography>
-                            <Typography sx={{ color: "#777" }}>Prev: {
-                              row.render(prevCarSetup[row.index] * (row.max - row.min) + row.min)
-                            }</Typography>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    })
+
+      <FeedbackMarkProvider delayDuration={60}>
+      <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2">
+
+        {/* ===================== SETUP PANEL ===================== */}
+        <Panel className="[&>*:last-child]:border-b-0">
+          {/* Game + Track selectors */}
+          <div className="flex flex-wrap items-center justify-end gap-x-6 gap-y-3 border-b border-line px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-zinc-400">Game:</span>
+              <Select value={gameVersion} ariaLabel="Game" onValueChange={(v) => update({ gameVersion: v })} className="h-9">
+                {GameVersions.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-zinc-400">Track:</span>
+              <Select
+                value={track}
+                ariaLabel="Track"
+                placeholder="Select track"
+                className="h-9 min-w-[200px]"
+                onValueChange={(selectedTrack) => {
+                  if (trackMap.hasOwnProperty(selectedTrack)) {
+                    update({ track: selectedTrack });
+                    setOpenClearFeedback(true);
                   }
-                </TableBody>
-                <TableHead>
-                  <TableRow>
-                    <TableCell colSpan={3} sx={{ textAlign: 'right' }}>
-                      <Stack direction="row-reverse" spacing={1}>
-                        <Button variant="contained" onClick={findNearest}>Find Setup</Button>
-                        <Button variant="contained" color="secondary" onClick={loadPreset}>Preset</Button>
-                        <Button variant="contained" color="secondary" onClick={
-                          () => setCarSetup([0.5, 0.5, 0.5, 0.5, 0.5])
-                        }>Reset</Button>
-                        <Button variant="contained" color="error" onClick={
-                          () => setCarSetup(randomSetup())
-                        }>Random</Button>
-                        <div style={{ padding: 5 }}>
-                          <Typography sx={{ color: "#777" }}>{possibleSetups} Possibilities</Typography>
-                        </div>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-              </Table>
-            </TableContainer>
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell colSpan={3} sx={{ textAlign: 'left' }}>
-                      <Stack spacing={1} direction="row-reverse">
-                        <Button
-                          variant="contained" color="warning" onClick={
-                          () => {
-                            clearFeedbacks()
-                          }
-                        }>Clear Feedbacks</Button>
-                        <div style={{ flex: 1 }}>
-                          <HtmlTooltip
-                            title={
-                              <div>
-                                <Typography color="inherit">Quick Input</Typography>
-                                <em>Use <b>these shortcuts</b> to input the feedbacks quicker.</em>
-                                <table>
-                                  <thead>
-                                    <tr><th>short</th><th>meaning</th><th>number</th></tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr><th>o</th><td><u>o</u>ptimal</td><th>1</th></tr>
-                                    <tr><th>g</th><td><u>g</u>reat</td><th>2</th></tr>
-                                    <tr><th>d</th><td>goo<u>d</u></td><th>3</th></tr>
-                                    <tr><th>b</th><td><u>b</u>ad</td><th>4</th></tr>
-                                    <tr><th>u</th><td><u>u</u>nknown</td><th>5</th></tr>
-                                  </tbody>
-                                </table>
-                                <span>Additionally, +/- for bad(+)/(-).</span>
-                              </div>
-                            }
-                          >
-                            <MuiOtpInput
-                              TextFieldsProps={{ size: 'small', placeholder: '-', sx: {p: 0} }}
-                              style={{ maxWidth: 300 }}
-                              length={5}
-                              value={currentShortFeedbacks}
-                              onChange={v => setShortFeedbacks(v)}
-                              validateChar={(ch) => {
-                                return shortAlphabet.indexOf(ch.toLowerCase()) !== -1;
-                              }}
-                            />
-                          </HtmlTooltip>
-                        </div>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell sx={{ width: 120, fontSize: 18 }}><b>Feedback</b></TableCell>
-                    <TableCell sx={{ minWidth: 360, fontSize: 18 }}><b>Bias</b></TableCell>
-                    <TableCell sx={{ minWidth: 120, width: 120, fontSize: 18 }}>Value</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {
-                    BiasParams.map(row => {
-                      let feedbacks = JSON.parse(JSON.stringify(feedback[row.index]));
-                      const biasValue = biasParam[row.index];
-                      const k = row.name + ":" + slot.slotNaming;
-                      return [(
-                        <TableRow key={k}>
-                          <TableCell sx={{ pt: 0, pb: 0, pl: 1, pr: 1, borderBottom: '1px dashed rgba(81, 81, 81, .6)' }}>
-                            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-                              <InputLabel id="demo-simple-select-standard-label">{row.name}</InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                component="label"
-                                label={row.name}
-                                value={currentFeedbacks[row.index]}
-                                disabled={!isValidSetup.every(x => x)}
-                                onChange={(e) => {
-                                  createFeedback(row.index, biasValue, e.target.value)
-                                }}
-                              >
-                                <MenuItem value='optimal'>Optimal</MenuItem>
-                                <MenuItem value='great'>Great</MenuItem>
-                                <MenuItem value='good'>Good</MenuItem>
-                                <MenuItem value='bad'>Bad</MenuItem>
-                                <MenuItem value='bad+'>Bad (Too High)</MenuItem>
-                                <MenuItem value='bad-'>Bad (Too Low)</MenuItem>
-                              </Select>
-                            </FormControl>
-                          </TableCell>
-                          <TableCell sx={{ pt: 3, pb: 0, pl: 1, pr: 1, borderBottom: '1px dashed rgba(81, 81, 81, .6)' }}>
-                            <Slider
-                              max={1}
-                              step={0.000001}
-                              min={0}
-                              valueLabelFormat={v => v.toFixed(6)}
-                              valueLabelDisplay="on"
-                              value={biasParam[row.index]}
-                              onChange={(e, value) => {
-                                const bias = biasParam.map((x, idx) => idx === row.index ? value : x);
-                                setCarSetup(biasToSetup(bias))
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ pt: 0, pb: 0, pl: 1, pr: 1, borderBottom: '1px dashed rgba(81, 81, 81, .6)' }}>
-                            <FormControl>
-                              <TextField
-                                label={row.name}
-                                type="number"
-                                value={biasParam[row.index].toFixed(6)}
-                                variant="standard"
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
-                                inputProps={{ inputMode: 'numeric', pattern: '[0-9.]*', step: 0.001 }}
-                                onChange={
-                                  (e) => {
-                                    const val = e.target.value;
-                                    const nVal = Number(val);
-                                    if (0 <= nVal && nVal <= 1) {
-                                      const b = biasParam.map((x, idx) => idx === row.index ? nVal : x);
-                                      setCarSetup(biasToSetup(b))
-                                    }
-                                  }
-                                }
-                              />
-                            </FormControl>
-                          </TableCell>
-                        </TableRow>
-                      ),(
-                        <TableRow key={`${k}_2`}>
-                          <TableCell colSpan={3} sx={{ padding: "0 2px" }}>
-                            <Grid container spacing={1} style={{ minHeight: 40 }}>
-                              {
-                                feedbacks.sort(
-                                  (x, y) => x.value - y.value
-                                ).map((f, _idx) => (
-                                  <Grid
-                                    item
-                                    key={_idx}
-                                  >
-                                    <Chip
-                                      label={`${f.value.toFixed(4)}: ${f.feedback}`}
-                                      color={FeedbackColorForMUI[f.feedback]}
-                                      onClick={() => {
-                                        const bias = biasParam.map((x, idx) => idx === row.index ? f.value : x);
-                                        setCarSetup(biasToSetup(bias))
-                                      }}
-                                      onDelete={() => {
-                                        update({
-                                          feedback: feedback.map((x, idx) => idx === row.index ?
-                                            x.filter(x => x.value !== f.value) : x
-                                          )
-                                        })
-                                      }}
-                                    />
-                                  </Grid>
-                                ))
-                              }
-                            </Grid>
-                          </TableCell>
-                        </TableRow>
-                      )];
-                    }).flat()
-                  }
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Grid>
-          <Grid item xs={12} lg={12} sx={{ mt: 3 }}>
-            <div style={{ display: 'flex', height: '100%', maxWidth: '100%', overflowX: 'auto' }}>
-              <div style={{ flexGrow: 1 }}>
-                <DataGrid
-                  autoHeight
-                  rows={[
-                    {
-                      arr: prevCarSetup,
-                      biasParams: setupToBias(prevCarSetup),
-                      diff: 0,
-                      id: 0,
-                    },
-                    ...carSetupList.map((x, id) => {
-                      const biasParams = setupToBias(x.arr);
-                      return {...x, biasParams, id: id + 1}
-                    })
-                  ]}
-                  columns={[
-                    {
-                      field: 'id', headerName: 'Setup #',
-                      renderCell : ({ row, value }) =>
-                        <Button variant="contained" color={value ? "info" : "secondary"} sx={{ pt: 0.2, pb: 0.2, minWidth: 80 }} onClick={
-                          () => {
-                            setCarSetup(row.arr);
-                          }
-                        }>{value ? "#" + value : "PRV"}</Button>
-                    },
-                    {
-                      field: 'diff', headerName: '%',
-                      valueGetter: ({ value }) => value.toFixed(1) + "%",
-                    },
-                    ...CarSetupParams.map(param => {
-                      const idx = param.index;
-                      return {
-                        field: 'arr_' + idx,
-                        headerName: param.name,
-                        valueGetter: ({ row }) => row.arr ? row.arr[idx] : 0,
-                        renderCell: ({ row }) => {
-                          const value = row.arr ? row.arr[idx] : 0;
-                          const carSetupDiff = value - (prevCarSetup ? prevCarSetup[idx] : 0);
-                          return <Typography sx={{
-                            fontSize: 13, p: 0.5, textAlign: "center",
-                            color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}
-                          >
-                            {carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {
-                            param.render(value * (param.max - param.min) + param.min)
-                          }</Typography>
-                        },
-                      }
-                    }),
-                    {
-                      field: 'arr', headerName: '⇒',
-                      width: 8,
-                      renderCell: () => "⇒",
-                    },
-                    ...BiasParams.map(param => {
-                      const idx = param.index;
-                      return {
-                        field: 'biasArr_' + idx,
-                        headerName: param.name,
-                        valueGetter: ({ row }) => row.biasParams ? row.biasParams[idx] : 0,
-                        renderCell: ({ row }) => {
-                          const value = row.biasParams ? row.biasParams[idx] : 0;
-                          const carSetupDiff = value - (prevBiasParam ? prevBiasParam[idx] : 0);
-                          return <Typography sx={{
-                            fontSize: 13, p: 0.5, textAlign: "center",
-                            color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}
-                          >
-                            {value.toFixed(4)} {carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""}
-                          </Typography>
-                        },
-                      }
-                    })
-                  ]}
-                  density="compact"
-                  initialState={{
-                    pagination: { paginationModel: { pageSize: 20 } },
-                  }}
-                  pageSizeOptions={[20, 50, 100]}
+                }}
+              >
+                {seasonTrackOrders.map(tid => trackMap[tid]).map(t => (
+                  <SelectItem key={t.id} value={t.id}>
+                    <span className="flex items-center gap-2">
+                      <Image src={require(`../../assets/flags/${t.id}.svg`)} width={24} height={18} alt={t.country} />
+                      <span>{t.name}, {t.country}</span>
+                    </span>
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+          </div>
+
+          {/* Random / Preset / Next Track / Optimal actions */}
+          <div className="flex flex-wrap gap-2 border-b border-line px-3 py-2.5">
+            <Button variant="danger" onClick={() => setCarSetup(randomSetup())}>Random</Button>
+            <Button variant="secondary" onClick={loadPreset}>Load Preset</Button>
+            <Button variant="success" onClick={nextTrack}>Next Track</Button>
+            <Button variant="primary" onClick={optimalAndNext}>Optimal & Next</Button>
+          </div>
+
+          {/* Column headers */}
+          <div className="grid grid-cols-[110px_1fr_84px] gap-2 border-b border-line px-3 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:grid-cols-[150px_1fr_96px]">
+            <div>Setup</div>
+            <div>Values</div>
+            <div className="text-right">Compare</div>
+          </div>
+
+          {/* Setup rows */}
+          {CarSetupParams.map(row => {
+            let carSetupDiff = carSetup[row.index] - prevCarSetup[row.index];
+            if (Math.abs(carSetupDiff) < eps) {
+              carSetupDiff = 0;
+            }
+            const perfectRange = currentTrack.perfectSetups[row.index];
+            const sliderColor =
+              (carSetup[row.index] > 1 || carSetup[row.index] < 0) ? "danger"
+                : (isValidSetup[row.index] ? "primary" : "warning");
+            return (
+              <div key={row.name} className="grid grid-cols-[110px_1fr_84px] items-center gap-2 border-b border-line/60 px-3 py-1.5 sm:grid-cols-[150px_1fr_96px]">
+                <div>
+                  <div className="font-bold">{row.name}</div>
+                  {currentTrack.perfectSetups[row.index][1] <= 1 && (
+                    <div
+                      className="text-[13px]"
+                      style={{ color: carSetup[row.index] - eps > perfectRange[1] || carSetup[row.index] + eps < perfectRange[0] ? "#ffaa00" : "#77ff77" }}
+                    >
+                      <Image
+                        src={require(`../../assets/flags/${currentTrack.id}.svg`)}
+                        width={22} height={15} alt={currentTrack.country}
+                        className="calc-hint-flag"
+                      />
+                      <span style={{ lineHeight: "15px", verticalAlign: "middle" }}>
+                        {row.render(perfectRange[0] * (row.max - row.min) + row.min)}~{row.render(perfectRange[1] * (row.max - row.min) + row.min)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="px-1">
+                  <Slider
+                    marks
+                    color={sliderColor}
+                    step={row.step / (row.max - row.min)}
+                    max={Math.max(1, carSetup[row.index])}
+                    min={Math.min(0, carSetup[row.index])}
+                    format={v => row.render(v * (row.max - row.min) + row.min)}
+                    value={carSetup[row.index]}
+                    onValueChange={(value) => {
+                      const setup = carSetup.map((x, idx) => idx === row.index ? (
+                        Math.round(value * 560) / 560
+                      ) : x);
+                      setCarSetup(setup);
+                    }}
+                  />
+                </div>
+                <div className="text-right text-sm">
+                  <div style={{ color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}>
+                    {carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {row.render(carSetup[row.index] * (row.max - row.min) + row.min)}
+                  </div>
+                  <div className="text-zinc-500">Prev: {row.render(prevCarSetup[row.index] * (row.max - row.min) + row.min)}</div>
+                </div>
+              </div>
+            );
+          })}
+        </Panel>
+
+        {/* ===================== FEEDBACK PANEL ===================== */}
+        <Panel>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-3 py-2.5">
+            <HtmlTooltip
+              title={
+                <div>
+                  <div className="font-semibold text-zinc-100">Quick Input</div>
+                  <em>Use <b>these shortcuts</b> to input the feedbacks quicker.</em>
+                  <table className="mt-1">
+                    <thead>
+                      <tr><th>short</th><th>meaning</th><th>number</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><th>o</th><td><u>o</u>ptimal</td><th>1</th></tr>
+                      <tr><th>g</th><td><u>g</u>reat</td><th>2</th></tr>
+                      <tr><th>d</th><td>goo<u>d</u></td><th>3</th></tr>
+                      <tr><th>b</th><td><u>b</u>ad</td><th>4</th></tr>
+                      <tr><th>u</th><td><u>u</u>nknown</td><th>5</th></tr>
+                    </tbody>
+                  </table>
+                  <span>Additionally, +/- for bad(+)/(-).</span>
+                </div>
+              }
+            >
+              <div>
+                <OtpInput
+                  length={5}
+                  value={currentShortFeedbacks}
+                  onChange={v => setShortFeedbacks(v)}
+                  validateChar={(ch) => shortAlphabet.indexOf(ch.toLowerCase()) !== -1}
                 />
               </div>
-            </div>
-          </Grid>
-          <Grid item xs={12} lg={12} sx={{ mt: 5 }}>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell><b>Previous Runs</b></TableCell>
-                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>FWA</b></TableCell>
-                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>RWA</b></TableCell>
-                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>ARD</b></TableCell>
-                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>TC</b></TableCell>
-                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>TO</b></TableCell>
-                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>Oversteer</b></TableCell>
-                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>Braking</b></TableCell>
-                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>Cornering</b></TableCell>
-                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>Traction</b></TableCell>
-                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}><b>Straights</b></TableCell>
-                    <TableCell sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {
-                    previousRuns.map(x => {
-                      return (
-                        <TableRow key={x.id}>
-                          <TableCell sx={{ fontSize: 14, p: 0.5, pl: 2 }}>
-                            <Image src={require(`../../assets/flags/${x.track}.svg`)} width={24} height={20} alt={x.track} style={{ display: 'inline-block' }} />
-                            <Typography sx={{ m: 0, ml: 1,  display: 'inline-block' }}>{trackMap[x.track]?.name}</Typography>
-                          </TableCell>
-                          {
-                            [0, 1, 2, 3, 4].map(idx => (
-                              <TableCell key={idx} sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}>{
-                                CarSetupParams[idx].render(
-                                  x.carSetup[idx] * (
-                                    CarSetupParams[idx].max - CarSetupParams[idx].min
-                                  ) + CarSetupParams[idx].min
-                                )
-                              }</TableCell>
-                            ))
-                          }
-                          {
-                            [0, 1, 2, 3, 4].map(idx => (
-                              <TableCell key={idx} sx={{ fontSize: 14, p: 0.5, textAlign: "center" }}>
-                                {
-                                  x["feedback_" + idx] && (
-                                    <Chip
-                                      label={`${x["feedback_" + idx].value.toFixed(4)}: ${x["feedback_" + idx].feedback}`}
-                                      color={FeedbackColorForMUI[x["feedback_" + idx].feedback]}
-                                    />
-                                  )
-                                }
-                              </TableCell>
-                            ))
-                          }
-                          <TableCell sx={{ textAlign: 'right', p: 0.5, pr: 2 }}>
-                            <Stack spacing={1} direction="row-reverse">
-                              <Button variant="contained" color="info" sx={{ minWidth: 32, p: 1 }}  onClick={
-                                () => {
-                                  setCarSetup(x.carSetup);
-                                }
-                              }>
-                                <OpenInNew />
-                              </Button>
-                              <Button variant="contained" color="error" sx={{ minWidth: 32, p: 1 }} onClick={
-                                () => {
-                                  update({
-                                    previousRuns: previousRuns.filter(r => r.id !== x.id)
-                                  })
-                                }
-                              }>
-                                <Delete />
-                              </Button>
-                            </Stack>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    })
-                  }
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Grid>
-        </Grid>
-      </Container>
-    </Container>
+            </HtmlTooltip>
+            <Button variant="warning" onClick={() => clearFeedbacks()}>Clear Feedbacks</Button>
+          </div>
+
+          {/* Column headers */}
+          <div className="grid grid-cols-[88px_104px_1fr] gap-3 border-b border-line px-3 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            <div />
+            <div>Feedback</div>
+            <div>Bias</div>
+          </div>
+
+          {/* Bias rows */}
+          {BiasParams.map(row => {
+            let feedbacks = JSON.parse(JSON.stringify(feedback[row.index]));
+            const biasValue = biasParam[row.index];
+            return (
+              <div key={row.name + ":" + slot.slotNaming} className="grid grid-cols-[88px_104px_1fr] items-center gap-3 border-b border-line/60 px-3 py-2.5">
+                <div className="font-bold">{row.name}</div>
+                <FeedbackCycle
+                  value={currentFeedbacks[row.index]}
+                  disabled={!isValidSetup.every(x => x)}
+                  onChange={(v) => createFeedback(row.index, biasValue, v)}
+                />
+                <div className="px-1">
+                  <Slider
+                    max={1}
+                    step={0.000001}
+                    min={0}
+                    color="primary"
+                    format={v => v.toFixed(6)}
+                    value={biasParam[row.index]}
+                    valueMarks={feedbacks.map((f, _idx) => ({
+                      key: _idx,
+                      value: f.value,
+                      content: (
+                        <FeedbackMark
+                          fb={f}
+                          onClick={() => {
+                            const bias = biasParam.map((x, idx) => idx === row.index ? f.value : x);
+                            setCarSetup(biasToSetup(bias));
+                          }}
+                        />
+                      ),
+                    }))}
+                    onValueChange={(value) => {
+                      const bias = biasParam.map((x, idx) => idx === row.index ? value : x);
+                      setCarSetup(biasToSetup(bias));
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Find Setup — terminal action of the feedback flow */}
+          <div className="flex flex-wrap items-center gap-3 border-t border-line p-3">
+            <span className="text-sm text-zinc-500">{possibleSetups} Possibilities</span>
+            <Button variant="primary" size="lg" className="ml-auto" onClick={findNearest}>
+              Find Setup →
+            </Button>
+          </div>
+        </Panel>
+
+        {/* ===================== RESULTS GRID ===================== */}
+        <div className="lg:col-span-2">
+          <DataTable
+            initialPageSize={20}
+            pageSizeOptions={[20, 50, 100]}
+            rows={[
+              {
+                arr: prevCarSetup,
+                biasParams: setupToBias(prevCarSetup),
+                diff: 0,
+                id: 0,
+              },
+              ...carSetupList.map((x, id) => {
+                const biasParams = setupToBias(x.arr);
+                return { ...x, biasParams, id: id + 1 };
+              })
+            ]}
+            columns={[
+              {
+                field: 'id', headerName: 'Setup #',
+                renderCell: ({ row, value }) =>
+                  <Button variant={value ? "info" : "secondary"} size="sm" className="min-w-[64px]" onClick={() => setCarSetup(row.arr)}>
+                    {value ? "#" + value : "PRV"}
+                  </Button>
+              },
+              {
+                field: 'diff', headerName: '%',
+                valueGetter: ({ value }) => value.toFixed(1) + "%",
+              },
+              ...CarSetupParams.map(param => {
+                const idx = param.index;
+                return {
+                  field: 'arr_' + idx,
+                  headerName: param.name,
+                  valueGetter: ({ row }) => row.arr ? row.arr[idx] : 0,
+                  renderCell: ({ row }) => {
+                    const value = row.arr ? row.arr[idx] : 0;
+                    const carSetupDiff = value - (prevCarSetup ? prevCarSetup[idx] : 0);
+                    return <span style={{ color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}>
+                      {carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""} {param.render(value * (param.max - param.min) + param.min)}
+                    </span>
+                  },
+                }
+              }),
+              {
+                field: 'arr', headerName: '⇒',
+                width: 24,
+                renderCell: () => "⇒",
+              },
+              ...BiasParams.map(param => {
+                const idx = param.index;
+                return {
+                  field: 'biasArr_' + idx,
+                  headerName: param.name,
+                  valueGetter: ({ row }) => row.biasParams ? row.biasParams[idx] : 0,
+                  renderCell: ({ row }) => {
+                    const value = row.biasParams ? row.biasParams[idx] : 0;
+                    const carSetupDiff = value - (prevBiasParam ? prevBiasParam[idx] : 0);
+                    return <span style={{ color: carSetupDiff > 0 ? "#ff6383" : carSetupDiff < 0 ? "#76ff03" : "white" }}>
+                      {value.toFixed(4)} {carSetupDiff > 0 ? "▲" : carSetupDiff < 0 ? "▼" : ""}
+                    </span>
+                  },
+                }
+              })
+            ]}
+          />
+        </div>
+
+        {/* ===================== PREVIOUS RUNS ===================== */}
+        <div className="lg:col-span-2">
+          <Panel>
+            <ScrollArea>
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-line text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                    <th className="px-2 py-2.5 text-left">Previous Runs</th>
+                    {["FWA", "RWA", "ARD", "TC", "TO", "Oversteer", "Braking", "Cornering", "Traction", "Straights"].map(h => (
+                      <th key={h} className="px-1.5 py-2.5 text-center">{h}</th>
+                    ))}
+                    <th className="px-2 py-2.5"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {previousRuns.map(x => (
+                    <tr key={x.id} className="border-b border-line/50">
+                      <td className="whitespace-nowrap px-2 py-1.5">
+                        <span className="flex items-center gap-2">
+                          <Image src={require(`../../assets/flags/${x.track}.svg`)} width={24} height={20} alt={x.track} />
+                          <span>{trackMap[x.track]?.name}</span>
+                        </span>
+                      </td>
+                      {[0, 1, 2, 3, 4].map(idx => (
+                        <td key={idx} className="px-1.5 py-1.5 text-center">
+                          {CarSetupParams[idx].render(
+                            x.carSetup[idx] * (CarSetupParams[idx].max - CarSetupParams[idx].min) + CarSetupParams[idx].min
+                          )}
+                        </td>
+                      ))}
+                      {[0, 1, 2, 3, 4].map(idx => (
+                        <td key={idx} className="px-1.5 py-1.5 text-center">
+                          <FeedbackMark fb={x["feedback_" + idx]} />
+                        </td>
+                      ))}
+                      <td className="px-2 py-1.5">
+                        <div className="flex flex-row-reverse gap-1.5">
+                          <Button variant="info" size="icon" onClick={() => setCarSetup(x.carSetup)} aria-label="Load setup">
+                            <ExternalLink size={16} />
+                          </Button>
+                          <Button variant="danger" size="icon" onClick={() => {
+                            update({ previousRuns: previousRuns.filter(r => r.id !== x.id) });
+                          }} aria-label="Delete run">
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ScrollArea>
+          </Panel>
+        </div>
+      </div>
+      </FeedbackMarkProvider>
+    </div>
   )
 }
 

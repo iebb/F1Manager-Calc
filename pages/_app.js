@@ -1,6 +1,6 @@
 import '../styles/globals.css'
 import {SessionProvider, useSession} from "next-auth/react"
-import {CircularProgress, createTheme, CssBaseline, ThemeProvider} from "@mui/material";
+import {CenteredSpinner} from "../components/ui/Spinner";
 import ReactGA from "react-ga4";
 import Head from "next/head";
 import {SnackbarProvider} from "notistack";
@@ -18,19 +18,6 @@ import {useEffect, useState} from "react";
 
 ReactGA.initialize("G-XNCFQVHQMX");
 
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-    white: {
-      main: '#eee',
-      contrastText: '#222',
-    },
-  },
-  typography: {
-    fontFamily: '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", ' +
-      'Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
-  },
-});
 export function MyApp({Component, pageProps: { session, ...pageProps }}) {
   return (
     <SessionProvider session={session} refetchInterval={7 * 60}>
@@ -38,14 +25,11 @@ export function MyApp({Component, pageProps: { session, ...pageProps }}) {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
         <title>F1 Manager Setup Calculator</title>
       </Head>
-      <ThemeProvider theme={theme}>
-        <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right'}}>
-          <CssBaseline />
-          <SessionConsumer>
-            <Component {...pageProps} />
-          </SessionConsumer>
-        </SnackbarProvider>
-      </ThemeProvider>
+      <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right'}}>
+        <SessionConsumer>
+          <Component {...pageProps} />
+        </SessionConsumer>
+      </SnackbarProvider>
     </SessionProvider>
   )
 }
@@ -82,20 +66,12 @@ function SessionConsumer({ children }) {
 
 
   if (session.status === "loading") {
-    return (
-      <div style={{ width: "100%", textAlign: "center" }}>
-        <CircularProgress style={{ margin: "0 auto" }} />
-      </div>
-    )
+    return <CenteredSpinner />
   }
 
   return (
     <Provider store={store} key={session.userId}>
-      <PersistGate loading={(
-        <div style={{ width: "100%", textAlign: "center" }}>
-          <CircularProgress style={{ margin: "0 auto" }} />
-        </div>
-      )} persistor={persistor}>
+      <PersistGate loading={<CenteredSpinner />} persistor={persistor}>
         {children}
       </PersistGate>
     </Provider>

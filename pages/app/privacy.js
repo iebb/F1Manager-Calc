@@ -1,17 +1,17 @@
-import {Container, Divider, Typography} from '@mui/material';
+import {Container} from "../../components/ui/Container";
 
 export default function PrivacyPage() {
   return (
-    <Container maxWidth="xl" component="main">
-      <Typography variant="h3" component="h3" sx={{ mt: 6 }}>
+    <Container className="prose-invert">
+      <h3 className="mt-12 text-3xl font-bold tracking-tight">
         Privacy Policy for F1Setup App
-      </Typography>
-      <Divider />
-      <Typography variant="p" component="p" sx={{ color: "#777", my: 3 }}>
+      </h3>
+      <hr className="my-3 border-line" />
+      <p className="my-3 text-zinc-400">
         This privacy policy is intended for the F1Setup App only, and is independent from the website version.
-      </Typography>
-      <Typography variant="p" component="p">
-        Last Updated: June 10, 2023
+      </p>
+      <div className="space-y-2 leading-relaxed [&_h2]:mt-6 [&_h2]:text-xl [&_h2]:font-semibold [&_p]:text-zinc-300">
+        <p>Last Updated: June 10, 2023</p>
 
         <h2>1. Scope of Policy</h2>
         <p>This Privacy Policy applies only to data collected through the F1Setup App. It does not apply to any other information collected by us through any other means.</p>
@@ -40,8 +40,7 @@ export default function PrivacyPage() {
         <h2>9. Acceptance of this Privacy Policy</h2>
         <p>By using the F1Setup App, you consent to the terms of this Privacy Policy.</p>
         <p>This Privacy Policy is part of our Terms of Service and by using the F1Setup App, you agree to both.</p>
-
-      </Typography>
+      </div>
     </Container>
   );
 }
