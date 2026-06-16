@@ -18,6 +18,9 @@
 .dev.vars
 cloudflare-env.d.ts
 
+# one-time Mongo->KV migration output (contains all users' cloud data — never commit)
+/migration/
+
 # production
 /build
 
