@@ -10,8 +10,8 @@
 // We validate the structural shape and enforce size caps so a (potentially
 // malicious) authenticated client can't store arbitrary or oversized blobs.
 
-const MAX_BLOB_BYTES = 4 * 1024 * 1024; // 4 MB per user
-const MAX_SLOTS = 50;
+const MAX_BLOB_BYTES = 4 * 1024 * 1024; // 4 MB per user — the real abuse cap
+const MAX_SLOTS = 500;
 const MAX_PREVIOUS_RUNS = 5000;
 const MAX_FEEDBACKS_PER_PARAM = 5000;
 const MAX_CALENDARS = 100;
@@ -24,26 +24,27 @@ const SETTING_BOOLS = new Set(["allowBiasEdit", "allowBadDir", "allowBiasInput",
 const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 const isStr = (v) => typeof v === "string";
-const numArray = (v, n) => Array.isArray(v) && v.length === n && v.every(isNum);
-
+// Slots are sparse — unused ones carry only id/title and omit carSetup, track,
+// feedback, etc. So every field is optional; we check its type and bound only
+// when present. The 4 MB blob cap is the real protection against oversized data.
 function validateSlot(s) {
   if (!isObj(s)) return "not an object";
-  if (!isNum(s.id)) return "id";
-  if (!isStr(s.slotNaming) || s.slotNaming.length > 64) return "slotNaming";
-  if (!isStr(s.slotTitle) || s.slotTitle.length > 80) return "slotTitle";
-  if (s.gameVersion !== undefined && (!isStr(s.gameVersion) || s.gameVersion.length > 64)) return "gameVersion";
-  if (!isStr(s.track) || s.track.length > 16) return "track";
-  if (!numArray(s.carSetup, 5)) return "carSetup";
-  if (!numArray(s.prevCarSetup, 5)) return "prevCarSetup";
-  if (!Array.isArray(s.feedback) || s.feedback.length !== 5) return "feedback";
-  for (const f of s.feedback) {
-    if (!Array.isArray(f) || f.length > MAX_FEEDBACKS_PER_PARAM) return "feedback[]";
-    for (const item of f) {
-      // value is the bias coordinate the feedback was given at; keep this light.
-      if (!isObj(item) || !isNum(item.value)) return "feedback item";
+  if (s.id != null && !isNum(s.id) && !isStr(s.id)) return "id";
+  if (s.slotNaming != null && (!isStr(s.slotNaming) || s.slotNaming.length > 200)) return "slotNaming";
+  if (s.slotTitle != null && (!isStr(s.slotTitle) || s.slotTitle.length > 200)) return "slotTitle";
+  if (s.gameVersion != null && (!isStr(s.gameVersion) || s.gameVersion.length > 64)) return "gameVersion";
+  if (s.track != null && (!isStr(s.track) || s.track.length > 16)) return "track";
+  if (s.carSetup != null && (!Array.isArray(s.carSetup) || s.carSetup.length > 16)) return "carSetup";
+  if (s.prevCarSetup != null && (!Array.isArray(s.prevCarSetup) || s.prevCarSetup.length > 16)) return "prevCarSetup";
+  if (s.feedback != null) {
+    if (!Array.isArray(s.feedback) || s.feedback.length > 16) return "feedback";
+    for (const f of s.feedback) {
+      if (!Array.isArray(f) || f.length > MAX_FEEDBACKS_PER_PARAM) return "feedback[]";
     }
   }
-  if (!Array.isArray(s.previousRuns) || s.previousRuns.length > MAX_PREVIOUS_RUNS) return "previousRuns";
+  if (s.previousRuns != null && (!Array.isArray(s.previousRuns) || s.previousRuns.length > MAX_PREVIOUS_RUNS)) {
+    return "previousRuns";
+  }
   return null;
 }
 

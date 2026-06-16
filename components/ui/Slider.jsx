@@ -62,8 +62,8 @@ export function Slider({
             return (
               <span
                 key={i}
-                className="absolute top-1/2 h-2.5 -translate-y-1/2 rounded-full ring-1 ring-emerald-300/50"
-                style={{ left: `${left}%`, width: `${width}%`, backgroundColor: "rgba(118,255,3,0.55)" }}
+                className="absolute top-1/2 h-1 -translate-y-1/2"
+                style={{ left: `${left}%`, width: `${width}%`, backgroundColor: "rgba(0, 224, 255, 0.5)" }}
                 title="Optimal range"
               />
             );
