@@ -4,12 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
-    "@next-auth/mongodb-adapter": "^1.1.3",
+    "@opennextjs/cloudflare": "^1.19.11",
     "@radix-ui/react-dialog": "^1.1.16",
     "@radix-ui/react-dropdown-menu": "^2.1.17",
     "@radix-ui/react-select": "^2.3.0",
@@ -21,14 +25,13 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.18.0",
-    "mongodb": "^5.3.0",
     "next": "^16",
-    "next-auth": "^4.22.1",
+    "next-auth": "^5.0.0-beta.31",
     "notistack": "^3.0.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19",
+    "react-dom": "^19",
     "react-ga4": "^2.1.0",
-    "react-redux": "^8.0.5",
+    "react-redux": "^9",
     "redux-persist": "^6.0.0",
     "tailwind-merge": "^3.6.0"
   },
@@ -37,9 +40,11 @@
     "autoprefixer": "^10.5.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "^16",
+    "mongodb": "^7.3.0",
     "postcss": "^8.5.15",
     "tailwindcss": "^3.4.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "wrangler": "^4.100.0"
   },
   "overrides": {
     "postcss": "^8.5.15",
