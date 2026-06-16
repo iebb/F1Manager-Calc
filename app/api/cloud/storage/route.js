@@ -2,12 +2,13 @@ import { auth } from "../../../../auth";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 const JSON_HEADERS = { "content-type": "application/json" };
-const keyFor = (session) => `cfg:${session.discordId}`;
+// uid is the Discord id (cfg:<discordId>) or `u:<username>` for credentials users.
+const keyFor = (session) => `cfg:${session.uid}`;
 
-// Per-user cloud config (redux-persist blob) stored in Workers KV, keyed by Discord id.
+// Per-user cloud config (redux-persist blob) stored in Workers KV, keyed by uid.
 export async function GET() {
   const session = await auth();
-  if (!session?.discordId) return new Response("{}", { headers: JSON_HEADERS });
+  if (!session?.uid) return new Response("{}", { headers: JSON_HEADERS });
   const { env } = getCloudflareContext();
   const value = await env.CONFIG_KV.get(keyFor(session));
   return new Response(value || "{}", { headers: JSON_HEADERS });
@@ -15,7 +16,7 @@ export async function GET() {
 
 export async function POST(req) {
   const session = await auth();
-  if (!session?.discordId) return new Response("{}", { headers: JSON_HEADERS });
+  if (!session?.uid) return new Response("{}", { headers: JSON_HEADERS });
   const { env } = getCloudflareContext();
   const key = keyFor(session);
 
