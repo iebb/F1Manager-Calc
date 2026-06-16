@@ -4,12 +4,10 @@ import Credentials from "next-auth/providers/credentials";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { verifyPassword } from "./libs/password";
 
-export const userKey = (username) => `user:${String(username).toLowerCase().trim()}`;
-
 // Auth.js v5 — Discord OAuth + username/password (Credentials), JWT sessions.
-// Per-user data lives in KV; we only need a stable id (`session.uid`):
-//   Discord     -> the Discord user id      (cfg:<discordId>)
-//   Credentials -> `u:<username>`           (cfg:u:<username>)
+// Per-user data lives in D1; we only need a stable id (`session.uid`):
+//   Discord     -> the Discord user id      (configs.uid = <discordId>)
+//   Credentials -> `u:<username>`           (configs.uid = u:<username>)
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   session: { strategy: "jwt" },
@@ -41,7 +39,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = String(creds?.password || "");
         if (!username || !password) return null;
         const { env } = getCloudflareContext();
-        const rec = await env.CONFIG_KV.get(userKey(username), "json");
+        const rec = await env.DB.prepare(
+          "SELECT username, salt, hash, uid FROM users WHERE username = ?"
+        )
+          .bind(username)
+          .first();
         if (!rec?.hash) return null;
         const ok = await verifyPassword(password, rec.salt, rec.hash);
         if (!ok) return null;

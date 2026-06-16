@@ -223,6 +223,67 @@ export const nearestSetup = (
   return {setup: nearestResult, possibleSetups, lowestRuleBreak, possibleSetupList};
 }
 
+// --- Optimal-range indicator -------------------------------------------------
+// For a single metric, the set of bias positions where the optimum can lie,
+// derived from its feedbacks. Mirrors the consistency rules in
+// validateFeedbackBreaks (a position is allowed iff it breaks no feedback).
+
+const clampSet = (intervals) =>
+  intervals
+    .map(([a, b]) => [Math.max(0, a), Math.min(1, b)])
+    .filter(([a, b]) => b - a > 1e-9);
+
+// Allowed [lo,hi] intervals for the optimum given ONE feedback at fb.value.
+const allowedIntervalsFor = (fb) => {
+  const v = fb.value;
+  const O = optimalBreakpoint, G = greatBreakpoint, D = goodBreakpoint;
+  switch (fb.feedback) {
+    case "optimal": return clampSet([[v - O, v + O]]);
+    case "great":   return clampSet([[v - G, v - O], [v + O, v + G]]);
+    case "good":    return clampSet([[v - D, v - G], [v + G, v + D]]);
+    case "bad":     return clampSet([[0, v - D], [v + D, 1]]);
+    case "bad+":    return clampSet([[0, v - D]]);
+    case "bad-":    return clampSet([[v + D, 1]]);
+    default:        return [[0, 1]]; // unknown / unrecognised -> no constraint
+  }
+};
+
+const mergeSet = (intervals) => {
+  if (intervals.length <= 1) return intervals;
+  const sorted = [...intervals].sort((x, y) => x[0] - y[0]);
+  const merged = [sorted[0].slice()];
+  for (let i = 1; i < sorted.length; i++) {
+    const last = merged[merged.length - 1];
+    if (sorted[i][0] <= last[1] + 1e-9) last[1] = Math.max(last[1], sorted[i][1]);
+    else merged.push(sorted[i].slice());
+  }
+  return merged;
+};
+
+const intersectSets = (a, b) => {
+  const out = [];
+  for (const [a0, a1] of a) {
+    for (const [b0, b1] of b) {
+      const lo = Math.max(a0, b0), hi = Math.min(a1, b1);
+      if (hi - lo > 1e-9) out.push([lo, hi]);
+    }
+  }
+  return mergeSet(out);
+};
+
+// All bias positions for one metric consistent with EVERY feedback — i.e. where
+// the optimum can lie. Returns a list of disjoint [lo,hi] ranges (possibly
+// several, or none if the feedbacks are contradictory).
+export const optimalRanges = (feedbacksForMetric) => {
+  let ranges = [[0, 1]];
+  for (const fb of feedbacksForMetric || []) {
+    if (!fb || fb.feedback === "unknown") continue;
+    ranges = intersectSets(ranges, allowedIntervalsFor(fb));
+    if (ranges.length === 0) break;
+  }
+  return ranges;
+};
+
 export const randomSetup = () => CarSetupParams.map(params => {
   const s = (params.max - params.min) / params.step;
   return Math.floor(Math.random() * (s + 1)) / s;

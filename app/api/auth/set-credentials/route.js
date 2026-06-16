@@ -1,6 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { hashPassword } from "../../../../libs/password";
-import { auth, userKey } from "../../../../auth";
+import { auth } from "../../../../auth";
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -31,19 +31,20 @@ export async function POST(req) {
   }
 
   const { env } = getCloudflareContext();
-  const key = userKey(username);
 
   // Allow if free or already owned by this account; reject if taken by someone else.
-  const existing = await env.CONFIG_KV.get(key, "json");
+  const existing = await env.DB.prepare("SELECT uid FROM users WHERE username = ?").bind(username).first();
   if (existing && existing.uid !== session.uid) {
     return json({ error: "Username already taken" }, 409);
   }
 
   const { salt, hash } = await hashPassword(password);
-  await env.CONFIG_KV.put(
-    key,
-    JSON.stringify({ username, salt, hash, uid: session.uid, createdAt: existing?.createdAt || Date.now() })
-  );
+  await env.DB.prepare(
+    "INSERT INTO users (username, salt, hash, uid, created_at) VALUES (?, ?, ?, ?, ?) " +
+      "ON CONFLICT(username) DO UPDATE SET salt = excluded.salt, hash = excluded.hash, uid = excluded.uid"
+  )
+    .bind(username, salt, hash, session.uid, Date.now())
+    .run();
 
   return json({ ok: true, username });
 }

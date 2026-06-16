@@ -1,4 +1,4 @@
-import { Trash2, ExternalLink, Play } from "lucide-react";
+import { Trash2, ExternalLink, Play, CalendarCog } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useSnackbar } from "notistack";
 import { useState } from "react";
@@ -8,8 +8,9 @@ import { AllPossibleSetups } from "../../consts/setup";
 import { GameVersions, trackMap, TrackOrders } from "../../consts/tracks";
 import { validateSetupArray } from "../../consts/validator";
 import { updateSlot } from "../../libs/reducers/configReducer";
-import { arrayFloatEqual, biasToSetup, eps, nearestSetup, randomSetup, setupToBias } from "../../libs/setup";
+import { arrayFloatEqual, biasToSetup, eps, nearestSetup, optimalRanges, randomSetup, setupToBias } from "../../libs/setup";
 import { ClearFeedbackDialog } from "./ClearFeedbackDialog";
+import CalendarManagerDialog from "./CalendarManagerDialog";
 import { FeedbackCycle } from "./FeedbackCycle";
 import { FeedbackMark, FeedbackMarkProvider } from "./FeedbackMark";
 import { HtmlTooltip } from "../Tooltip";
@@ -62,11 +63,13 @@ export function Calculator({ slot }) {
   const [carSetupList, setCarSetupList] = useState([]);
   const [possibleSetups, setPossibleSetups] = useState(AllPossibleSetups);
   const [openClearFeedback, setOpenClearFeedback] = useState(false);
+  const [calManagerOpen, setCalManagerOpen] = useState(false);
 
   const allowBiasEdit = useSelector(s => s.config.settings?.allowBiasEdit) || false;
   const allowBadDir = useSelector(s => s.config.settings?.allowBadDir) || false;
   const allowBiasInput = useSelector(s => s.config.settings?.allowBiasInput) || false;
   const feedbackDropdown = useSelector(s => s.config.settings?.feedbackDropdown) || false;
+  const customCalendars = useSelector(s => s.config.customCalendars) || [];
   const biasGridCols = allowBiasInput ? "grid-cols-[88px_104px_1fr_96px]" : "grid-cols-[88px_104px_1fr]";
 
 
@@ -81,7 +84,11 @@ export function Calculator({ slot }) {
 
   if (!gameVersion) gameVersion = "2022";
 
-  const seasonTrackOrders = TrackOrders[gameVersion];
+  const customCal = customCalendars.find(c => c.id === gameVersion);
+  // Track order for the selected game/calendar — de-duped, valid, and without
+  // "Unspecified". Drives both the dropdown options and the Next-track cycle.
+  const seasonTrackOrders = [...new Set(TrackOrders[gameVersion] || customCal?.tracks || TrackOrders["2022"])]
+    .filter(t => t !== "XX" && trackMap[t]);
 
 
   if (
@@ -242,11 +249,10 @@ export function Calculator({ slot }) {
   }
 
   const advanceTrack = () => {
+    // seasonTrackOrders excludes "Unspecified", so the cycle naturally skips it.
+    if (!seasonTrackOrders.length) return;
     let t = seasonTrackOrders.indexOf(track) + 1;
-    // t = 0: not found
-    if (t >= seasonTrackOrders.length) {
-      t = 0; // 0 if unspecified is included
-    }
+    if (t >= seasonTrackOrders.length) t = 0;
     setPossibleSetups(AllPossibleSetups);
     const trackId = seasonTrackOrders[t];
     update({track: trackId});
@@ -299,6 +305,7 @@ export function Calculator({ slot }) {
         clearFeedbacks();
         loadPreset();
       }} isOpen={openClearFeedback} setIsOpen={setOpenClearFeedback} />
+      <CalendarManagerDialog open={calManagerOpen} onOpenChange={setCalManagerOpen} />
 
       <FeedbackMarkProvider delayDuration={60}>
       <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2">
@@ -311,7 +318,18 @@ export function Calculator({ slot }) {
               <span className="text-sm text-zinc-400">Game:</span>
               <Select value={gameVersion} ariaLabel="Game" onValueChange={(v) => update({ gameVersion: v })} className="h-9">
                 {GameVersions.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                {customCalendars.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
               </Select>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="h-9 w-9"
+                title="Custom calendars"
+                aria-label="Manage custom calendars"
+                onClick={() => setCalManagerOpen(true)}
+              >
+                <CalendarCog size={16} />
+              </Button>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-zinc-400">Track:</span>
@@ -328,7 +346,7 @@ export function Calculator({ slot }) {
                     }
                   }}
                 >
-                  {["XX", ...seasonTrackOrders].map(tid => trackMap[tid]).map(t => (
+                  {["XX", ...seasonTrackOrders].map(tid => trackMap[tid]).filter(Boolean).map(t => (
                     <SelectItem key={t.id} value={t.id}>
                       <span className="flex items-center gap-2">
                         <FlagIcon code={t.id} width={24} height={18} title={t.country} />
@@ -513,6 +531,7 @@ export function Calculator({ slot }) {
                     min={0}
                     color="primary"
                     disabled={!allowBiasEdit}
+                    ranges={feedbacks.length ? optimalRanges(feedbacks) : []}
                     format={v => v >= 0.9995 ? "1.00" : v.toFixed(3).replace(/^0\./, ".")}
                     value={biasParam[row.index]}
                     valueMarks={feedbacks.map((f, _idx) => ({

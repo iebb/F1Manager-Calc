@@ -22,10 +22,16 @@ export function Slider({
   color = "primary",
   marks = false,
   valueMarks = [],
+  ranges = null,
   disabled = false,
   className,
 }) {
   const c = colorMap[color] || colorMap.primary;
+
+  // When `ranges` is provided (an array of [lo,hi] in value space), the slider
+  // shows optimal-range band(s) instead of the default left-fill. An empty
+  // array renders no band (e.g. no feedback yet, or contradictory feedback).
+  const rangeMode = Array.isArray(ranges);
 
   // Build evenly-spaced marks at each step within [min, max], capped to stay sane.
   let markPositions = [];
@@ -49,7 +55,22 @@ export function Slider({
       onValueChange={(vals) => onValueChange(vals[0])}
     >
       <RSlider.Track className="relative h-1.5 w-full grow rounded-full bg-line">
-        <RSlider.Range className={cn("absolute h-full rounded-full", c.range)} />
+        {rangeMode ? (
+          ranges.map(([lo, hi], i) => {
+            const left = Math.max(0, Math.min(1, (lo - min) / (max - min))) * 100;
+            const width = Math.max(0, Math.min(1, (hi - lo) / (max - min))) * 100;
+            return (
+              <span
+                key={i}
+                className="absolute top-1/2 h-2.5 -translate-y-1/2 rounded-full ring-1 ring-emerald-300/50"
+                style={{ left: `${left}%`, width: `${width}%`, backgroundColor: "rgba(118,255,3,0.55)" }}
+                title="Optimal range"
+              />
+            );
+          })
+        ) : (
+          <RSlider.Range className={cn("absolute h-full rounded-full", c.range)} />
+        )}
         {markPositions.map((p, i) => (
           <span
             key={i}

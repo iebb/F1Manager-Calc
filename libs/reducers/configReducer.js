@@ -74,10 +74,23 @@ export const configSlice = createSlice({
   initialState: {
     slots: legacyConfigReader() || initialSlots,
     settings: { ...defaultSettings },
+    // User-defined calendars (track orders), alongside the built-in 2022/23/24.
+    // Each: { id: "cal_…", name: string, tracks: [trackId, …] }.
+    customCalendars: [],
   },
   reducers: {
     setSlots: (state,  { payload }) => {
       state.slots = payload
+    },
+    // Add or update a custom calendar by id.
+    upsertCalendar: (state, { payload }) => {
+      const list = state.customCalendars || [];
+      state.customCalendars = list.some(c => c.id === payload.id)
+        ? list.map(c => (c.id === payload.id ? { ...c, ...payload } : c))
+        : [...list, payload];
+    },
+    removeCalendar: (state, { payload: { id } }) => {
+      state.customCalendars = (state.customCalendars || []).filter(c => c.id !== id);
     },
     updateSettings: (state, { payload }) => {
       state.settings = { ...defaultSettings, ...state.settings, ...payload }
@@ -118,6 +131,8 @@ export const {
   updateSlot,
   removeSlot,
   updateSettings,
+  upsertCalendar,
+  removeCalendar,
 } = configSlice.actions
 
 export default configSlice.reducer

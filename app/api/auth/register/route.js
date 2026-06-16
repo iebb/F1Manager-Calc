@@ -1,12 +1,12 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { hashPassword } from "../../../../libs/password";
-import { userKey } from "../../../../auth";
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
 const USERNAME_RE = /^[a-zA-Z0-9_.-]{3,32}$/;
 
+// Create a fresh username/password account (uid = `u:<username>`), stored in D1.
 export async function POST(req) {
   let body = {};
   try {
@@ -26,16 +26,21 @@ export async function POST(req) {
   }
 
   const { env } = getCloudflareContext();
-  const key = userKey(username);
 
-  const existing = await env.CONFIG_KV.get(key);
+  const existing = await env.DB.prepare("SELECT username FROM users WHERE username = ?").bind(username).first();
   if (existing) return json({ error: "Username already taken" }, 409);
 
   const { salt, hash } = await hashPassword(password);
-  await env.CONFIG_KV.put(
-    key,
-    JSON.stringify({ username, salt, hash, uid: `u:${username}`, createdAt: Date.now() })
-  );
+  try {
+    await env.DB.prepare(
+      "INSERT INTO users (username, salt, hash, uid, created_at) VALUES (?, ?, ?, ?, ?)"
+    )
+      .bind(username, salt, hash, `u:${username}`, Date.now())
+      .run();
+  } catch {
+    // Primary-key conflict from a race — treat as taken.
+    return json({ error: "Username already taken" }, 409);
+  }
 
   return json({ ok: true });
 }
